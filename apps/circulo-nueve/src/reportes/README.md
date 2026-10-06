@@ -31,6 +31,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 `generarReportePdf` nunca debe importarse desde un componente cliente. Para numerología, `reporteDeNumerologia(resultado)` convierte la salida del motor en datos autorizados, cálculos con pasos y límites.
 
+## Recursos en el servidor
+
+Las fuentes y las imágenes se leen del disco con rutas desde `process.cwd()` (`recursos.ts`). `next.config.ts` las incluye en las trazas del servidor con `outputFileTracingIncludes`. No uses `new URL(…, import.meta.url)`: Turbopack lo convierte en una URL pública de `/_next/static`, no en un archivo.
+
+La ruta real de descarga desde el expediente está en `src/app/expedientes/[id]/documentos/[documentoId]/route.ts` y la generación, en `src/modulos/expedientes/acciones.ts` (`accionGenerarPdf`).
+
 ## Muestra y pruebas
 
 - `npm test` incluye `reportes.test.ts` (contenido editorial, proporción 80/20, adaptador y generación del PDF).
