@@ -29,7 +29,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/modelos
-          key: modelos-e5-small-tesseract-spa-v1
+          key: modelos-e5-whisper-tesseract-v2
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
@@ -45,6 +46,7 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: package-lock.json
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: npm ci
       - run: npm run db:start
       - run: npm run test:db
@@ -62,7 +64,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/modelos
-          key: modelos-e5-small-tesseract-spa-v1
+          key: modelos-e5-whisper-tesseract-v2
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run db:start
