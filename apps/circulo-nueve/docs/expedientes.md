@@ -46,7 +46,7 @@ Nota técnica: en las tablas cuya política de lectura usa `has_case_perm` no se
 ## Pruebas
 
 - pgTAP `04_expedientes_documentos.test.sql`: consentimiento exigido y retirable, vinculación de cliente, permisos por archivo, retención por defecto, auditoría de accesos y recuperación de emergencia.
-- e2e `expedientes.spec.ts`, que recorre:
+- e2e `02-expedientes.spec.ts`, que recorre:
   - crear un expediente sin consentimiento (no se guarda nada);
   - consentimientos, perfil, lectura efímera frente a guardada;
   - PDF: 303 hacia una URL firmada, el archivo empieza por `%PDF-` y la descarga queda auditada;

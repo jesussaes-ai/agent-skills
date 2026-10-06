@@ -39,4 +39,4 @@ Después, la persona entra, configura otra vez la verificación en dos pasos (ob
 ## Pruebas
 
 - pgTAP (`04_expedientes_documentos.test.sql`): la función exige un motivo y queda auditada; ningún usuario puede invocarla.
-- e2e (`expedientes.spec.ts`): el script asigna `admin` a una cuenta y registra el motivo.
+- e2e (`02-expedientes.spec.ts`): el script asigna `admin` a una cuenta y registra el motivo.

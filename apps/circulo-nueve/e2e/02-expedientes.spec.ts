@@ -103,7 +103,7 @@ test("otro consultor no ve, no descarga ni exporta el expediente ajeno", async (
 });
 
 test("administración asigna lectura a otro consultor y ve la actividad", async ({ page }) => {
-  test.skip(!estado.secretoAdmin, "Requiere la administración creada en cuentas.spec.ts");
+  test.skip(!estado.secretoAdmin, "Requiere la administración creada en 01-cuentas.spec.ts");
   await entrar(page, ADMIN.correo, ADMIN.contrasena);
   await verificarCodigo(page, estado.secretoAdmin);
   await page.goto(`/expedientes/${expedienteId}`);

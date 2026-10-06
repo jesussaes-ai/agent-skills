@@ -51,7 +51,7 @@ Los correos locales (invitaciones y recuperación) se ven en Mailpit: <http://12
 
 - `npm test`: hash y verificación de la clave, límites de intentos, validaciones, redirecciones seguras y origen público.
 - `npm run test:db`: 53 pruebas pgTAP, incluida la de que la administración sin `aal2` no obtiene permisos.
-- `npm run test:e2e` (`e2e/cuentas.spec.ts`), que reinicia la base local, compila y ejecuta Playwright. Recorre:
+- `npm run test:e2e` (`e2e/01-cuentas.spec.ts`), que reinicia la base local, compila y ejecuta Playwright. Recorre:
   - que no hay registro público;
   - la redirección de rutas protegidas a `/entrar`;
   - la clave de alta incorrecta y la correcta, con MFA obligatoria;
