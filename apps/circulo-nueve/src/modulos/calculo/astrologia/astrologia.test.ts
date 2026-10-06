@@ -53,6 +53,12 @@ describe("zona horaria histórica", () => {
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.errores[0]).toMatch(/no existió/);
   });
+  it("usa la zona indicada por la persona y avisa si difiere de la del lugar", () => {
+    const r = ok(calcularCartaNatal({ ...ANA, zonaHoraria: "America/Cancun" }));
+    expect(r.tiempo.zonaHoraria).toBe("America/Cancun");
+    expect(r.tiempo.fuenteZona).toBe("Indicada por la persona");
+    expect(r.advertencias.join(" ")).toMatch(/no coincide/);
+  });
   it("hora media local antes de 1922 en la Ciudad de México", () => {
     const r = ok(calcularCartaNatal({ fecha: "1900-01-01", hora: "12:00", precisionHora: "exacta", lugar: CDMX }));
     expect(r.tiempo.desfaseTexto).toBe("UTC−06:36:36");

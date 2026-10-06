@@ -97,7 +97,7 @@ export function FormularioPerfil({ perfil, reglas, puedeUsarDatos, onCambiar, on
               </select>
             </Campo>
           </div>
-          <Campo etiqueta="Lugar de nacimiento" nota="Ciudad y país. Se usará en la carta natal (pendiente).">
+          <Campo etiqueta="Lugar de nacimiento" nota="Ciudad y país. En la carta natal se busca en el catálogo GeoNames para obtener coordenadas y zona horaria.">
             <input className={claseCampo} value={perfil.lugar} maxLength={120} onChange={(e) => set("lugar", e.target.value)} />
           </Campo>
           <Campo etiqueta="Zona horaria (si la conoces)" nota="Ej.: America/Mexico_City. Si la dejas vacía no se adivina.">

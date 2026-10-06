@@ -113,6 +113,10 @@ export function calcularCartaNatal(
     { descripcion: "Día juliano (UT)", valor: (utcMs / DIA_MS + 2440587.5).toFixed(6) },
     { descripcion: "Margen de hora considerado", valor: sinHora ? "día local completo (±12 h)" : `±${margenMin} min` },
   );
+  if (entrada.zonaHoraria && entrada.lugar?.zonaHoraria && entrada.zonaHoraria !== entrada.lugar.zonaHoraria)
+    advertencias.push(
+      `La zona indicada (${entrada.zonaHoraria}) no coincide con la del lugar (${entrada.lugar.zonaHoraria}); se usó la indicada. Comprueba que sea correcta.`,
+    );
   if (fecha.anio < 1970)
     advertencias.push(
       "Fecha anterior a 1970: la historia de zonas horarias de la tzdb es menos fiable en algunas regiones. Si conoces el horario oficial que regía, compruébalo.",
