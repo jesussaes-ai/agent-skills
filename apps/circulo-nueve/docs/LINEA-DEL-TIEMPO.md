@@ -69,10 +69,21 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
     - DeepSeek V4 Flash de pago con retención cero es la opción posible para datos reales, si se aprueba.
   - Voz con Web Speech API: voces es-MX y es-ES, prueba, reproducir, pausar y detener, aviso de voz remota y dictado con permiso explícito.
   - Verificado: 137 pruebas unitarias, 88 pgTAP, 23 e2e y el build.
+- **07:30** — Biblioteca RAG (etapa 5) e integración de los PR #3 (carta natal) y #4 (proveedores de IA y voz):
+  - Administración de fuentes aportadas y complementarias, con metadatos, derechos, niveles de acceso, estados y retiro.
+  - Centro de carga con detección del formato real y rechazo de macros y contenido activo: PDF, EPUB, DOCX, TXT/MD e imágenes con OCR.
+  - Páginas web → Markdown con robots.txt, protección SSRF y versiones con diferencias.
+  - Worker de ingesta en Node con cola atómica.
+  - Fragmentos con página, capítulo o sección, y embeddings locales multilingual-e5-small.
+  - Búsqueda híbrida con permisos y umbral de similitud.
+  - Bot con citas validadas, proporción 80/20 por afirmación, autorización para fuentes complementarias y defensa contra prompt injection.
+  - El bot usa la capa de proveedores del PR #4 (consentimiento, límites, 429, consumo con origen «biblioteca»).
+  - Verificado: 282 pruebas unitarias, 100 pgTAP y e2e con Supabase local.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
 - Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
-- Cábala (tradición y tabla) e interpretaciones con fuentes.
+- Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
+- Biblioteca: figuras y diagramas, audio, video y hojas de cálculo; antivirus en el worker de producción; carga directa a Storage para archivos grandes en Vercel.
 - Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.

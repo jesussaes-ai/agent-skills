@@ -102,4 +102,4 @@ Los modelos gratuitos cambian a menudo. La administración puede escribir cualqu
 
 - **Unitarias:** `src/modulos/proveedores/proveedores.test.ts` y `voz/voz.test.ts`.
 - **pgTAP:** `supabase/tests/database/05_proveedores_llm.test.sql`.
-- **e2e:** `e2e/proveedores.spec.ts`. Usa un servidor compatible con OpenAI simulado que responde 429 una vez, voces y dictado simulados, y una llave efímera `LLM_KEY_E2E` creada por `scripts/e2e.sh`.
+- **e2e:** `e2e/04-proveedores.spec.ts`. Usa un servidor compatible con OpenAI simulado que responde 429 una vez, voces y dictado simulados, y una llave efímera `LLM_KEY_E2E` creada por `scripts/e2e.sh`.

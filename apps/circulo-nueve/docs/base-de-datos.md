@@ -12,6 +12,8 @@ Estado: **migraciones y pruebas locales listas**. No hay ningún proyecto Supaba
 | `…0400_proveedores_auditoria_alta.sql` | `ai_providers` (sin secretos: solo el nombre del secreto), `ai_usage` (sin prompts), `audit_log` de solo inserción con triggers, `registrar_acceso`, `completar_alta_admin` (una sola vez, solo service role). |
 | `…2000_proveedores_llm_config.sql` | Columnas de `ai_providers` para tipo, modelos de respaldo, destinatarios, política, límites, costo y prioridad. Restricciones: secreto con prefijo `LLM_KEY_`, endpoint http(s), id «entorno» reservado, y lo gratuito o FreeLLMAPI nunca apto para datos reales. Políticas de alta y baja para `admin_proveedores` y auditoría. `ai_usage` con intento, latencia, origen y código validado. `ai_uso_actual()` solo para service role. Ver [proveedores-ia-y-voz.md](proveedores-ia-y-voz.md). |
 | `…0500_storage.sql` | Buckets privados `cuarentena`, `biblioteca-originales`, `biblioteca-derivados`, `expedientes`; políticas de `storage.objects` según el expediente de la ruta `{uuid}/…`; revocación total al rol anónimo. |
+| `…0800_biblioteca_ingesta.sql` | Biblioteca: origen, URL y derechos en `sources`; versiones con rutas, diferencias y advertencias; cola de trabajos (`tomar_trabajo_ingesta` atómica); fragmentos `vector(384)` con exclusión y marca de posible inyección; `hybrid_search` con umbral de similitud. Detalle: [biblioteca.md](biblioteca.md). |
+| `…2100_consumo_llm_biblioteca.sql` | Permite el origen `biblioteca` en `ai_usage`. |
 
 ## Modelo de permisos
 

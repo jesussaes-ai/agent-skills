@@ -94,7 +94,11 @@ Formas de usarlo:
 1. Busca primero **solo en fuentes aportadas**. Si no hay respaldo, lo dice y **pide autorización** para incluir las complementarias.
 2. **Sin LLM** (modo extractivo): muestra citas literales de los fragmentos.
 3. **Con LLM:**
-   - Solo se envía con el consentimiento de la persona.
+   - Usa la capa de proveedores (`src/modulos/proveedores/`, ver [proveedores-ia-y-voz.md](proveedores-ia-y-voz.md)) a través de `src/modulos/biblioteca/llm.ts`. Hereda los proveedores activos, límites, reintentos ante 429 y modelos de respaldo.
+   - El consumo se registra en `ai_usage` con origen `biblioteca`, sin prompts.
+   - La persona elige el proveedor y acepta el envío; el texto dice qué recibe y quién. Sin aceptación, el servidor se niega.
+   - Si el proveedor es «solo demo», no se envían preguntas con datos identificables.
+   - Si el proveedor no responde, se muestran citas literales con el motivo.
    - Viajan la pregunta y los fragmentos recuperados, dentro de `<datos_no_confiables>`, con instrucciones de tratarlos como datos.
    - Los fragmentos marcados como sospechosos **no se envían**.
    - La salida en JSON se **valida**:
@@ -139,6 +143,7 @@ Formas de usarlo:
 - **Unitarias:**
   - `biblioteca.test.ts`: formatos y contenido activo; extracción de PDF, EPUB, DOCX y MD con localizadores; fragmentación; inyección; ingesta web con robots, muro de pago y SSRF; validación de citas; 80/20.
   - `modelos.test.ts`: OCR real y embeddings reales.
+- **Unitarias** `llm.test.ts`: conexión con la capa de proveedores con dependencias simuladas (consentimiento, datos personales, 429, consumo sin texto).
 - **pgTAP** `06_biblioteca.test.sql`.
 - **e2e** `03-biblioteca.spec.ts`:
   - formato falso rechazado;
@@ -149,6 +154,13 @@ Formas de usarlo:
   - sin respaldo, se pide autorización y luego aparecen las complementarias («No cumple»);
   - una pregunta ajena no inventa respaldo;
   - retirar borra todo.
+- **e2e** `05-biblioteca-llm.spec.ts`, con un proveedor compatible con OpenAI simulado:
+  - consentimiento exigido;
+  - solo se envían fragmentos delimitados;
+  - la cita textual se valida;
+  - el id inventado queda sin respaldo;
+  - el enlace se neutraliza;
+  - el consumo queda con origen `biblioteca`.
 
 ## Pendiente
 

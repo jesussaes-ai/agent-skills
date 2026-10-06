@@ -58,6 +58,7 @@ npm run dev        # http://localhost:3000
 | `npm run setup:hash` | Genera el hash argon2id de la clave de alta |
 | `npm run retencion:purgar` | Borra los documentos con retención vencida (llave de servicio; `-- --simular` para solo listar) |
 | `npm run admin:emergencia` | Recuperación de emergencia de la administración (ver docs) |
+| `npm run ingesta:worker` | Worker de la biblioteca: procesa la cola de ingesta (`-- --continuo` para seguir esperando) |
 | `npm run reporte:muestra` | Genera un PDF de muestra con datos ficticios |
 
 No hace falta ninguna variable de entorno en la etapa 1. Para etapas futuras, copia `.env.example` a `.env.local` en tu máquina; nunca subas `.env.local` ni pegues claves en chats o documentos.
@@ -100,11 +101,13 @@ src/
     asistente/            Interfaz del asistente de la app
     auth/                 Formularios de cuentas, MFA y panel de usuarios
     expedientes/          Secciones del expediente, documentos, permisos y ajustes
+    biblioteca/           Catálogo, centro de carga, revisión y bot de la biblioteca
   reportes/               Generador de PDF (marca, tipografías, adaptadores)
   content/ayuda/          Contenido del Centro de ayuda (secciones.json) y su cargador
   modulos/
     auth/                 Sesión, acciones de servidor, clave de alta, límites de intentos, validación
     expedientes/          Consultas y acciones de expedientes, lecturas, documentos y ajustes
+    biblioteca/           Biblioteca RAG: formatos, extracción, web, fragmentos, embeddings, worker, bot y 80/20
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
     calculo/astrologia/   Carta natal: efemérides, tzdb, casas, aspectos y casos contra Swiss Ephemeris
     conversacion/         Asistente de la app (modo demo y capa LLM)

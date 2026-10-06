@@ -58,7 +58,7 @@ Nota técnica: en las tablas cuya política de lectura usa `has_case_perm` no se
   - la purga por retención borra archivo y registro;
   - el borrado total elimina también el almacenamiento;
   - el script de recuperación de emergencia.
-- e2e `carta-natal.spec.ts`, que recorre:
+- e2e `06-carta-natal.spec.ts`, que recorre:
   - sin el consentimiento del historial, la carta se calcula pero «Guardar carta natal» está desactivado;
   - con consentimiento, se guarda recalculada en el servidor; la fila de `readings` lleva motor, versiones, ajustes (Koch), efemérides, tzdb, UT y la fuente GeoNames;
   - un id de GeoNames manipulado en el formulario se rechaza y no se guarda nada;
