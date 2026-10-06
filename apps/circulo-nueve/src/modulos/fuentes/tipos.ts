@@ -28,6 +28,8 @@ export interface Localizador {
   seccion?: string;
   url?: string;
   marcaTiempo?: string;
+  /** Rango de líneas del Markdown derivado, p. ej. "12-30". */
+  lineas?: string;
 }
 
 export interface FragmentoFuente {
