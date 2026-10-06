@@ -30,6 +30,9 @@ export async function SesionCabecera() {
           <EnlaceBoton href="/admin/ajustes" descripcion="Retención de documentos, vigencia de los enlaces de descarga y aviso de privacidad.">
             Ajustes
           </EnlaceBoton>
+          <EnlaceBoton href="/admin/proveedores" descripcion="Proveedores de IA: modelos, llaves (solo el nombre del secreto), límites, política de datos y consumo.">
+            Proveedores IA
+          </EnlaceBoton>
         </>
       )}
       <form action={accionSalir}>

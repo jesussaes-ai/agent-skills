@@ -547,27 +547,109 @@
       "id": "asistente",
       "titulo": "Asistente de la aplicación",
       "resumen": "Responde preguntas sobre la app y el proyecto citando este centro de ayuda.",
-      "deQueTrata": "El asistente usa como base de conocimiento solo el contenido de este centro de ayuda, separado de la futura biblioteca de libros. En la etapa 1 funciona en modo demo, sin inteligencia artificial: busca en las secciones de ayuda y muestra los fragmentos que coinciden, cada uno con su cita. Si no encuentra respaldo, lo dice. Más adelante podrá usar un modelo de lenguaje configurable, con las mismas citas.",
+      "deQueTrata": "El asistente usa como base de conocimiento solo el contenido de este centro de ayuda, separado de la biblioteca de libros. Por defecto funciona en modo demo, sin inteligencia artificial: busca en las secciones de ayuda y muestra los fragmentos que coinciden, cada uno con su cita, sin enviar nada fuera del navegador. Si la administración activó un proveedor de IA, puedes elegirlo: antes de enviar verás quién recibe tu pregunta, con qué modelos y qué política de datos tiene, y tendrás que aceptarlo. El modelo redacta solo a partir de los fragmentos recuperados y el servidor descarta cualquier cita inventada. Si el proveedor falla o se satura, se reintenta y, si no responde, se muestra la búsqueda demo. Las respuestas pueden leerse en voz alta y la pregunta puede dictarse.",
       "datosQueUsa": [
-        "Tu pregunta, procesada en el navegador. No se envía a ningún servicio."
+        "En modo demo: tu pregunta, procesada en el navegador.",
+        "Con un proveedor de IA: tu pregunta y hasta 6 fragmentos del Centro de ayuda, solo después de que aceptes el envío. Nunca expedientes ni perfiles.",
+        "Del consumo se guarda proveedor, modelo, resultado, tokens y costo estimado; nunca la pregunta ni la respuesta."
       ],
       "comoSeUsa": [
         "Escribe una pregunta, por ejemplo «¿cómo se cuenta la ñ?» o «¿qué falta del proyecto?».",
-        "Pulsa «Preguntar» y abre las citas para ir a la sección de ayuda correspondiente."
+        "En «Cómo responder» deja «Demo sin IA» o elige un proveedor y acepta el aviso de envío.",
+        "Pulsa «Preguntar» y abre las citas para ir a la sección de ayuda correspondiente.",
+        "Si eliges un proveedor marcado «solo demo», no escribas datos personales: la app se niega a enviarlos."
       ],
       "estado": "demo",
       "palabrasClave": [
         "asistente",
         "bot",
         "chat",
-        "pregunta",
-        "preguntar",
+        "citas",
+        "consentimiento",
+        "conversación",
+        "enviar",
         "ia",
         "inteligencia artificial",
         "llm",
         "modelo",
-        "citas",
-        "conversación"
+        "openrouter",
+        "pregunta",
+        "preguntar",
+        "proveedor",
+        "respaldo"
+      ]
+    },
+    {
+      "id": "proveedores-ia",
+      "titulo": "Proveedores de inteligencia artificial",
+      "resumen": "Qué modelos de IA puede usar la app, con qué límites y qué política de datos.",
+      "deQueTrata": "La administración da de alta proveedores intercambiables: OpenRouter (modelos gratuitos de NVIDIA y modelos de bajo costo de Qwen y DeepSeek), FreeLLMAPI autoalojado y cualquier endpoint compatible con OpenAI, incluso uno local como Ollama o LM Studio. Para cada uno se elige el modelo a mano, sus respaldos, los límites por minuto, por día y de gasto mensual, el costo estimado, las capacidades y la política de datos. Las llaves nunca se escriben en la app: se cargan como secretos del servidor con un nombre que empieza por LLM_KEY_ y la app solo guarda ese nombre. Los modelos gratuitos y FreeLLMAPI quedan siempre como «solo demo» porque sus endpoints registran o pueden entrenar con los textos; la base de datos lo impide aunque se intente cambiar. Un modelo de pago puede marcarse apto para datos reales solo si su política dice que no entrena ni retiene (en OpenRouter, exigiendo retención cero). Ante un 429 o un error del servidor se reintenta con espera creciente y luego se pasa al modelo de respaldo. Cada intento queda registrado sin el texto enviado.",
+      "datosQueUsa": [
+        "Configuración del proveedor: nombre, endpoint, modelo, nombre del secreto, límites, costo y política.",
+        "Registro de consumo: fecha, proveedor, modelo, resultado, intento, tiempo, tokens y costo estimado. Sin prompts ni respuestas."
+      ],
+      "comoSeUsa": [
+        "Abre «Proveedores IA» en la barra superior (solo administración con verificación en dos pasos).",
+        "Elige una plantilla y un modelo del catálogo verificado, o escribe otro id de modelo.",
+        "Carga la llave como secreto del servidor (por ejemplo LLM_KEY_OPENROUTER en Vercel) y escribe ese nombre en el formulario.",
+        "Pulsa «Probar conexión» para enviar un texto fijo y ver si responde.",
+        "Revisa la tabla de consumo del mes para ver solicitudes, errores 429, tokens y costo."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "proveedor",
+        "proveedores",
+        "openrouter",
+        "freellmapi",
+        "ollama",
+        "lm studio",
+        "modelo",
+        "llave",
+        "secreto",
+        "límite",
+        "gasto",
+        "costo",
+        "429",
+        "respaldo",
+        "nvidia",
+        "qwen",
+        "deepseek",
+        "política de datos",
+        "retención",
+        "zdr"
+      ]
+    },
+    {
+      "id": "voz",
+      "titulo": "Voz del asistente y dictado",
+      "resumen": "Escuchar las respuestas en voz alta y dictar preguntas con el micrófono.",
+      "deQueTrata": "La lectura en voz alta usa la síntesis de voz gratuita de tu navegador. Se listan las voces es-MX y es-ES instaladas en tu dispositivo, primero las de México y las que por su nombre parecen masculinas; el navegador no indica el género de forma uniforme, así que es solo una pista. Si ninguna voz coincide, se avisa y se ofrecen otras variantes del español. Algunas voces son remotas: el texto se envía al servicio del fabricante del navegador, por eso se pide permiso antes de leer una respuesta con ellas. La respuesta escrita siempre está disponible. El dictado es opcional y solo se activa tras aceptar el aviso y dar permiso al micrófono; en muchos navegadores el audio se procesa en servidores del fabricante. La voz es intercambiable: más adelante se podrá conectar un proveedor de voz de bajo costo sin cambiar la interfaz.",
+      "datosQueUsa": [
+        "La voz elegida se guarda solo en este navegador.",
+        "El texto de la respuesta, que se lee en tu dispositivo o en el servicio remoto de la voz si aceptas.",
+        "Con el dictado, el audio del micrófono mientras está activo."
+      ],
+      "comoSeUsa": [
+        "Elige una voz en «Voz» y pulsa «Probar voz».",
+        "Usa «Leer respuesta», «Pausar», «Reanudar» y «Detener».",
+        "Pulsa «Dictar pregunta», lee el aviso y acepta para activar el micrófono."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "voz",
+        "voces",
+        "escuchar",
+        "leer",
+        "hablar",
+        "tts",
+        "síntesis",
+        "dictar",
+        "dictado",
+        "micrófono",
+        "es-mx",
+        "es-es",
+        "masculina",
+        "remota"
       ]
     },
     {
