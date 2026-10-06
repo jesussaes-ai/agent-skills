@@ -20,7 +20,9 @@
     "test:db": "supabase db reset && supabase test db",
     "setup:hash": "tsx scripts/generar-hash-clave.mts",
     "test:e2e": "bash scripts/e2e.sh",
-    "reporte:muestra": "vitest run --config src/reportes/demo/vitest.muestra.config.mts"
+    "reporte:muestra": "vitest run --config src/reportes/demo/vitest.muestra.config.mts",
+    "admin:emergencia": "tsx scripts/admin-emergencia.mts",
+    "retencion:purgar": "tsx scripts/purgar-retencion.mts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.1",

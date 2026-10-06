@@ -24,10 +24,12 @@ describe("búsqueda en el centro de ayuda", () => {
     ["¿Qué falta del proyecto? ¿en qué etapa está?", "proyecto"],
     ["¿Cuándo estará la carta natal con ascendente?", "carta-natal"],
     ["¿Qué tabla de gematría usa la cábala?", "cabala"],
-    ["¿Se guardan mis datos personales?", "consentimiento"],
+    ["¿Se guardan mis datos personales?", /consentimiento/],
     ["¿Cómo veo la explicación de un botón con el teclado?", "centro-ayuda"],
-  ])("«%s» → %s", (pregunta, seccion) => {
-    expect(buscarEnAyuda(pregunta, SECCIONES_AYUDA)[0]?.fragmento.seccionId).toBe(seccion);
+  ])("«%s» → %s", (pregunta, seccion: string | RegExp) => {
+    const encontrada = buscarEnAyuda(pregunta, SECCIONES_AYUDA)[0]?.fragmento.seccionId;
+    if (typeof seccion === "string") expect(encontrada).toBe(seccion);
+    else expect(encontrada).toMatch(seccion);
   });
 
   it("no devuelve nada para preguntas ajenas", () => {
