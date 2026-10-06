@@ -6,12 +6,15 @@ import type { ProveedorBiblioteca } from "@/modulos/biblioteca/llm";
 import { formatearLocalizador } from "@/modulos/biblioteca/respuesta";
 import type { FragmentoRecuperado } from "@/modulos/biblioteca/tipos";
 import { Boton } from "@/ui/componentes/Boton";
+import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta } from "@/ui/componentes/Seccion";
 import { Casilla, Selector } from "@/ui/expedientes/Selector";
 
 const TIPO: Record<string, string> = { textual: "Cita textual", parafrasis: "Paráfrasis", sintesis: "Síntesis" };
 
-function Pasaje({ fragmento }: { fragmento: FragmentoRecuperado }) {
+type Figura = NonNullable<RespuestaBiblioteca["figuras"]>[string];
+
+function Pasaje({ fragmento, figura }: { fragmento: FragmentoRecuperado; figura?: Figura }) {
   const [abierto, setAbierto] = useState(false);
   return (
     <li className="text-sm text-slate-700">
@@ -30,7 +33,22 @@ function Pasaje({ fragmento }: { fragmento: FragmentoRecuperado }) {
       >
         {abierto ? "Ocultar pasaje" : "Ver pasaje"}
       </Boton>
-      {abierto && <blockquote className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-2 text-xs">{fragmento.texto}</blockquote>}
+      {figura && (
+        <EnlaceBoton
+          href={`/biblioteca/figuras/${figura.figuraId}`}
+          prefetch={false}
+          className="text-sm"
+          descripcion="Abre la imagen original de la figura (enlace temporal). La imagen es la fuente de verdad; la descripción es automática."
+        >
+          Ver figura
+        </EnlaceBoton>
+      )}
+      {abierto && (
+        <blockquote className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-2 text-xs">
+          {fragmento.texto}
+          {figura?.correccion && <span className="mt-1 block">Corrección de la administración: {figura.correccion}</span>}
+        </blockquote>
+      )}
     </li>
   );
 }
@@ -143,7 +161,7 @@ export function BotBiblioteca({ proveedores }: { proveedores: ProveedorBibliotec
                   ))}
                   <ul className="mt-2 space-y-1">
                     {a.chunkIds.map((id) => porId.get(id)).filter((f): f is FragmentoRecuperado => Boolean(f)).map((f) => (
-                      <Pasaje key={f.chunkId} fragmento={f} />
+                      <Pasaje key={f.chunkId} fragmento={f} figura={respuesta.figuras?.[f.chunkId]} />
                     ))}
                   </ul>
                 </li>

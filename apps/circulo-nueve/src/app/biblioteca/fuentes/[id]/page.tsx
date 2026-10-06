@@ -5,7 +5,7 @@ import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/su
 import { formatearLocalizador } from "@/modulos/biblioteca/respuesta";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
-import { ActualizarFuente, BotonFragmento, DecisionVersion, FormularioEditarFuente, RetirarFuente } from "@/ui/biblioteca/Formularios";
+import { ActualizarFuente, BotonFragmento, CorreccionFigura, DecisionVersion, FormularioEditarFuente, RetirarFuente } from "@/ui/biblioteca/Formularios";
 import { NOMBRE_ESTADO } from "@/modulos/biblioteca/estados";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +32,13 @@ export default async function PaginaFuente({ params }: { params: Promise<{ id: s
   const mostrada = enRevision ?? aprobadaPendiente ?? vigente ?? nueva;
   const { data: fragmentos } = mostrada
     ? await supabase.from("chunks").select("id, orden, texto, localizador, jerarquia, excluido, sospechoso, motivo_sospecha, ocr_confianza").eq("source_version_id", mostrada.id).order("orden")
+    : { data: [] };
+  const { data: figuras } = mostrada
+    ? await supabase
+        .from("visual_assets")
+        .select("id, pagina, leyenda, ocr, descripcion_generada, descripcion_modelo, descripcion_fecha, correccion_admin")
+        .eq("source_version_id", mostrada.id)
+        .order("storage_path")
     : { data: [] };
   let vistaMarkdown = "";
   if (mostrada?.markdown_path) {
@@ -89,6 +96,29 @@ export default async function PaginaFuente({ params }: { params: Promise<{ id: s
           )}
           <h3 className="mb-2 font-semibold text-slate-900">Markdown extraído</h3>
           <pre className="mb-4 max-h-80 overflow-auto whitespace-pre-wrap rounded bg-slate-50 p-3 text-xs" data-testid="markdown">{vistaMarkdown || "—"}</pre>
+          {(figuras ?? []).length > 0 && (
+            <>
+              <h3 className="mb-2 font-semibold text-slate-900">Figuras</h3>
+              <ul className="mb-4 grid gap-4 sm:grid-cols-2">
+                {(figuras ?? []).map((g) => (
+                  <li key={g.id} className="space-y-2 rounded-lg border border-slate-200 p-3 text-sm" data-testid="figura">
+                    <img src={`/biblioteca/figuras/${g.id}`} alt={g.leyenda ?? `Figura de la página ${g.pagina}`} className="max-h-48 w-full rounded bg-slate-50 object-contain" />
+                    <p>
+                      <span className="font-medium">Página {g.pagina}.</span> {g.leyenda ?? "Sin leyenda detectada."}
+                    </p>
+                    {g.ocr && <p className="text-xs text-slate-600">OCR: {g.ocr}</p>}
+                    <p className="text-xs">
+                      <Etiqueta tono="ambar">Descripción generada</Etiqueta> {g.descripcion_generada}
+                      <span className="block text-slate-500">
+                        Método: {g.descripcion_modelo} · {g.descripcion_fecha ? new Date(g.descripcion_fecha).toLocaleString("es-MX") : ""}
+                      </span>
+                    </p>
+                    <CorreccionFigura fuenteId={id} figuraId={g.id} correccion={g.correccion_admin} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <h3 className="mb-2 font-semibold text-slate-900">Fragmentos</h3>
           <ol className="mb-4 space-y-2">
             {(fragmentos ?? []).map((c) => (

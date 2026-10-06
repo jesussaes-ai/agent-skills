@@ -206,10 +206,23 @@ export async function accionInvitar(_: EstadoFormulario, form: FormData): Promis
   if (!datos.success) return { errores: erroresDe(datos.error) };
 
   const admin = clienteSupabaseAdmin();
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(datos.data.correo, {
-    redirectTo: `${leerConfigSupabase().urlSitio}/cuenta/contrasena`,
-  });
-  if (error || !data.user) return { mensaje: "No se pudo enviar la invitación. ¿El correo ya tiene cuenta?" };
+  const soloEnlace = datos.data.soloEnlace === "on";
+  let usuario: { id: string } | null = null;
+  let enlace: string | undefined;
+  if (soloEnlace) {
+    // Sin SMTP propio: se genera el enlace de un solo uso y la administración lo comparte por un canal privado.
+    const { data, error } = await admin.auth.admin.generateLink({ type: "invite", email: datos.data.correo });
+    if (error || !data.user) return { mensaje: "No se pudo crear la invitación. ¿El correo ya tiene cuenta?" };
+    usuario = data.user;
+    enlace = enlaceConfirmacion(data.properties.hashed_token, "invite");
+  } else {
+    const { data, error } = await admin.auth.admin.inviteUserByEmail(datos.data.correo, {
+      redirectTo: `${leerConfigSupabase().urlSitio}/cuenta/contrasena`,
+    });
+    if (error || !data.user) return { mensaje: "No se pudo enviar la invitación. ¿El correo ya tiene cuenta? ¿Hay SMTP configurado?" };
+    usuario = data.user;
+  }
+  const data = { user: usuario };
 
   const supabase = await clienteSupabaseServidor();
   const { error: errorPerfil } = await supabase
@@ -222,8 +235,34 @@ export async function accionInvitar(_: EstadoFormulario, form: FormData): Promis
     await admin.auth.admin.deleteUser(data.user.id);
     return { mensaje: ERROR_GENERICO };
   }
+  if (enlace) await auditarEnlace(permiso.usuarioId, "enlace_invitacion", data.user.id);
   revalidatePath("/admin/usuarios");
-  return { ok: true, mensaje: `Invitación enviada a ${datos.data.correo}.` };
+  return enlace
+    ? { ok: true, enlace, mensaje: `Cuenta creada para ${datos.data.correo}. Comparte este enlace solo con esa persona; sirve una vez y caduca en 1 hora.` }
+    : { ok: true, mensaje: `Invitación enviada a ${datos.data.correo}.` };
+}
+
+function enlaceConfirmacion(tokenHash: string, tipo: "invite" | "recovery"): string {
+  return `${leerConfigSupabase().urlSitio}/auth/confirmar?token_hash=${encodeURIComponent(tokenHash)}&type=${tipo}&next=/cuenta/contrasena`;
+}
+
+async function auditarEnlace(actor: string, recurso: string, usuarioId: string) {
+  await clienteSupabaseAdmin().from("audit_log").insert({ actor_id: actor, accion: "compartir", recurso_tipo: recurso, recurso_id: usuarioId });
+}
+
+/** Enlace de recuperación de un solo uso para una cuenta, para compartir sin correo. */
+export async function accionEnlaceRecuperacion(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {
+  const permiso = await exigirAdministracion();
+  if (!permiso.ok) return permiso.estado;
+  const usuarioId = String(form.get("usuarioId") ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(usuarioId) || usuarioId === permiso.usuarioId) return { mensaje: "No se puede generar un enlace para esta cuenta." };
+  const admin = clienteSupabaseAdmin();
+  const { data: cuenta } = await admin.auth.admin.getUserById(usuarioId);
+  if (!cuenta.user?.email) return { mensaje: ERROR_GENERICO };
+  const { data, error } = await admin.auth.admin.generateLink({ type: "recovery", email: cuenta.user.email });
+  if (error || !data.properties) return { mensaje: ERROR_GENERICO };
+  await auditarEnlace(permiso.usuarioId, "enlace_recuperacion", usuarioId);
+  return { ok: true, enlace: enlaceConfirmacion(data.properties.hashed_token, "recovery"), mensaje: "Enlace para elegir contraseña nueva: sirve una vez y caduca en 1 hora." };
 }
 
 export async function accionCambiarEstado(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {

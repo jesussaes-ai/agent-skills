@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-06.4",
+  "version": "2026-10-06.5",
   "secciones": [
     {
       "id": "proyecto",
@@ -396,7 +396,7 @@
       "id": "administracion-usuarios",
       "titulo": "Usuarios, roles y permisos",
       "resumen": "Panel de administración de cuentas.",
-      "deQueTrata": "La administración invita cuentas por correo, asigna roles (administración, consultor/a, cliente) y puede suspender, revocar o reactivar el acceso. Nadie puede cambiar sus propios roles ni su estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría. La tabla de permisos muestra qué concede cada rol y su alcance: «global» (todos los expedientes) o «propio» (solo los creados por la persona o asignados).",
+      "deQueTrata": "La administración invita cuentas por correo, asigna roles (administración, consultor/a, cliente) y puede suspender, revocar o reactivar el acceso. Nadie puede cambiar sus propios roles ni su estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría. La tabla de permisos muestra qué concede cada rol y su alcance: «global» (todos los expedientes) o «propio» (solo los creados por la persona o asignados). Si no hay correo configurado (SMTP), marca «No enviar correo» al invitar: el panel muestra un enlace de un solo uso que caduca en 1 hora para compartirlo por un canal privado. «Enlace de recuperación» hace lo mismo para que alguien elija una contraseña nueva. Ambos quedan en la auditoría.",
       "datosQueUsa": [
         "Nombre, correo, estado y roles de cada cuenta."
       ],
@@ -416,7 +416,12 @@
         "reactivar",
         "administración",
         "panel",
-        "recuperación de emergencia"
+        "recuperación de emergencia",
+        "enlace",
+        "sin correo",
+        "smtp",
+        "compartir enlace",
+        "recuperación"
       ]
     },
     {
@@ -674,7 +679,7 @@
       "id": "biblioteca-carga",
       "titulo": "Centro de carga",
       "resumen": "Subir libros y documentos de forma segura.",
-      "deQueTrata": "Acepta PDF, EPUB, DOCX, TXT, Markdown e imágenes (PNG, JPEG, WebP, con OCR en español). El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo (JavaScript en PDF, macros en DOCX, scripts en EPUB). Límites: 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF. El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. Hay que confirmar que se tiene derecho a usar la fuente.",
+      "deQueTrata": "Acepta documentos (PDF —con sus figuras—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Hasta 25 MB a través de la app; los archivos de más de 4 MB se suben directo a Storage con un enlace firmado (hasta 50 MB). El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. Si falta un dato, el formulario conserva lo escrito.",
       "datosQueUsa": [
         "El archivo y los metadatos que escribes."
       ],
@@ -698,7 +703,17 @@
         "cuarentena",
         "formato",
         "macros",
-        "límite"
+        "límite",
+        "xlsx",
+        "csv",
+        "ods",
+        "pptx",
+        "audio",
+        "video",
+        "antivirus",
+        "clamav",
+        "grande",
+        "carga directa"
       ]
     },
     {
@@ -724,6 +739,45 @@
         "versión",
         "enlace",
         "sitio"
+      ]
+    },
+    {
+      "id": "biblioteca-multimedia",
+      "titulo": "Figuras, hojas, presentaciones, audio y video",
+      "resumen": "Cómo se cita cada tipo de recurso.",
+      "deQueTrata": "Figuras de PDF: se extraen las imágenes de cada página con su leyenda (por ejemplo «Figura 1…») y el OCR de sus rótulos; la descripción es automática y se marca como generada, con su método y fecha. Sin un proveedor de visión configurado por la administración, se compone solo con la leyenda y el OCR. La imagen original es la fuente de verdad y la administración puede corregir la descripción. Hojas de cálculo: cada fragmento indica la hoja y el rango de celdas, sin partir filas. Presentaciones: texto y notas por diapositiva. Audio y video: transcripción local y gratuita (Whisper) con marcas de tiempo por minuto; puede tener errores y se revisa antes de aprobar; no se separan hablantes ni se extraen fotogramas. Límite: 60 minutos.",
+      "datosQueUsa": [
+        "El archivo original, su texto extraído o transcrito, y las imágenes de las figuras (privadas)."
+      ],
+      "comoSeUsa": [
+        "Carga el archivo en el centro de carga y procesa la cola.",
+        "En la revisión, mira las figuras y corrige su descripción si hace falta.",
+        "En el bot, «Ver figura» abre la imagen con un enlace temporal; las citas indican página, hoja y celdas, diapositiva o minuto."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "figura",
+        "figuras",
+        "diagrama",
+        "imagen",
+        "leyenda",
+        "ocr",
+        "visión",
+        "hoja",
+        "celda",
+        "excel",
+        "xlsx",
+        "csv",
+        "ods",
+        "pptx",
+        "diapositiva",
+        "presentación",
+        "audio",
+        "video",
+        "transcripción",
+        "whisper",
+        "minuto",
+        "marca de tiempo"
       ]
     },
     {

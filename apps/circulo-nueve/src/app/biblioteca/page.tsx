@@ -5,6 +5,7 @@ import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
 import { BotonProcesar, FormularioCarga, FormularioWeb } from "@/ui/biblioteca/Formularios";
 import { NOMBRE_ESTADO } from "@/modulos/biblioteca/estados";
+import { leerConfigSupabase } from "@/modulos/auth/config";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Biblioteca · Círculo Nueve" };
@@ -62,7 +63,7 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
         <BotonProcesar pendientes={pendientes ?? 0} />
       </Seccion>
       <Seccion titulo="Centro de carga" ayuda="biblioteca-carga">
-        <FormularioCarga />
+        <FormularioCarga supabaseUrl={leerConfigSupabase().url} clavePublica={leerConfigSupabase().clavePublica} />
       </Seccion>
       <Seccion titulo="Añadir una página web" ayuda="biblioteca-web">
         <FormularioWeb />

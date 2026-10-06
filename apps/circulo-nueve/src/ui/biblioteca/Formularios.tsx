@@ -1,12 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { useActionState, useState, type FormEvent } from "react";
 import {
   accionActualizarWeb,
   accionAgregarWeb,
   accionAprobarVersion,
   accionCargarArchivo,
+  accionConfirmarCargaDirecta,
+  accionCorregirFigura,
   accionEditarFuente,
+  accionPrepararCargaDirecta,
   accionExcluirFragmento,
   accionProcesarPendientes,
   accionRechazarVersion,
@@ -18,7 +23,9 @@ import type { EstadoFormulario } from "@/modulos/auth/esquemas";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
 import { Casilla, Selector } from "@/ui/expedientes/Selector";
 
-const ACEPTA = ".pdf,.epub,.docx,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp";
+const ACEPTA = ".pdf,.epub,.docx,.txt,.md,.markdown,.csv,.xlsx,.ods,.pptx,.png,.jpg,.jpeg,.webp,.mp3,.wav,.ogg,.oga,.opus,.m4a,.mp4,.m4v,.webm";
+/** Por encima de este tamaño se sube directo a Storage (Vercel limita el cuerpo de la petición a ~4.5 MB). */
+const UMBRAL_CARGA_DIRECTA = 4 * 1024 * 1024;
 
 export interface ValoresFuente {
   titulo?: string;
@@ -34,8 +41,26 @@ export interface ValoresFuente {
   esDemo?: boolean;
 }
 
-function CamposMetadatos({ estado, valores = {}, conDerechos = true }: { estado: EstadoFormulario; valores?: ValoresFuente; conDerechos?: boolean }) {
+function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { estado: EstadoFormulario; valores?: ValoresFuente; conDerechos?: boolean }) {
   const e = estado.errores ?? {};
+  // Tras un error, React vacía el formulario: se vuelven a mostrar los valores enviados.
+  const enviados = estado.valores;
+  const valores: ValoresFuente = enviados
+    ? {
+        ...base,
+        titulo: enviados.titulo,
+        autor: enviados.autor,
+        referencia: enviados.referencia,
+        edicion: enviados.edicion,
+        idioma: enviados.idioma,
+        tradicion: enviados.tradicion,
+        grupo: enviados.grupo,
+        licencia: enviados.licencia,
+        notasDerechos: enviados.notasDerechos,
+        nivelAcceso: enviados.nivelAcceso,
+        esDemo: enviados.esDemo === "on",
+      }
+    : base;
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -77,10 +102,43 @@ function CamposMetadatos({ estado, valores = {}, conDerechos = true }: { estado:
   );
 }
 
-export function FormularioCarga() {
-  const [estado, accion] = useActionState(accionCargarArchivo, ESTADO_INICIAL);
+export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: string; clavePublica: string }) {
+  const [estadoServidor, accion] = useActionState(accionCargarArchivo, ESTADO_INICIAL);
+  const [estadoDirecto, setEstadoDirecto] = useState<EstadoFormulario | null>(null);
+  const [subiendo, setSubiendo] = useState(false);
+  const router = useRouter();
+  const estado = estadoDirecto ?? estadoServidor;
+
+  const alEnviar = async (e: FormEvent<HTMLFormElement>) => {
+    const formulario = e.currentTarget;
+    const archivo = (formulario.elements.namedItem("archivo") as HTMLInputElement | null)?.files?.[0];
+    if (!archivo || archivo.size <= UMBRAL_CARGA_DIRECTA) {
+      setEstadoDirecto(null);
+      return;
+    }
+    // Archivo grande: no pasa por el servidor de la app; va directo a la cuarentena con URL firmada.
+    e.preventDefault();
+    setSubiendo(true);
+    try {
+      const datos = new FormData(formulario);
+      datos.delete("archivo");
+      datos.set("nombreArchivo", archivo.name);
+      datos.set("tamanoArchivo", String(archivo.size));
+      const preparada = await accionPrepararCargaDirecta(datos);
+      if (!preparada.ok || !preparada.ruta || !preparada.token || !preparada.fuenteId) return setEstadoDirecto(preparada);
+      const { error } = await createClient(supabaseUrl, clavePublica)
+        .storage.from("cuarentena")
+        .uploadToSignedUrl(preparada.ruta, preparada.token, archivo, { contentType: archivo.type || "application/octet-stream" });
+      if (error) return setEstadoDirecto({ mensaje: `No se pudo subir el archivo: ${error.message}` });
+      setEstadoDirecto(await accionConfirmarCargaDirecta(preparada.fuenteId, archivo.name));
+      router.refresh();
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
   return (
-    <form action={accion} className="space-y-4" noValidate>
+    <form action={accion} onSubmit={alEnviar} className="space-y-4" noValidate>
       <Campo
         etiqueta="Archivo"
         name="archivo"
@@ -88,10 +146,12 @@ export function FormularioCarga() {
         accept={ACEPTA}
         required
         error={estado.errores?.archivo}
-        nota="PDF, EPUB, DOCX, TXT, Markdown o imagen (PNG, JPEG, WebP con OCR). Máximo 25 MB (imágenes: 10 MB). Se comprueba el formato real y se rechazan macros y contenido activo."
+        nota="Documentos (PDF con figuras, EPUB, DOCX, TXT, Markdown), hojas (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR y audio o video con transcripción local. Hasta 25 MB; por encima de 4 MB se sube directo a Storage (hasta 50 MB). Se comprueba el formato real y se rechazan macros y contenido activo."
       />
+      {estado.valores && <p className="text-xs text-slate-600">Se conservaron los datos escritos; vuelve a elegir el archivo.</p>}
       <CamposMetadatos estado={estado} />
       <MensajeFormulario estado={estado} />
+      {subiendo && <p role="status" className="text-sm text-slate-700">Subiendo directamente a Storage…</p>}
       <BotonEnviar descripcion="Comprueba el archivo, lo deja en cuarentena y crea un trabajo de ingesta pendiente. Nada se indexa sin tu revisión.">
         Cargar a cuarentena
       </BotonEnviar>
@@ -204,6 +264,21 @@ export function ActualizarFuente({ fuenteId, origen }: { fuenteId: string; orige
         Cargar versión nueva
       </BotonEnviar>
       <MensajeFormulario estado={estadoA} />
+    </form>
+  );
+}
+
+export function CorreccionFigura({ fuenteId, figuraId, correccion }: { fuenteId: string; figuraId: string; correccion: string | null }) {
+  const [estado, accion] = useActionState(accionCorregirFigura, ESTADO_INICIAL);
+  return (
+    <form action={accion} className="space-y-2" noValidate>
+      <input type="hidden" name="fuenteId" value={fuenteId} />
+      <input type="hidden" name="figuraId" value={figuraId} />
+      <Campo etiqueta="Corrección de la descripción (administración)" name="correccion" defaultValue={correccion ?? ""} maxLength={2000} />
+      <BotonEnviar variante="secundario" className="text-sm" descripcion="Guarda una descripción corregida a mano. La imagen sigue siendo la fuente de verdad; la descripción generada se conserva.">
+        Guardar corrección
+      </BotonEnviar>
+      <MensajeFormulario estado={estado} />
     </form>
   );
 }

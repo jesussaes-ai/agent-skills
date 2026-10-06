@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { accionCambiarEstado, accionCambiarRol, accionInvitar } from "@/modulos/auth/acciones";
+import { accionCambiarEstado, accionCambiarRol, accionEnlaceRecuperacion, accionInvitar } from "@/modulos/auth/acciones";
+import type { EstadoFormulario } from "@/modulos/auth/esquemas";
+import { Boton } from "@/ui/componentes/Boton";
+import { Casilla } from "@/ui/expedientes/Selector";
 import { ROLES_ASIGNABLES } from "@/modulos/auth/esquemas";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
 
@@ -15,6 +18,26 @@ export interface FilaUsuario {
 }
 
 const NOMBRE_ROL: Record<string, string> = { admin: "Administración", consultor: "Consultor/a", cliente: "Cliente" };
+
+function EnlaceCompartible({ estado }: { estado: EstadoFormulario }) {
+  if (!estado.enlace) return null;
+  return (
+    <div className="space-y-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-950">
+      <label className="block font-medium" htmlFor="enlace-generado">
+        Enlace de un solo uso
+      </label>
+      <input id="enlace-generado" readOnly value={estado.enlace} data-testid="enlace-generado" className="w-full rounded border border-amber-300 bg-white px-2 py-1 font-mono text-xs" />
+      <Boton
+        variante="secundario"
+        className="text-sm"
+        descripcion="Copia el enlace al portapapeles. Envíalo solo a esa persona por un canal privado; no lo publiques."
+        onClick={() => void navigator.clipboard?.writeText(estado.enlace ?? "")}
+      >
+        Copiar enlace
+      </Boton>
+    </div>
+  );
+}
 
 export function FormularioInvitar() {
   const [estado, accion] = useActionState(accionInvitar, ESTADO_INICIAL);
@@ -38,9 +61,15 @@ export function FormularioInvitar() {
         </select>
       </div>
       <div className="flex items-end">
-        <BotonEnviar descripcion="Crea la cuenta con el rol elegido y envía un correo de invitación de un solo uso para que la persona elija su contraseña.">
+        <BotonEnviar descripcion="Crea la cuenta con el rol elegido e invita a la persona a elegir su contraseña: por correo, o con un enlace que compartes tú si marcaste esa opción.">
           Enviar invitación
         </BotonEnviar>
+      </div>
+      <div className="sm:col-span-2">
+        <Casilla etiqueta="No enviar correo: mostrar el enlace para compartirlo yo (útil si no hay SMTP configurado)" name="soloEnlace" />
+      </div>
+      <div className="sm:col-span-2">
+        <EnlaceCompartible estado={estado} />
       </div>
     </form>
   );
@@ -70,6 +99,20 @@ function ControlEstado({ fila }: { fila: FilaUsuario }) {
       </div>
       <MensajeFormulario estado={estado} />
     </div>
+  );
+}
+
+function ControlRecuperacion({ fila }: { fila: FilaUsuario }) {
+  const [estado, accion] = useActionState(accionEnlaceRecuperacion, ESTADO_INICIAL);
+  return (
+    <form action={accion} className="space-y-1">
+      <input type="hidden" name="usuarioId" value={fila.id} />
+      <BotonEnviar variante="sutil" className="px-0 text-sm" descripcion={`Genera un enlace de un solo uso para que ${fila.nombre} elija una contraseña nueva, sin enviar correo. Queda en la auditoría.`}>
+        Enlace de recuperación
+      </BotonEnviar>
+      <MensajeFormulario estado={estado} />
+      <EnlaceCompartible estado={estado} />
+    </form>
   );
 }
 
@@ -123,6 +166,7 @@ export function TablaUsuarios({ filas }: { filas: FilaUsuario[] }) {
             <div className="space-y-2">
               <ControlRoles fila={f} />
               <ControlEstado fila={f} />
+              <ControlRecuperacion fila={f} />
             </div>
           )}
         </li>

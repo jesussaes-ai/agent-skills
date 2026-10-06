@@ -35,7 +35,7 @@ export const esquemaCodigoMfa = z.object({
   factorId: z.string().uuid().optional(),
 });
 
-export const esquemaInvitar = z.object({ correo, nombre, rol: z.enum(ROLES_ASIGNABLES) });
+export const esquemaInvitar = z.object({ correo, nombre, rol: z.enum(ROLES_ASIGNABLES), soloEnlace: z.enum(["on"]).optional() });
 
 export const esquemaEstado = z.object({ usuarioId: z.string().uuid(), estado: z.enum(ESTADOS_CUENTA) });
 
@@ -45,7 +45,15 @@ export const esquemaRol = z.object({
   operacion: z.enum(["asignar", "retirar"]),
 });
 
-export type EstadoFormulario = { ok?: boolean; mensaje?: string; errores?: Record<string, string> };
+export type EstadoFormulario = {
+  ok?: boolean;
+  mensaje?: string;
+  errores?: Record<string, string>;
+  /** Lo que se envió, para volver a mostrarlo si hubo error (React vacía el formulario). */
+  valores?: Record<string, string>;
+  /** Enlace de un solo uso generado para compartirlo sin correo (se muestra una vez). */
+  enlace?: string;
+};
 
 export function erroresDe(error: z.ZodError): Record<string, string> {
   const errores: Record<string, string> = {};
