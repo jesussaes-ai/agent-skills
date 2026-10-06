@@ -1,11 +1,11 @@
 {
-  "version": "2026-10-06.1",
+  "version": "2026-10-06.2",
   "secciones": [
     {
       "id": "proyecto",
       "titulo": "Sobre Círculo Nueve",
       "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
-      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; la app aún no se conecta a él.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local.",
       "datosQueUsa": [
         "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
         "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
@@ -16,31 +16,70 @@
         "Consulta la línea del tiempo del proyecto (docs/LINEA-DEL-TIEMPO.md) para ver hitos y pendientes."
       ],
       "estado": "demo",
-      "palabrasClave": ["etapa", "etapas", "proyecto", "base de datos", "supabase", "pendiente", "pendientes", "falta", "versión", "qué es", "objetivo", "hitos", "cronología", "línea del tiempo"]
+      "palabrasClave": [
+        "etapa",
+        "etapas",
+        "proyecto",
+        "base de datos",
+        "supabase",
+        "pendiente",
+        "pendientes",
+        "falta",
+        "versión",
+        "qué es",
+        "objetivo",
+        "hitos",
+        "cronología",
+        "línea del tiempo"
+      ]
     },
     {
       "id": "bienvenida",
       "titulo": "Bienvenida",
       "resumen": "Presentación breve de la aplicación y de sus límites.",
       "deQueTrata": "Explica en pocas líneas qué puedes hacer en la aplicación y aclara que las lecturas son interpretaciones simbólicas, no consejos médicos, psicológicos, legales ni financieros.",
-      "datosQueUsa": ["Ninguno."],
-      "comoSeUsa": ["Lee el texto y pulsa «Comenzar» para ir al consentimiento."],
+      "datosQueUsa": [
+        "Ninguno."
+      ],
+      "comoSeUsa": [
+        "Lee el texto y pulsa «Comenzar» para ir al consentimiento."
+      ],
       "estado": "demo",
-      "palabrasClave": ["inicio", "empezar", "comenzar", "presentación", "límites", "aviso"]
+      "palabrasClave": [
+        "inicio",
+        "empezar",
+        "comenzar",
+        "presentación",
+        "límites",
+        "aviso"
+      ]
     },
     {
       "id": "consentimiento",
       "titulo": "Aviso de privacidad y consentimiento",
       "resumen": "Decides por separado qué permites hacer con tus datos.",
       "deQueTrata": "Cada permiso se pide por separado: usar lo que escribes en la conversación, guardar el perfil, guardar el historial y enviar datos a un servicio externo. En la etapa 1 solo está disponible el uso en la sesión actual; los demás permisos aparecen desactivados porque todavía no existe almacenamiento ni proveedores externos. El texto del aviso de privacidad lo completará el responsable; mientras tanto se muestra como pendiente y no se inventa.",
-      "datosQueUsa": ["Tus elecciones de consentimiento, solo en la memoria de la pestaña."],
+      "datosQueUsa": [
+        "Tus elecciones de consentimiento, solo en la memoria de la pestaña."
+      ],
       "comoSeUsa": [
         "Marca que leíste el aviso para continuar.",
         "Activa o deja desactivado el uso de tus datos en esta sesión.",
         "Puedes volver y cambiar tus elecciones en cualquier momento."
       ],
       "estado": "demo",
-      "palabrasClave": ["privacidad", "consentimiento", "permiso", "permisos", "datos personales", "guardar", "borrar", "aviso", "externo", "proveedor"]
+      "palabrasClave": [
+        "privacidad",
+        "consentimiento",
+        "permiso",
+        "permisos",
+        "datos personales",
+        "guardar",
+        "borrar",
+        "aviso",
+        "externo",
+        "proveedor"
+      ]
     },
     {
       "id": "perfil",
@@ -57,81 +96,309 @@
         "Revisa las reglas de cálculo y pulsa «Calcular»."
       ],
       "estado": "demo",
-      "palabrasClave": ["formulario", "nombre", "fecha", "hora", "lugar", "zona horaria", "nacimiento", "datos", "ficticia", "demo", "reglas"]
+      "palabrasClave": [
+        "formulario",
+        "nombre",
+        "fecha",
+        "hora",
+        "lugar",
+        "zona horaria",
+        "nacimiento",
+        "datos",
+        "ficticia",
+        "demo",
+        "reglas"
+      ]
     },
     {
       "id": "resultados",
       "titulo": "Panel de resultados",
       "resumen": "Resultados separados por sistema: numerología, carta natal y cábala.",
       "deQueTrata": "Cada sistema tiene su propia sección para no mezclar tradiciones. Los datos calculados se muestran aparte de cualquier interpretación. En la etapa 1 solo la numerología está calculada; la carta natal y la cábala aparecen como pendientes.",
-      "datosQueUsa": ["Los datos del perfil de esta sesión."],
+      "datosQueUsa": [
+        "Los datos del perfil de esta sesión."
+      ],
       "comoSeUsa": [
         "Abre «Ver pasos» en cada indicador para revisar las operaciones.",
         "Pulsa «Editar perfil» para corregir datos o «Borrar datos de la sesión» para empezar de cero."
       ],
       "estado": "demo",
-      "palabrasClave": ["resultados", "panel", "lectura", "secciones", "borrar", "editar"]
+      "palabrasClave": [
+        "resultados",
+        "panel",
+        "lectura",
+        "secciones",
+        "borrar",
+        "editar"
+      ]
     },
     {
       "id": "numerologia",
       "titulo": "Numerología pitagórica",
       "resumen": "Cálculo reproducible con pasos visibles y reglas configurables.",
       "deQueTrata": "Usa la tabla pitagórica (A=1 … I=9, J=1 … R=9, S=1 … Z=8). Calcula camino de vida (fecha), expresión (todas las letras), alma (vocales) y personalidad (consonantes). Los acentos y diéresis se quitan; la ñ cuenta como N salvo que elijas rechazarla; espacios y guiones separan palabras; apóstrofos y puntos se ignoran; los caracteres no latinos, dígitos y símbolos se rechazan con un aviso. Los números maestros 11, 22 y 33 se conservan si la opción está activa. Cada resultado indica el motor, la versión y las reglas usadas.",
-      "datosQueUsa": ["Nombre completo de nacimiento.", "Fecha de nacimiento."],
+      "datosQueUsa": [
+        "Nombre completo de nacimiento.",
+        "Fecha de nacimiento."
+      ],
       "comoSeUsa": [
         "Calcula desde el perfil.",
         "Cambia las reglas (maestros, Y, ñ, métodos) y vuelve a calcular para comparar.",
         "Consulta docs/numerologia-reglas.md para las reglas completas y los casos de referencia."
       ],
       "estado": "disponible",
-      "palabrasClave": ["numerología", "pitagórica", "camino de vida", "expresión", "destino", "alma", "vocales", "personalidad", "consonantes", "maestro", "maestros", "11", "22", "33", "acentos", "ñ", "y", "guion", "apóstrofo", "reducción", "pasos", "tabla"]
+      "palabrasClave": [
+        "numerología",
+        "pitagórica",
+        "camino de vida",
+        "expresión",
+        "destino",
+        "alma",
+        "vocales",
+        "personalidad",
+        "consonantes",
+        "maestro",
+        "maestros",
+        "11",
+        "22",
+        "33",
+        "acentos",
+        "ñ",
+        "y",
+        "guion",
+        "apóstrofo",
+        "reducción",
+        "pasos",
+        "tabla"
+      ]
     },
     {
       "id": "carta-natal",
       "titulo": "Carta natal (pendiente)",
       "resumen": "Se construirá en una etapa posterior.",
       "deQueTrata": "La carta natal necesita fecha, hora y lugar de nacimiento, coordenadas y la zona horaria histórica. Falta elegir el motor de efemérides (con una licencia compatible con uso no comercial) y validarlo con casos de referencia. Si la hora es desconocida, la carta se calculará sin casas ni ascendente y se avisará.",
-      "datosQueUsa": ["Fecha, hora con su precisión, lugar y zona horaria (aún no se usan)."],
-      "comoSeUsa": ["Todavía no está disponible."],
+      "datosQueUsa": [
+        "Fecha, hora con su precisión, lugar y zona horaria (aún no se usan)."
+      ],
+      "comoSeUsa": [
+        "Todavía no está disponible."
+      ],
       "estado": "pendiente",
-      "palabrasClave": ["carta natal", "astrología", "signo", "ascendente", "casas", "planetas", "efemérides", "hora", "zodiaco"]
+      "palabrasClave": [
+        "carta natal",
+        "astrología",
+        "signo",
+        "ascendente",
+        "casas",
+        "planetas",
+        "efemérides",
+        "hora",
+        "zodiaco"
+      ]
     },
     {
       "id": "cabala",
       "titulo": "Cábala (pendiente)",
       "resumen": "Se implementará cuando se confirme la tradición y la tabla.",
       "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte el propietario. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
-      "datosQueUsa": ["Ninguno todavía."],
-      "comoSeUsa": ["Todavía no está disponible."],
+      "datosQueUsa": [
+        "Ninguno todavía."
+      ],
+      "comoSeUsa": [
+        "Todavía no está disponible."
+      ],
       "estado": "pendiente",
-      "palabrasClave": ["cábala", "kabbalah", "gematría", "hebreo", "transliteración", "tradición"]
+      "palabrasClave": [
+        "cábala",
+        "kabbalah",
+        "gematría",
+        "hebreo",
+        "transliteración",
+        "tradición"
+      ]
+    },
+    {
+      "id": "acceso",
+      "titulo": "Entrar y recuperar la contraseña",
+      "resumen": "Inicio de sesión con las cuentas que crea la administración.",
+      "deQueTrata": "No hay registro público: solo entran las personas que la administración invita. Se entra con correo y contraseña; si la cuenta tiene verificación en dos pasos, después se pide el código de 6 dígitos. Si olvidas la contraseña, puedes pedir un enlace de un solo uso por correo. Por seguridad, el mensaje es el mismo exista o no la cuenta, y hay un límite de intentos.",
+      "datosQueUsa": [
+        "Tu correo y tu contraseña, que se comprueban en el servidor de autenticación.",
+        "Una cookie de sesión segura en este navegador."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Entrar» en la barra superior.",
+        "Si olvidaste la contraseña, pulsa «¿Olvidaste tu contraseña?» y abre el enlace que llega a tu correo.",
+        "Pulsa «Salir» para cerrar la sesión."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "entrar",
+        "iniciar sesión",
+        "login",
+        "contraseña",
+        "olvidé",
+        "recuperar",
+        "restablecer",
+        "salir",
+        "cerrar sesión",
+        "cuenta"
+      ]
+    },
+    {
+      "id": "alta-inicial",
+      "titulo": "Alta inicial de la administración",
+      "resumen": "Puesta en marcha única con una clave de configuración.",
+      "deQueTrata": "La primera vez, la página /setup crea la cuenta de administración. La clave de alta solo se compara en el servidor contra un hash argon2id guardado como secreto; nunca se guarda en texto plano ni llega al navegador. Funciona una sola vez: cuando ya existe la administración, /setup responde 410 (ya no disponible). Mientras no se use, la clave se puede rotar cambiando el hash.",
+      "datosQueUsa": [
+        "La clave de alta (solo para compararla).",
+        "Nombre, correo y contraseña de la cuenta de administración."
+      ],
+      "comoSeUsa": [
+        "El responsable genera el hash con «npm run setup:hash» y lo carga como secreto ADMIN_SETUP_KEY_HASH.",
+        "Abre /setup, escribe la clave y los datos de la cuenta.",
+        "Después configura la verificación en dos pasos, obligatoria para administrar."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "setup",
+        "alta",
+        "clave de alta",
+        "administrador",
+        "admin",
+        "primera vez",
+        "puesta en marcha",
+        "rotar",
+        "rotación",
+        "hash",
+        "argon2"
+      ]
+    },
+    {
+      "id": "verificacion-dos-pasos",
+      "titulo": "Verificación en dos pasos",
+      "resumen": "Un código de tu aplicación de autenticación además de la contraseña.",
+      "deQueTrata": "La verificación en dos pasos (TOTP) añade un código de 6 dígitos que cambia cada 30 segundos. Es obligatoria para administrar: sin ella, la base de datos no concede permisos de administración aunque la contraseña sea correcta. Para los demás roles es opcional y recomendable.",
+      "datosQueUsa": [
+        "Una clave secreta compartida con tu aplicación de autenticación (se muestra solo al configurarla)."
+      ],
+      "comoSeUsa": [
+        "En «Mi cuenta», pulsa «Configurar verificación en dos pasos».",
+        "Escanea el código QR o escribe la clave secreta en tu aplicación.",
+        "Escribe el código de 6 dígitos para activarla. Al entrar, se te pedirá cada vez."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "mfa",
+        "2fa",
+        "dos pasos",
+        "doble factor",
+        "totp",
+        "autenticador",
+        "código",
+        "qr",
+        "verificación"
+      ]
+    },
+    {
+      "id": "cuenta",
+      "titulo": "Mi cuenta",
+      "resumen": "Tus datos de acceso, roles y seguridad.",
+      "deQueTrata": "Muestra tu nombre, correo, estado de la cuenta, roles y si tienes la verificación en dos pasos activada. Desde aquí cambias tu contraseña. No puedes cambiar tus propios roles ni tu estado: lo decide la administración.",
+      "datosQueUsa": [
+        "Tu perfil de usuario y tus roles."
+      ],
+      "comoSeUsa": [
+        "Pulsa tu nombre en la barra superior.",
+        "Usa «Cambiar contraseña» o «Configurar verificación en dos pasos»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "mi cuenta",
+        "perfil",
+        "roles",
+        "estado",
+        "cambiar contraseña"
+      ]
+    },
+    {
+      "id": "administracion-usuarios",
+      "titulo": "Usuarios, roles y permisos",
+      "resumen": "Panel de administración de cuentas.",
+      "deQueTrata": "La administración invita cuentas por correo, asigna roles (administración, consultor/a, cliente) y puede suspender, revocar o reactivar el acceso. Nadie puede cambiar sus propios roles ni su estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría. La tabla de permisos muestra qué concede cada rol y su alcance: «global» (todos los expedientes) o «propio» (solo los creados por la persona o asignados).",
+      "datosQueUsa": [
+        "Nombre, correo, estado y roles de cada cuenta."
+      ],
+      "comoSeUsa": [
+        "Escribe nombre, correo y rol y pulsa «Enviar invitación».",
+        "Pulsa un rol para asignarlo o retirarlo; pulsa «Suspender», «Revocar» o «Reactivar» para cambiar el acceso."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "usuarios",
+        "roles",
+        "permisos",
+        "invitar",
+        "invitación",
+        "suspender",
+        "revocar",
+        "reactivar",
+        "administración",
+        "panel"
+      ]
     },
     {
       "id": "asistente",
       "titulo": "Asistente de la aplicación",
       "resumen": "Responde preguntas sobre la app y el proyecto citando este centro de ayuda.",
       "deQueTrata": "El asistente usa como base de conocimiento solo el contenido de este centro de ayuda, separado de la futura biblioteca de libros. En la etapa 1 funciona en modo demo, sin inteligencia artificial: busca en las secciones de ayuda y muestra los fragmentos que coinciden, cada uno con su cita. Si no encuentra respaldo, lo dice. Más adelante podrá usar un modelo de lenguaje configurable, con las mismas citas.",
-      "datosQueUsa": ["Tu pregunta, procesada en el navegador. No se envía a ningún servicio."],
+      "datosQueUsa": [
+        "Tu pregunta, procesada en el navegador. No se envía a ningún servicio."
+      ],
       "comoSeUsa": [
         "Escribe una pregunta, por ejemplo «¿cómo se cuenta la ñ?» o «¿qué falta del proyecto?».",
         "Pulsa «Preguntar» y abre las citas para ir a la sección de ayuda correspondiente."
       ],
       "estado": "demo",
-      "palabrasClave": ["asistente", "bot", "chat", "pregunta", "preguntar", "ia", "inteligencia artificial", "llm", "modelo", "citas", "conversación"]
+      "palabrasClave": [
+        "asistente",
+        "bot",
+        "chat",
+        "pregunta",
+        "preguntar",
+        "ia",
+        "inteligencia artificial",
+        "llm",
+        "modelo",
+        "citas",
+        "conversación"
+      ]
     },
     {
       "id": "centro-ayuda",
       "titulo": "Centro de ayuda y ventanas explicativas",
       "resumen": "Dónde encontrar la explicación de cada sección y de cada botón.",
       "deQueTrata": "Cada sección tiene un botón «?» que muestra de qué trata, qué datos usa y cómo se usa. Todos los botones muestran una ventana explicativa al pasar el ratón, al enfocarlos con el teclado o al tocarlos en el móvil; se cierra con Escape. El Centro de ayuda reúne todas las secciones en una sola página.",
-      "datosQueUsa": ["Ninguno."],
+      "datosQueUsa": [
+        "Ninguno."
+      ],
       "comoSeUsa": [
         "Pulsa «?» junto al título de una sección.",
         "Pasa el ratón, enfoca con Tab o toca un botón para ver qué hace.",
         "Abre «Ayuda» en la barra superior para ver todas las secciones."
       ],
       "estado": "disponible",
-      "palabrasClave": ["ayuda", "tooltip", "explicación", "botón", "botones", "teclado", "accesibilidad", "móvil", "escape"]
+      "palabrasClave": [
+        "ayuda",
+        "tooltip",
+        "explicación",
+        "botón",
+        "botones",
+        "teclado",
+        "accesibilidad",
+        "móvil",
+        "escape"
+      ]
     }
   ]
 }

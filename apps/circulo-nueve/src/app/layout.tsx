@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Emblema, Logotipo } from "@/ui/componentes/Marca";
+import { SesionCabecera } from "@/ui/auth/SesionCabecera";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <EnlaceBoton href="/" descripcion="Ir al inicio de Círculo Nueve." className="px-0 py-0">
               <Logotipo />
             </EnlaceBoton>
-            <nav aria-label="Principal" className="flex gap-2">
+            <nav aria-label="Principal" className="flex flex-wrap items-center gap-2">
               <EnlaceBoton
                 href="/"
                 className="inline-flex items-center gap-1.5"
@@ -42,12 +43,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <Emblema />
                 Ayuda
               </EnlaceBoton>
+              <SesionCabecera />
             </nav>
           </div>
         </header>
         <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">{children}</main>
         <footer className="mx-auto max-w-4xl px-4 pb-8 text-xs text-slate-500">
-          Etapa 1 · demostración con datos ficticios · uso personal no comercial.
+          En construcción · la demostración usa datos ficticios · uso personal no comercial.
         </footer>
       </body>
     </html>

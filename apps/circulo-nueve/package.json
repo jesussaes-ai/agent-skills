@@ -14,24 +14,34 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "db:start": "supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,postgres-meta",
+    "db:start": "supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "test:db": "supabase test db"
+    "test:db": "supabase db reset && supabase test db",
+    "setup:hash": "tsx scripts/generar-hash-clave.mts",
+    "test:e2e": "bash scripts/e2e.sh"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.2.1",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
     "next": "16.3.8",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "fast-check": "4.10.2",
+    "otpauth": "^9.5.2",
     "supabase": "^2.119.0",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3",
     "vitest": "5.0.3"
   }
