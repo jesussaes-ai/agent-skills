@@ -4,7 +4,7 @@ import { AsistenteAyuda } from "@/ui/asistente/AsistenteAyuda";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta } from "@/ui/componentes/Seccion";
 
-export const metadata: Metadata = { title: "Centro de ayuda · Circulo Nueve" };
+export const metadata: Metadata = { title: "Centro de ayuda · Círculo Nueve" };
 
 export default function CentroDeAyuda() {
   return (

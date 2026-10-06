@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { CONFIG_POR_DEFECTO, calcularNumerologia, crearConfig } from "@/modulos/calculo/numerologia";
 import { AvisoDemo } from "@/ui/componentes/AvisoDemo";
+import { Emblema } from "@/ui/componentes/Marca";
 import { Bienvenida } from "./Bienvenida";
 import { Consentimiento } from "./Consentimiento";
 import { FormularioPerfil } from "./FormularioPerfil";
@@ -59,8 +60,9 @@ export function AppDemo() {
             <li
               key={p.id}
               aria-current={i === indice ? "step" : undefined}
-              className={`rounded-full px-3 py-1 ${i === indice ? "bg-violet-700 text-white" : i < indice ? "bg-violet-100 text-violet-800" : "bg-slate-100 text-slate-500"}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 ${i === indice ? "bg-marino-800 text-white" : i < indice ? "bg-oro-100 text-oro-800" : "bg-slate-100 text-slate-500"}`}
             >
+              {i === indice && <Emblema tamano={16} />}
               {i + 1}. {p.nombre}
             </li>
           ))}

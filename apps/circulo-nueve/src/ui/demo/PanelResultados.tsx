@@ -22,7 +22,7 @@ function TarjetaIndicador({ indicador }: { indicador: Indicador }) {
           <p className="font-semibold text-slate-900">{indicador.nombre}</p>
           <p className="text-sm text-slate-600">{indicador.descripcion}</p>
         </div>
-        <p className="text-3xl font-bold text-violet-800" aria-label={`Valor ${indicador.valor}`}>
+        <p className="text-3xl font-bold text-marino-800" aria-label={`Valor ${indicador.valor}`}>
           {indicador.valor}
         </p>
       </div>

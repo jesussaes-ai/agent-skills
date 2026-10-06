@@ -24,7 +24,7 @@ export function Seccion({ titulo, ayuda, children, etiqueta }: Props) {
 
 export function Etiqueta({ children, tono = "violeta" }: { children: ReactNode; tono?: "violeta" | "ambar" | "gris" }) {
   const tonos = {
-    violeta: "bg-violet-100 text-violet-800",
+    violeta: "bg-oro-100 text-oro-800",
     ambar: "bg-amber-100 text-amber-900",
     gris: "bg-slate-100 text-slate-700",
   };

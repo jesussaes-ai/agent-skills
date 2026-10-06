@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
+import { Emblema, Logotipo } from "@/ui/componentes/Marca";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Circulo Nueve",
+  title: "Círculo Nueve",
   description: "Explora numerología, carta natal y cábala como sistemas simbólicos de reflexión personal.",
   robots: { index: false, follow: false },
 };
@@ -12,20 +13,33 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#0f1b33",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <body className="min-h-screen">
-        <header className="border-b border-violet-100 bg-white">
-          <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <p className="text-lg font-bold text-violet-900">Circulo Nueve</p>
+        <header className="border-b-2 border-oro-400 bg-white">
+          <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-2">
+            <EnlaceBoton href="/" descripcion="Ir al inicio de Círculo Nueve." className="px-0 py-0">
+              <Logotipo />
+            </EnlaceBoton>
             <nav aria-label="Principal" className="flex gap-2">
-              <EnlaceBoton href="/" descripcion="Vuelve al recorrido de demostración: bienvenida, consentimiento, perfil y resultados.">
+              <EnlaceBoton
+                href="/"
+                className="inline-flex items-center gap-1.5"
+                descripcion="Vuelve al recorrido de demostración: bienvenida, consentimiento, perfil y resultados."
+              >
+                <Emblema />
                 Inicio
               </EnlaceBoton>
-              <EnlaceBoton href="/ayuda" descripcion="Abre el Centro de ayuda con todas las secciones y el asistente.">
+              <EnlaceBoton
+                href="/ayuda"
+                className="inline-flex items-center gap-1.5"
+                descripcion="Abre el Centro de ayuda con todas las secciones y el asistente."
+              >
+                <Emblema />
                 Ayuda
               </EnlaceBoton>
             </nav>

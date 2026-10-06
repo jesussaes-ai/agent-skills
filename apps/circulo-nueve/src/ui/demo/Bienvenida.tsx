@@ -8,7 +8,7 @@ export function Bienvenida({ onComenzar }: { onComenzar: () => void }) {
     <Seccion titulo="Bienvenida" ayuda="bienvenida">
       <div className="space-y-3 text-slate-700">
         <p>
-          Circulo Nueve te acompaña a explorar la <strong>numerología</strong>, la <strong>carta natal</strong> y la{" "}
+          Círculo Nueve te acompaña a explorar la <strong>numerología</strong>, la <strong>carta natal</strong> y la{" "}
           <strong>cábala</strong> como sistemas simbólicos para reflexionar sobre ti.
         </p>
         <p>

@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Paleta de marca. Contraste (WCAG): blanco sobre marino-800 ≈ 16:1;
+   marino-800 sobre blanco ≈ 16:1; oro-800 sobre oro-100 ≈ 7:1.
+   El dorado de marca (oro-400) es decorativo: no se usa para texto sobre blanco. */
+@theme {
+  --color-marino-50: #f2f4f8;
+  --color-marino-100: #e1e6ef;
+  --color-marino-200: #c3cddf;
+  --color-marino-300: #9aa9c6;
+  --color-marino-600: #22345a;
+  --color-marino-700: #17264a;
+  --color-marino-800: #0f1b33;
+  --color-marino-900: #0a1324;
+  --color-oro-50: #fbf6e9;
+  --color-oro-100: #f5e9c8;
+  --color-oro-300: #e2c27a;
+  --color-oro-400: #d4a94f;
+  --color-oro-500: #b98d33;
+  --color-oro-700: #7a5a12;
+  --color-oro-800: #5e450d;
+}
+
 :root {
   color-scheme: light;
 }
@@ -9,7 +30,7 @@ html {
 }
 
 body {
-  background: #f7f5fb;
+  background: #f7f5ef;
   color: #0f172a;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }

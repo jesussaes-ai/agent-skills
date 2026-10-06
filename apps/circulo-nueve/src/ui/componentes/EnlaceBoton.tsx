@@ -20,7 +20,7 @@ export function EnlaceBoton({ href, descripcion, children, className = "" }: Pro
         <Link
           href={href}
           {...disparador}
-          className={`rounded-md px-2 py-1 font-medium text-violet-800 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-600 ${className}`}
+          className={`rounded-md px-2 py-1 font-medium text-marino-800 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-marino-800 ${className}`}
         >
           {children}
         </Link>

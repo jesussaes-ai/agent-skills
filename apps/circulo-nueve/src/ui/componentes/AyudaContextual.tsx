@@ -25,7 +25,7 @@ export function AyudaContextual({ seccion }: { seccion: string }) {
       <div
         id={panelId}
         hidden={!abierta}
-        className="basis-full rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-slate-800"
+        className="basis-full rounded-xl border border-marino-200 bg-marino-50 p-4 text-sm text-slate-800"
       >
         <p className="mb-2 font-semibold">
           {ayuda.titulo} · <span className="font-normal">{ETIQUETA_ESTADO[ayuda.estado]}</span>
