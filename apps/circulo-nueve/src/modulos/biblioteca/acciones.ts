@@ -3,13 +3,13 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { erroresDe, type EstadoFormulario } from "@/modulos/auth/esquemas";
+import { datosDe, erroresDe, type EstadoFormulario } from "@/modulos/auth/esquemas";
 import { obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { formularioAObjeto } from "@/modulos/expedientes/esquemas";
 import { aVector, crearEmbeddingsLocales } from "./embeddings";
 import { esquemaEditarFuente, esquemaMetadatos, esquemaPregunta, esquemaWeb } from "./esquemas";
-import { EXTENSIONES, detectarFormato, revisarContenidoActivo } from "./formatos";
+import { EXTENSIONES, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
 import { procesarSiguiente, type ResultadoTrabajo } from "./ingesta";
 import { llmParaBiblioteca, mensajeErrorProveedor } from "./llm";
 import { construirMensajes, medirProporcion, respuestaExtractiva, validarRespuesta } from "./respuesta";
@@ -21,6 +21,25 @@ const SIN_PERMISO: EstadoFormulario = { mensaje: "No tienes permiso para adminis
 async function sesionFuentes(): Promise<Sesion | null> {
   const s = await obtenerSesion();
   return s?.acceso.activo && s.acceso.aal2 && s.acceso.permisos.includes("admin_fuentes") ? s : null;
+}
+
+/** Valores enviados (sin archivo ni confirmación de derechos) para rellenar el formulario tras un error. */
+function valoresDe(form: FormData): Record<string, string> {
+  const { archivo: _archivo, derechos: _derechos, ...resto } = datosDe(form);
+  return resto;
+}
+
+/** Borra recursivamente los objetos bajo una carpeta de un bucket (Storage no tiene borrado por prefijo). */
+async function borrarCarpeta(bucket: string, prefijo: string): Promise<void> {
+  const almacen = clienteSupabaseAdmin().storage.from(bucket);
+  const { data } = await almacen.list(prefijo, { limit: 1000 });
+  const archivos: string[] = [];
+  for (const o of data ?? []) {
+    const ruta = `${prefijo}/${o.name}`;
+    if (o.id === null) await borrarCarpeta(bucket, ruta);
+    else archivos.push(ruta);
+  }
+  if (archivos.length) await almacen.remove(archivos);
 }
 
 function metadatosAFila(d: ReturnType<typeof esquemaMetadatos.parse>) {
@@ -72,9 +91,9 @@ export async function accionCargarArchivo(_: EstadoFormulario, form: FormData): 
   const sesion = await sesionFuentes();
   if (!sesion) return SIN_PERMISO;
   const datos = esquemaMetadatos.safeParse(formularioAObjeto(form));
-  if (!datos.success) return { errores: erroresDe(datos.error) };
+  if (!datos.success) return { errores: erroresDe(datos.error), valores: valoresDe(form) };
   const archivo = form.get("archivo");
-  if (!(archivo instanceof File) || !archivo.size) return { errores: { archivo: "Elige un archivo." } };
+  if (!(archivo instanceof File) || !archivo.size) return { errores: { archivo: "Elige un archivo." }, valores: valoresDe(form) };
 
   const id = randomUUID();
   const supabase = await clienteSupabaseServidor();
@@ -84,7 +103,7 @@ export async function accionCargarArchivo(_: EstadoFormulario, form: FormData): 
   if (fallo) {
     await supabase.from("sources").update({ estado: "fallido", motivo_fallo: fallo.errores?.archivo ?? fallo.mensaje }).eq("id", id);
     revalidatePath("/biblioteca");
-    return fallo;
+    return { ...fallo, valores: valoresDe(form) };
   }
   revalidatePath("/biblioteca");
   return { ok: true, mensaje: `«${datos.data.titulo}» quedó en cuarentena, pendiente de procesar.` };
@@ -94,7 +113,7 @@ export async function accionAgregarWeb(_: EstadoFormulario, form: FormData): Pro
   const sesion = await sesionFuentes();
   if (!sesion) return SIN_PERMISO;
   const datos = esquemaWeb.safeParse(formularioAObjeto(form));
-  if (!datos.success) return { errores: erroresDe(datos.error) };
+  if (!datos.success) return { errores: erroresDe(datos.error), valores: valoresDe(form) };
   const id = randomUUID();
   const supabase = await clienteSupabaseServidor();
   const { error } = await supabase
@@ -162,6 +181,7 @@ export async function accionRechazarVersion(_: EstadoFormulario, form: FormData)
   await admin.from("source_versions").delete().eq("id", versionId);
   if (version.original_path) await admin.storage.from("biblioteca-originales").remove([version.original_path]);
   if (version.markdown_path) await admin.storage.from("biblioteca-derivados").remove([version.markdown_path]);
+  await borrarCarpeta("biblioteca-derivados", `${fuenteId}/${versionId}`);
   const { data: vigente } = await admin.from("source_versions").select("id").eq("source_id", fuenteId).eq("es_vigente", true).maybeSingle();
   const supabase = await clienteSupabaseServidor();
   await supabase
@@ -222,12 +242,97 @@ export async function accionRetirarFuente(_: EstadoFormulario, form: FormData): 
   if (error || !data?.length) return SIN_PERMISO;
   const admin = clienteSupabaseAdmin();
   await admin.from("source_versions").delete().eq("source_id", fuenteId);
-  for (const bucket of ["biblioteca-originales", "biblioteca-derivados"]) {
-    const { data: objetos } = await admin.storage.from(bucket).list(fuenteId, { limit: 1000 });
-    if (objetos?.length) await admin.storage.from(bucket).remove(objetos.map((o) => `${fuenteId}/${o.name}`));
-  }
+  for (const bucket of ["biblioteca-originales", "biblioteca-derivados"]) await borrarCarpeta(bucket, fuenteId);
   revalidatePath("/biblioteca");
   redirect("/biblioteca?retirada=1");
+}
+
+// ---------------------------------------------------------------- carga directa a Storage
+
+export interface EstadoCargaDirecta extends EstadoFormulario {
+  fuenteId?: string;
+  ruta?: string;
+  token?: string;
+}
+
+/**
+ * Archivos grandes: el servidor valida metadatos y permisos, crea la fuente y
+ * entrega una URL firmada de subida a la cuarentena (válida 2 h). El navegador
+ * sube el archivo directamente a Storage y después pide confirmar.
+ */
+export async function accionPrepararCargaDirecta(form: FormData): Promise<EstadoCargaDirecta> {
+  const sesion = await sesionFuentes();
+  if (!sesion) return SIN_PERMISO;
+  const datos = esquemaMetadatos.safeParse(formularioAObjeto(form));
+  if (!datos.success) return { errores: erroresDe(datos.error), valores: valoresDe(form) };
+  const nombre = String(form.get("nombreArchivo") ?? "").slice(0, 255);
+  const tamano = Number(form.get("tamanoArchivo") ?? 0);
+  const extension = nombre.toLowerCase().split(".").pop() ?? "";
+  const formato = (Object.entries(EXTENSIONES) as [Formato, string[]][]).find(([, exts]) => exts.includes(extension))?.[0];
+  if (!formato) return { errores: { archivo: `La extensión «.${extension}» no se admite.` }, valores: valoresDe(form) };
+  if (!tamano || tamano > LIMITES.bytesCargaDirecta) {
+    return { errores: { archivo: `El archivo supera el límite de ${LIMITES.bytesCargaDirecta / 1024 / 1024} MB.` }, valores: valoresDe(form) };
+  }
+
+  const fuenteId = randomUUID();
+  const supabase = await clienteSupabaseServidor();
+  const { error } = await supabase.from("sources").insert({ id: fuenteId, ...metadatosAFila(datos.data), origen: "archivo", formato, created_by: sesion.usuarioId });
+  if (error) return SIN_PERMISO;
+  const ruta = `${fuenteId}.${extension}`;
+  const { data: firmada, error: errorFirma } = await clienteSupabaseAdmin().storage.from("cuarentena").createSignedUploadUrl(ruta);
+  if (errorFirma || !firmada) return { mensaje: "No se pudo preparar la carga directa." };
+  return { ok: true, fuenteId, ruta, token: firmada.token };
+}
+
+export async function accionConfirmarCargaDirecta(fuenteId: string, nombreArchivo: string): Promise<EstadoFormulario> {
+  const sesion = await sesionFuentes();
+  if (!sesion) return SIN_PERMISO;
+  const supabase = await clienteSupabaseServidor();
+  const { data: fuente } = await supabase.from("sources").select("id, estado, formato").eq("id", fuenteId).maybeSingle();
+  if (!fuente || fuente.estado !== "pendiente") return { mensaje: "La fuente no está esperando un archivo." };
+  const extension = EXTENSIONES[fuente.formato as Formato]?.find((e) => nombreArchivo.toLowerCase().endsWith(`.${e}`));
+  if (!extension) return { mensaje: "El archivo no coincide con el preparado." };
+
+  const ruta = `${fuenteId}.${extension}`;
+  const admin = clienteSupabaseAdmin();
+  const fallar = async (motivo: string) => {
+    await admin.storage.from("cuarentena").remove([ruta]);
+    await supabase.from("sources").update({ estado: "fallido", motivo_fallo: motivo }).eq("id", fuenteId);
+    revalidatePath("/biblioteca");
+    return { errores: { archivo: motivo } };
+  };
+  const { data: blob } = await admin.storage.from("cuarentena").download(ruta);
+  if (!blob) return fallar("No llegó el archivo a la cuarentena.");
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const deteccion = await detectarFormato(bytes, nombreArchivo, LIMITES.bytesCargaDirecta);
+  if (!deteccion.ok) return fallar(deteccion.error);
+  const activo = await revisarContenidoActivo(deteccion.formato, bytes);
+  if (activo.rechazar) return fallar(activo.motivos.join(" "));
+
+  const { error } = await supabase.from("ingestion_jobs").insert({
+    source_id: fuenteId,
+    etapa: "extraer",
+    nombre_archivo: nombreArchivo.slice(0, 255),
+    formato_detectado: deteccion.formato,
+    tamano_bytes: bytes.byteLength,
+    storage_path: ruta,
+    created_by: sesion.usuarioId,
+  });
+  if (error) return fallar("No se pudo crear el trabajo de ingesta.");
+  revalidatePath("/biblioteca");
+  return { ok: true, mensaje: `Archivo de ${(bytes.byteLength / 1024 / 1024).toFixed(1)} MB subido directamente a la cuarentena, pendiente de procesar.` };
+}
+
+export async function accionCorregirFigura(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {
+  if (!(await sesionFuentes())) return SIN_PERMISO;
+  const figuraId = String(form.get("figuraId") ?? "");
+  const fuenteId = String(form.get("fuenteId") ?? "");
+  const correccion = String(form.get("correccion") ?? "").trim().slice(0, 2000) || null;
+  const supabase = await clienteSupabaseServidor();
+  const { data, error } = await supabase.from("visual_assets").update({ correccion_admin: correccion }).eq("id", figuraId).select("id");
+  if (error || !data?.length) return SIN_PERMISO;
+  revalidatePath(`/biblioteca/fuentes/${fuenteId}`);
+  return { ok: true, mensaje: correccion ? "Corrección guardada; se muestra junto a la descripción generada." : "Corrección eliminada." };
 }
 
 // ---------------------------------------------------------------- bot de la biblioteca
@@ -239,6 +344,8 @@ export interface RespuestaBiblioteca {
   proveedor?: string;
   afirmaciones?: AfirmacionValidada[];
   fragmentos?: FragmentoRecuperado[];
+  /** Figura vinculada a un fragmento citado (por id de fragmento). */
+  figuras?: Record<string, { figuraId: string; pagina: string | null; leyenda: string | null; correccion: string | null }>;
   proporcion?: ProporcionAfirmaciones;
   incluyoComplementarias?: boolean;
   errores?: Record<string, string>;
@@ -335,7 +442,15 @@ export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: Fo
     afirmaciones = respuestaExtractiva(utilizables);
   }
   const citados = new Set(afirmaciones.flatMap((a) => a.chunkIds));
+  const { data: filasFiguras } = await supabase.rpc("figuras_de_fragmentos", { ids: [...citados] });
+  const figuras = Object.fromEntries(
+    ((filasFiguras ?? []) as { chunk_id: string; figura_id: string; pagina: string | null; leyenda: string | null; correccion: string | null }[]).map((f) => [
+      f.chunk_id,
+      { figuraId: f.figura_id, pagina: f.pagina, leyenda: f.leyenda, correccion: f.correccion },
+    ]),
+  );
   return {
+    figuras,
     estado: "ok",
     mensaje: aviso,
     modo,

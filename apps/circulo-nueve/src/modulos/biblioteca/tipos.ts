@@ -8,9 +8,20 @@ export interface Segmento {
   ocrConfianza?: number;
 }
 
+/** Figura extraída de un PDF (imagen incrustada) con su leyenda si se detectó. */
+export interface FiguraExtraida {
+  numero: number;
+  pagina: number;
+  png: Uint8Array;
+  ancho: number;
+  alto: number;
+  leyenda?: string;
+}
+
 export interface DocumentoExtraido {
   markdown: string;
   segmentos: Segmento[];
+  figuras?: FiguraExtraida[];
   metodo: string;
   advertencias: string[];
   metadatos?: {

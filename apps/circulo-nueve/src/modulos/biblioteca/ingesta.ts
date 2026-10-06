@@ -9,9 +9,11 @@ import { promisify } from "node:util";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { diffLines } from "diff";
 import { aVector, crearEmbeddingsLocales, type ProveedorEmbeddings } from "./embeddings";
-import { extraerDocumento } from "./extraer";
-import { EXTENSIONES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
+import { extraerDocumento, ocrImagen } from "./extraer";
+import { describirConVision, describirSinVision, proveedorVisionConfigurado, type DescripcionFigura } from "./figuras";
+import { EXTENSIONES, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
 import { fragmentar } from "./fragmentar";
+import { detectarInyeccion } from "./inyeccion";
 import type { DocumentoExtraido } from "./tipos";
 import { ErrorWeb, obtenerPaginaWeb } from "./web";
 
@@ -44,20 +46,45 @@ export interface ResultadoTrabajo {
 
 class ErrorIngesta extends Error {}
 
-async function antivirus(bytes: Uint8Array): Promise<string | null> {
-  try {
-    await ejecutar("clamscan", ["--version"]);
-  } catch {
+export type Ejecutor = (programa: string, args: string[]) => Promise<{ stdout: string }>;
+
+/**
+ * Escaneo con ClamAV si está instalado (prefiere `clamdscan`, el demonio, y si no
+ * `clamscan`). Con CLAMAV_OBLIGATORIO=1, un escáner ausente o con error rechaza el
+ * archivo; si no, se deja una advertencia. Código 1 de ClamAV = amenaza encontrada.
+ */
+export async function antivirus(
+  bytes: Uint8Array,
+  opciones: { obligatorio?: boolean; ejecutar?: Ejecutor } = {},
+): Promise<string | null> {
+  const correr: Ejecutor = opciones.ejecutar ?? ((p, a) => ejecutar(p, a, { maxBuffer: 1024 * 1024 }));
+  const obligatorio = opciones.obligatorio ?? process.env.CLAMAV_OBLIGATORIO === "1";
+  let escaner: string | null = null;
+  for (const candidato of ["clamdscan", "clamscan"]) {
+    try {
+      await correr(candidato, ["--version"]);
+      escaner = candidato;
+      break;
+    } catch {
+      // probar el siguiente
+    }
+  }
+  if (!escaner) {
+    if (obligatorio) throw new ErrorIngesta("El antivirus es obligatorio en este entorno y ClamAV no está instalado.");
     return "Antivirus (ClamAV) no disponible en este entorno: el archivo no se escaneó.";
   }
   const { writeFile, rm } = await import("node:fs/promises");
   const ruta = `/tmp/cn-${randomUUID()}`;
   await writeFile(ruta, bytes);
   try {
-    await ejecutar("clamscan", ["--no-summary", ruta]);
+    await correr(escaner, ["--no-summary", ...(escaner === "clamdscan" ? ["--fdpass"] : []), ruta]);
     return null;
-  } catch {
-    throw new ErrorIngesta("El antivirus detectó contenido malicioso.");
+  } catch (e) {
+    const codigo = (e as { code?: number }).code;
+    const salida = String((e as { stdout?: string }).stdout ?? "");
+    if (codigo === 1) throw new ErrorIngesta(`El antivirus detectó contenido malicioso${/: (.+) FOUND/.exec(salida)?.[1] ? ` (${/: (.+) FOUND/.exec(salida)?.[1]})` : ""}.`);
+    if (obligatorio) throw new ErrorIngesta("El antivirus no pudo analizar el archivo.");
+    return "El antivirus no pudo analizar el archivo (¿base de firmas sin descargar?).";
   } finally {
     await rm(ruta, { force: true });
   }
@@ -120,14 +147,16 @@ async function extraer(db: SupabaseClient, t: Trabajo): Promise<ResultadoTrabajo
     const { data: blob, error } = await db.storage.from("cuarentena").download(t.storage_path);
     if (error || !blob) throw new ErrorIngesta("No se encontró el archivo en cuarentena.");
     original = new Uint8Array(await blob.arrayBuffer());
-    const deteccion = await detectarFormato(original, t.nombre_archivo ?? t.storage_path);
+    const deteccion = await detectarFormato(original, t.nombre_archivo ?? t.storage_path, LIMITES.bytesCargaDirecta);
     if (!deteccion.ok) throw new ErrorIngesta(deteccion.error);
     formato = deteccion.formato;
     const activo = await revisarContenidoActivo(formato, original);
     if (activo.rechazar) throw new ErrorIngesta(activo.motivos.join(" "));
     const aviso = await antivirus(original);
     if (aviso) advertencias.push(aviso);
-    documento = await extraerDocumento(formato, original);
+    documento = await extraerDocumento(formato, original, t.nombre_archivo ?? undefined).catch((e: unknown) => {
+      throw new ErrorIngesta(e instanceof Error ? e.message : "No se pudo extraer el contenido.");
+    });
   }
   advertencias.push(...documento.advertencias);
 
@@ -194,6 +223,9 @@ async function extraer(db: SupabaseClient, t: Trabajo): Promise<ResultadoTrabajo
     if (error) throw new ErrorIngesta(`No se pudieron guardar los fragmentos: ${error.message}`);
   }
 
+  const figuras = await guardarFiguras(db, documento, { fuenteId: t.source_id, versionId, ordenInicial: fragmentos.length, fuente });
+  advertencias.push(...figuras.avisos);
+
   if (t.storage_path) await db.storage.from("cuarentena").remove([t.storage_path]);
   await db
     .from("ingestion_jobs")
@@ -214,8 +246,84 @@ async function extraer(db: SupabaseClient, t: Trabajo): Promise<ResultadoTrabajo
     fuenteId: t.source_id,
     etapa: t.etapa,
     estado: "requiere_revision",
-    mensaje: `${fragmentos.length} fragmentos listos para revisión${sospechosos ? ` (${sospechosos} marcados como posible instrucción incrustada)` : ""}.`,
+    mensaje: `${fragmentos.length + figuras.total} fragmentos listos para revisión${figuras.total ? `, ${figuras.total} de figuras` : ""}${sospechosos ? ` (${sospechosos} marcados como posible instrucción incrustada)` : ""}.`,
   };
+}
+
+/**
+ * Figuras de PDF: OCR de rótulos, descripción (visión solo si está configurada y
+ * declarada; si no, leyenda + OCR), imagen en el bucket privado de derivados y un
+ * fragmento consultable vinculado a la figura.
+ */
+async function guardarFiguras(
+  db: SupabaseClient,
+  documento: DocumentoExtraido,
+  c: { fuenteId: string; versionId: string; ordenInicial: number; fuente: { idioma: string; tradicion: string | null; nivel_acceso: string } },
+): Promise<{ total: number; avisos: string[] }> {
+  const figuras = documento.figuras ?? [];
+  if (!figuras.length) return { total: 0, avisos: [] };
+  const avisos: string[] = [];
+  const vision = await proveedorVisionConfigurado(db).catch(() => null);
+  for (const f of figuras) {
+    const ocr = await ocrImagen(f.png).catch(() => ({ texto: "", confianza: 0 }));
+    let descripcion: DescripcionFigura = describirSinVision({ numero: f.numero, pagina: f.pagina, leyenda: f.leyenda, ocr: ocr.texto, confianzaOcr: ocr.texto ? ocr.confianza : undefined });
+    if (vision) {
+      try {
+        descripcion = await describirConVision(f.png, vision, { leyenda: f.leyenda }, {
+          registrar: async (r) => {
+            await db.from("ai_usage").insert({
+              provider_id: vision.proveedor.id,
+              modelo: vision.proveedor.modelo,
+              codigo_resultado: r.codigo,
+              intento: 1,
+              latencia_ms: r.latenciaMs,
+              tokens_entrada: r.tokensEntrada ?? null,
+              tokens_salida: r.tokensSalida ?? null,
+              origen: "biblioteca",
+            });
+          },
+        });
+      } catch (e) {
+        avisos.push(`Figura ${f.numero}: ${e instanceof Error ? e.message : "fallo del modelo de visión"}; se usó la leyenda y el OCR.`);
+      }
+    }
+    const ruta = `${c.fuenteId}/${c.versionId}/figura-${f.numero}.png`;
+    const { error: errorImagen } = await db.storage.from("biblioteca-derivados").upload(ruta, f.png, { contentType: "image/png", upsert: false });
+    if (errorImagen) throw new ErrorIngesta(`No se pudo guardar la figura ${f.numero}: ${errorImagen.message}`);
+    const figuraId = randomUUID();
+    const fragmentoId = randomUUID();
+    await db.from("visual_assets").insert({
+      id: figuraId,
+      source_version_id: c.versionId,
+      storage_path: ruta,
+      pagina: String(f.pagina),
+      leyenda: f.leyenda ?? null,
+      ocr: ocr.texto || null,
+      descripcion_generada: descripcion.descripcion,
+      descripcion_modelo: descripcion.modelo,
+      descripcion_fecha: new Date().toISOString(),
+    });
+    const texto = `[Figura ${f.numero}, p. ${f.pagina}] ${descripcion.descripcion}`;
+    const inyeccion = detectarInyeccion(`${f.leyenda ?? ""} ${ocr.texto} ${descripcion.descripcion}`);
+    const { error } = await db.from("chunks").insert({
+      id: fragmentoId,
+      source_version_id: c.versionId,
+      texto,
+      localizador: { paginaArchivo: f.pagina, figura: String(f.numero) },
+      jerarquia: [`Figura ${f.numero}`],
+      ocr_confianza: ocr.texto ? ocr.confianza : null,
+      idioma: c.fuente.idioma,
+      tradicion: c.fuente.tradicion,
+      nivel_acceso: c.fuente.nivel_acceso,
+      orden: c.ordenInicial + f.numero - 1,
+      sospechoso: inyeccion.sospechoso || descripcion.avisos.length > 0,
+      motivo_sospecha: [...inyeccion.motivos, ...descripcion.avisos].join("; ") || null,
+    });
+    if (error) throw new ErrorIngesta(`No se pudo guardar el fragmento de la figura ${f.numero}: ${error.message}`);
+    await db.from("chunk_visual_links").insert({ chunk_id: fragmentoId, visual_asset_id: figuraId });
+  }
+  await db.from("source_versions").update({ num_fragmentos: c.ordenInicial + figuras.length }).eq("id", c.versionId);
+  return { total: figuras.length, avisos };
 }
 
 async function indexar(db: SupabaseClient, t: Trabajo, embeddings: ProveedorEmbeddings): Promise<ResultadoTrabajo> {

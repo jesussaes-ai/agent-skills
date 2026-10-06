@@ -137,8 +137,12 @@ export function medirProporcion(afirmaciones: AfirmacionValidada[], fragmentos: 
 export function formatearLocalizador(l: FragmentoRecuperado["localizador"]): string {
   return [
     l.capitulo && `cap. «${l.capitulo}»`,
-    l.seccion && `secc. «${l.seccion}»`,
+    l.diapositiva && `diapositiva ${l.diapositiva}`,
+    l.seccion && !l.diapositiva && `secc. «${l.seccion}»`,
+    l.hoja && `hoja «${l.hoja}»${l.celda ? `, celdas ${l.celda}` : ""}`,
     l.paginaImpresa ? `p. ${l.paginaImpresa}` : l.paginaArchivo && `p. ${l.paginaArchivo} (archivo)`,
+    l.figura && `figura ${l.figura}`,
+    l.marcaTiempo && `min. ${l.marcaTiempo}`,
     l.url,
   ]
     .filter(Boolean)

@@ -30,6 +30,13 @@ export interface Localizador {
   marcaTiempo?: string;
   /** Rango de líneas del Markdown derivado, p. ej. "12-30". */
   lineas?: string;
+  /** Hojas de cálculo: nombre de la hoja y rango de celdas, p. ej. "A1:D31". */
+  hoja?: string;
+  celda?: string;
+  /** Presentaciones: número de diapositiva. */
+  diapositiva?: number;
+  /** Figura dentro de la página, p. ej. "1". */
+  figura?: string;
 }
 
 export interface FragmentoFuente {
