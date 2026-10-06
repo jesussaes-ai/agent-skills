@@ -79,6 +79,12 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Bot con citas validadas, proporción 80/20 por afirmación, autorización para fuentes complementarias y defensa contra prompt injection.
   - El bot usa la capa de proveedores del PR #4 (consentimiento, límites, 429, consumo con origen «biblioteca»).
   - Verificado: 282 pruebas unitarias, 100 pgTAP y e2e con Supabase local.
+- **08:00** — Biblioteca multimedia y guía de despliegue:
+  - Figuras de PDF con leyenda, OCR y descripción automática etiquetada (visión solo con proveedor configurado); corrección por la administración y «Ver figura» en el bot.
+  - XLSX, ODS y CSV con hoja y celdas; PPTX por diapositiva; audio y video con Whisper local y marcas de tiempo.
+  - Carga directa a Storage con URL firmada (hasta 50 MB); ClamAV opcional u obligatorio; el formulario se conserva tras un error.
+  - Invitaciones y recuperación con enlace de un solo uso, sin SMTP.
+  - `docs/despliegue.md`: Supabase Free `us-east-1`, Vercel Hobby `iad1`, worker y ping en GitHub Actions, respaldos cifrados y restauración.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).

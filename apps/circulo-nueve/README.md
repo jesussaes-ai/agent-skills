@@ -27,13 +27,16 @@ Uso personal, no comercial y gratuito.
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
 | Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
 | Biblioteca RAG: administración de fuentes, centro de carga (PDF, EPUB, DOCX, TXT/MD, imágenes con OCR), web → Markdown, revisión y versiones, worker, embeddings locales, búsqueda híbrida con permisos, bot con citas validadas y proporción 80/20 | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
-| Supabase remoto, cábala | Etapas posteriores |
+| Biblioteca multimedia: figuras de PDF (leyenda, OCR, descripción etiquetada; visión opcional), hojas (XLSX/ODS/CSV con hoja y celdas), PPTX, audio y video con transcripción local (Whisper) y marcas de tiempo, carga directa a Storage, ClamAV opcional | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
+| Despliegue gratuito: Supabase Free (`us-east-1`), Vercel Hobby, worker y ping en GitHub Actions, respaldos cifrados | Guía lista ([despliegue](docs/despliegue.md)) |
+| Supabase remoto, cábala | Pendiente de las cuentas del propietario / etapas posteriores |
 
 ## Requisitos
 
 - [Node.js](https://nodejs.org/) 20.9 o superior (probado con Node 22) y npm.
 - Git.
-- Docker (solo para la base de datos local; en Windows, Docker Desktop).
+- Docker (para la base de datos local y los respaldos; en Windows, Docker Desktop).
+- ffmpeg (para transcribir audio y video en el worker; opcional en local). ClamAV opcional.
 
 ## Ejecutar
 
@@ -59,6 +62,7 @@ npm run dev        # http://localhost:3000
 | `npm run retencion:purgar` | Borra los documentos con retención vencida (llave de servicio; `-- --simular` para solo listar) |
 | `npm run admin:emergencia` | Recuperación de emergencia de la administración (ver docs) |
 | `npm run ingesta:worker` | Worker de la biblioteca: procesa la cola de ingesta (`-- --continuo` para seguir esperando) |
+| `npm run respaldo` | Respaldo cifrado de base y archivos ([despliegue](docs/despliegue.md#7-respaldos-manuales-el-plan-gratuito-no-tiene)) |
 | `npm run reporte:muestra` | Genera un PDF de muestra con datos ficticios |
 
 No hace falta ninguna variable de entorno en la etapa 1. Para etapas futuras, copia `.env.example` a `.env.local` en tu máquina; nunca subas `.env.local` ni pegues claves en chats o documentos.
@@ -192,4 +196,4 @@ El repositorio destino debe existir y estar vacío. El workflow de la raíz (`.g
 
 ## Despliegue
 
-Pendiente. Se prevé Vercel Hobby (uso personal no comercial) con «Root Directory» = `apps/circulo-nueve` mientras viva en este repositorio.
+Guía paso a paso, lista para ejecutar: [docs/despliegue.md](docs/despliegue.md) (Supabase Free en `us-east-1`, Vercel Hobby con «Root Directory» = `apps/circulo-nueve`, GitHub Actions para el worker, ping anti-pausa y purga, respaldos manuales cifrados).

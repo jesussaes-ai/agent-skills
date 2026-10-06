@@ -10,6 +10,7 @@ Estado: **funciona con Supabase local** y está probado de extremo a extremo. No
 | Verificación en dos pasos | `/cuenta/verificacion` | Inscripción TOTP (QR y clave secreta). Es obligatoria para administrar. |
 | Entrar | `/entrar` → `/entrar/verificar` | Correo y contraseña; si la cuenta tiene TOTP, se pide el código (sesión `aal2`). |
 | Invitar | `/admin/usuarios` | La administración invita por correo con un rol. El enlace es de un solo uso y lleva a `/auth/confirmar` → `/cuenta/contrasena`. |
+| Invitar o recuperar sin correo | `/admin/usuarios` | «No enviar correo» al invitar, o «Enlace de recuperación» en una cuenta: el panel muestra un enlace `token_hash` de un solo uso (caduca en 1 h) para compartirlo por un canal privado. Queda en la auditoría. Sirve cuando no hay SMTP propio. |
 | Recuperar | `/recuperar` | Enlace de un solo uso por correo. La respuesta es la misma exista o no la cuenta. |
 | Suspender, revocar o reactivar | `/admin/usuarios` | Cambia `user_profiles.status` (RLS lo aplica de inmediato) y bloquea o desbloquea el inicio de sesión en Auth. |
 | Roles | `/admin/usuarios` | Asignar o retirar `admin`, `consultor` o `cliente`. Nadie puede cambiar sus propios roles ni su estado. |

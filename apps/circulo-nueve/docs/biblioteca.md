@@ -36,10 +36,36 @@ Estados de fuente y trabajo: `pendiente → procesando → requiere_revision →
 | DOCX | zip + `word/document.xml` | `mammoth` → HTML → Markdown | sección (encabezados) |
 | TXT / MD | UTF-8 válido sin NUL | directo | sección y rango de líneas |
 | PNG / JPEG / WebP | bytes mágicos | OCR `tesseract.js` (spa) con confianza | página 1, confianza del OCR (< 70 % se marca) |
+| **Figuras de PDF** | imágenes incrustadas ≥ 80 px por página (máx. 40) | PNG + leyenda («Figura n…», «Diagrama…») + OCR de rótulos + descripción generada | página y número de figura |
+| XLSX / ODS | zip + `xl/workbook.xml` / `mimetype` OpenDocument | tablas Markdown por hoja; bloques de 30 filas que no parten filas y repiten el encabezado | hoja y rango de celdas (`A2:D31`) |
+| CSV | UTF-8 + extensión | Papa Parse → tabla | hoja = nombre del archivo, rango de celdas |
+| PPTX | zip + `ppt/presentation.xml` | texto y notas por diapositiva, en orden | diapositiva y título |
+| MP3 / WAV / OGG / M4A / MP4 / WebM | bytes mágicos | ffmpeg → 16 kHz → **Whisper local** (`Xenova/whisper-base`, precisión completa) | rango de minutos (`00:00–00:59`) |
 
 - **Formato real:** se ignoran el nombre y el MIME que envía el navegador. Si la extensión no coincide con el contenido, se rechaza.
+- **Figuras:**
+  - Con `VISION_PROVEEDOR_ID` (un proveedor de `/admin/proveedores` que declare visión), el worker pide una descripción a ese modelo. Envía la imagen como `image_url`, neutraliza enlaces y registra el consumo con origen `biblioteca`.
+  - Sin él, la descripción se compone **solo con la leyenda y el OCR** (`plantilla-leyenda-ocr-v1`) y lo dice.
+  - Siempre queda marcada como generada, con método y fecha. La imagen original es la fuente de verdad.
+  - La administración puede **corregir** la descripción; la corrección se guarda aparte y se muestra en el pasaje.
+  - El bot ofrece «Ver figura»: `ruta_figura_autorizada` en la base y una URL firmada corta.
+- **Audio y video:**
+  - Transcripción local y gratuita con marcas de tiempo.
+  - Máximo 60 minutos; ffmpeg es obligatorio en el worker.
+  - En CPU tarda aproximadamente la duración del audio dividida entre 2 o 4. La primera vez descarga ~290 MB.
+  - `whisper-tiny` y las versiones cuantizadas alucinaban con audio en español en las pruebas: por eso se usa `base` en fp32 (configurable con `TRANSCRIPCION_MODELO`).
+  - No separa hablantes (exigiría consentimiento) ni extrae fotogramas del video.
+- **Carga directa a Storage:**
+  - Por encima de 4 MB, el navegador pide al servidor una **URL firmada de subida** a la cuarentena (válida 2 h) y sube el archivo directo a Storage, sin pasar por Vercel (límite de 4.5 MB por petición).
+  - Al terminar, el servidor descarga el objeto, comprueba el formato real y el contenido activo y crea el trabajo; si no pasa, lo borra.
+  - Límite: 50 MB, el máximo por archivo del plan gratuito de Supabase.
+- **Antivirus:**
+  - ClamAV, si está instalado: primero `clamdscan` y, si no, `clamscan`. El código 1 significa amenaza y la fuente queda `fallido` con el nombre de la firma.
+  - Con `CLAMAV_OBLIGATORIO=1`, la falta de escáner o un error rechazan el archivo; si no, se deja una advertencia.
+  - Probado con el archivo EICAR.
+- **Formulario:** tras un error se conservan los datos escritos; el archivo hay que elegirlo de nuevo, porque el navegador no permite rellenarlo.
 - **Contenido activo:** se rechazan PDF con `/JavaScript`, `/JS`, `/Launch`, `/EmbeddedFile`, `/RichMedia` o `/XFA`, DOCX con macros (`vbaProject.bin`, `macroEnabled`) y EPUB con scripts. La extracción nunca ejecuta nada.
-- **Límites:** 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF y 2 millones de caracteres de texto.
+- **Límites:** 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF y 8 millones de caracteres de texto.
   - En Vercel, la petición admite como mucho ~4.5 MB. Para archivos mayores hay que subir con URL firmada directa a Storage (pendiente).
 - **Buckets privados:** `cuarentena` (entrada), `biblioteca-originales` y `biblioteca-derivados` (Markdown). Solo los usa el servidor con service role.
 
@@ -154,6 +180,21 @@ Formas de usarlo:
   - sin respaldo, se pide autorización y luego aparecen las complementarias («No cumple»);
   - una pregunta ajena no inventa respaldo;
   - retirar borra todo.
+- **Unitarias** `multimedia.test.ts`:
+  - XLSX, ODS y CSV con hoja y celdas; PPTX con diapositivas y notas;
+  - figuras de PDF con leyenda;
+  - descripción con y sin visión;
+  - transcripción real de audio y video ficticios;
+  - ClamAV real con EICAR.
+- **pgTAP** `07_biblioteca_figuras.test.sql`.
+- **e2e** `07-biblioteca-multimedia.spec.ts`:
+  - el formulario se conserva tras un error;
+  - XLSX, PPTX, audio y PDF con figura, de la carga a la revisión;
+  - imagen por URL firmada y corrección de la figura;
+  - el bot cita la figura con «Ver figura»;
+  - carga directa de 5 MB;
+  - EICAR rechazado;
+  - invitación con enlace sin correo.
 - **e2e** `05-biblioteca-llm.spec.ts`, con un proveedor compatible con OpenAI simulado:
   - consentimiento exigido;
   - solo se envían fragmentos delimitados;
@@ -163,9 +204,7 @@ Formas de usarlo:
   - el consumo queda con origen `biblioteca`.
 
 ## Pendiente
+- Diagramas complejos como estructura consultable (componentes y relaciones); embeddings multimodales.
+- Separación de hablantes con consentimiento; fotogramas de video.
 
-- Figuras y diagramas (`visual_assets`): detección, leyendas y descripciones generadas.
-- Audio, video, hojas de cálculo y presentaciones.
-- Antivirus en el worker de producción.
-- Carga directa a Storage para archivos de más de 4.5 MB en Vercel.
-- Que el formulario de carga conserve lo escrito tras un error.
+- Activar ClamAV en el worker de producción (`CIRCULO_NUEVE_CLAMAV`).
