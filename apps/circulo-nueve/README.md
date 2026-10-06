@@ -1,12 +1,12 @@
-# Circulo Nueve
+# Círculo Nueve
 
 Aplicación web en español, para teléfono y computadora, que ayuda a explorar **numerología**, **carta natal** y **cábala** como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones.
 
 Uso personal, no comercial y gratuito.
 
-> **Estado: etapa 1 (demostración).** Funciona sin cuentas, sin base de datos y sin claves. Todo usa datos ficticios y nada se guarda ni se envía fuera del navegador. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+> **Estado: etapa 1 (demostración) + esquema de base de datos local.** La app funciona sin cuentas, sin base de datos y sin claves: usa datos ficticios y nada se guarda ni se envía fuera del navegador. El esquema Supabase (migraciones, RLS y pruebas) ya está listo para ejecutarse en local, pero la app aún no se conecta a él. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
 
-## Qué incluye la etapa 1
+## Qué incluye
 
 | Parte | Estado |
 |---|---|
@@ -16,12 +16,15 @@ Uso personal, no comercial y gratuito.
 | Centro de ayuda `/ayuda` y botón «?» en cada sección | Disponible |
 | Ventana explicativa (tooltip) en todos los botones y enlaces | Disponible |
 | Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA; capa LLM preparada |
-| Cuentas, Supabase, biblioteca RAG, voz, PDF | Etapas posteriores |
+| Logotipo en la cabecera, emblema como favicon, icono PWA e icono de navegación | Disponible |
+| Esquema Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector, auditoría | Migraciones y pruebas locales ([detalle](docs/base-de-datos.md)) |
+| Conexión de la app a Supabase, cuentas, biblioteca RAG, voz, PDF | Etapas posteriores |
 
 ## Requisitos
 
 - [Node.js](https://nodejs.org/) 20.9 o superior (probado con Node 22) y npm.
 - Git.
+- Docker (solo para la base de datos local; en Windows, Docker Desktop).
 
 ## Ejecutar
 
@@ -39,6 +42,9 @@ npm run dev        # http://localhost:3000
 | `npm run typecheck` | Comprobación de tipos |
 | `npm run build` | Compilación de producción |
 | `npm start` | Sirve la compilación (`npm run build` antes) |
+| `npm run db:start` / `db:stop` | Levanta o detiene Supabase local (Docker) |
+| `npm run db:reset` | Aplica todas las migraciones desde cero |
+| `npm run test:db` | Pruebas pgTAP de RLS y aislamiento entre expedientes |
 
 No hace falta ninguna variable de entorno en la etapa 1. Para etapas futuras, copia `.env.example` a `.env.local` en tu máquina; nunca subas `.env.local` ni pegues claves en chats o documentos.
 
@@ -72,7 +78,7 @@ npm run dev
 
 ```
 src/
-  app/                    Rutas Next.js: / (demo) y /ayuda
+  app/                    Rutas Next.js: / (demo), /ayuda, favicon, iconos y manifest
   ui/
     componentes/          Explicacion (tooltip), Boton, EnlaceBoton, Seccion, AyudaContextual
     demo/                 Pasos del flujo de demostración
@@ -83,7 +89,12 @@ src/
     conversacion/         Asistente de la app (modo demo y capa LLM)
     proveedores/          Interfaces LLM / TTS / embeddings y lectura de configuración
     fuentes/              Tipos y estados de la futura biblioteca RAG de libros
-docs/                     Línea del tiempo y reglas de cálculo
+  assets/marca/           Logotipo horizontal y emblema optimizados
+supabase/
+  migrations/             Esquema SQL (tablas, RLS, buckets, pgvector, auditoría)
+  tests/database/         Pruebas pgTAP
+public/iconos/            Iconos PWA del emblema
+docs/                     Línea del tiempo, reglas de cálculo y base de datos
 ```
 
 Las capas no se mezclan: la UI no calcula ni guarda secretos; los motores de cálculo son funciones puras; los proveedores se usan a través de interfaces intercambiables.
@@ -104,6 +115,17 @@ Las capas no se mezclan: la UI no calcula ni guarda secretos; los motores de cá
 ## Numerología
 
 Tabla pitagórica, reglas para acentos, ñ, Y, espacios, guiones, apóstrofos, caracteres no latinos y números maestros, métodos alternativos y casos de referencia: [docs/numerologia-reglas.md](docs/numerologia-reglas.md).
+
+## Marca
+
+- Logotipo horizontal en la cabecera (`src/assets/marca/`, servido optimizado con `next/image` y texto alternativo descriptivo).
+- El **emblema circular sin letras** es el icono oficial: `src/app/favicon.ico` (16/32/48), `src/app/icon.png`, `src/app/apple-icon.png` (fondo blanco), iconos PWA en `public/iconos/` (192, 512 y *maskable*) y el icono de la navegación interna (componente `Emblema`).
+- Paleta: azul marino `#0f1b33` y dorado `#d4a94f` (`src/app/globals.css`). El dorado es decorativo; los textos usan combinaciones con contraste AA o superior.
+- Falta la versión SVG del logotipo; cuando exista, sustituirá al PNG.
+
+## Base de datos
+
+Esquema, modelo de permisos y pruebas: [docs/base-de-datos.md](docs/base-de-datos.md). No hay proyecto remoto creado; todo se prueba con Supabase local.
 
 ## Privacidad
 

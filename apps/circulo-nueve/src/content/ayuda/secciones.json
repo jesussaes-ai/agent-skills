@@ -3,12 +3,12 @@
   "secciones": [
     {
       "id": "proyecto",
-      "titulo": "Sobre Circulo Nueve",
+      "titulo": "Sobre Círculo Nueve",
       "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
-      "deQueTrata": "Circulo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas; esta es la etapa 1: una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; la app aún no se conecta a él.",
       "datosQueUsa": [
         "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
-        "No hay cuentas, base de datos ni envío a servicios externos todavía."
+        "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
       ],
       "comoSeUsa": [
         "Recorre el flujo de la página de inicio: bienvenida, consentimiento, perfil y resultados.",
@@ -16,7 +16,7 @@
         "Consulta la línea del tiempo del proyecto (docs/LINEA-DEL-TIEMPO.md) para ver hitos y pendientes."
       ],
       "estado": "demo",
-      "palabrasClave": ["etapa", "etapas", "proyecto", "pendiente", "pendientes", "falta", "versión", "qué es", "objetivo", "hitos", "cronología", "línea del tiempo"]
+      "palabrasClave": ["etapa", "etapas", "proyecto", "base de datos", "supabase", "pendiente", "pendientes", "falta", "versión", "qué es", "objetivo", "hitos", "cronología", "línea del tiempo"]
     },
     {
       "id": "bienvenida",

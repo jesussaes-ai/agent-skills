@@ -1,4 +1,4 @@
-# Línea del tiempo — Circulo Nueve
+# Línea del tiempo — Círculo Nueve
 
 Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). Se actualiza en cada avance.
 
@@ -18,9 +18,19 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Componente común `Explicacion` (tooltip accesible) usado por `Boton` y `EnlaceBoton`; una prueba impide botones o enlaces sin descripción.
   - Asistente de la app en modo demo (búsqueda en la ayuda con citas) y capa LLM preparada con validación de citas, separada de la biblioteca RAG.
   - Verificado: `npm test` (54 pruebas) y `npm run build` pasan.
+- **04:40** — PR draft #1 en `agent-skills`. El repo `jesussaes-ai/circulo-nueve` sigue sin ser accesible para la integración: la extracción queda pendiente.
+- **04:41** — Jesús entrega el logotipo horizontal y confirma el emblema circular sin letras como icono oficial.
+- **04:48** — Marca integrada:
+  - Logotipo en la cabecera.
+  - Emblema como favicon, icon, apple-touch-icon, manifest PWA e icono de navegación.
+  - Paleta azul marino y dorado con contraste accesible.
+  - Capturas verificadas en escritorio y móvil.
+- **04:50** — Etapa 2 (base de datos, sin cuentas externas):
+  - 5 migraciones Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector con HNSW, búsqueda híbrida, auditoría de solo inserción y alta única del administrador.
+  - Probado con Supabase CLI en Docker local: 49 pruebas pgTAP de estructura, aislamiento entre expedientes y auditoría pasan.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
-- Supabase (auth, RLS, expedientes), alta del administrador, aviso de privacidad del responsable.
+- Proyecto Supabase remoto (requiere la cuenta del propietario) y conexión de la app: Auth por invitación, `/setup`, MFA; aviso de privacidad del responsable.
 - Carta natal (motor de efemérides y zona horaria histórica), cábala (tradición y tabla), biblioteca RAG, voz, PDF.
 - Proveedor LLM real para el asistente.
