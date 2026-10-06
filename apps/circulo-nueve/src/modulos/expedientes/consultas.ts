@@ -1,4 +1,5 @@
 import "server-only";
+import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
 import type { ResultadoNumerologia } from "@/modulos/calculo/numerologia";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { esAdmin, type Sesion } from "@/modulos/auth/sesion";
@@ -21,7 +22,8 @@ export interface Lectura {
   motor: string;
   motorVersion: string;
   reglasVersion: string;
-  resultado: ResultadoNumerologia;
+  /** Numerología si sistema = «numerologia»; carta natal si sistema = «carta_natal». */
+  resultado: ResultadoNumerologia | ResultadoCarta;
 }
 
 export interface Documento {
@@ -172,7 +174,7 @@ export async function obtenerExpediente(sesion: Sesion, id: string): Promise<Det
       motor: l.motor,
       motorVersion: l.motor_version,
       reglasVersion: l.reglas_version,
-      resultado: l.resultado_calculado as ResultadoNumerologia,
+      resultado: l.resultado_calculado as ResultadoNumerologia | ResultadoCarta,
     })),
     documentos: (documentos.data ?? []).map((d) => ({
       id: d.id,

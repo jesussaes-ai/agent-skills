@@ -9,9 +9,9 @@ const nextConfig: NextConfig = {
     // Centro de carga: hasta 25 MB por archivo (en Vercel el límite de la petición es menor; ver docs/biblioteca.md).
     serverActions: { bodySizeLimit: "26mb" },
   },
-  // Fuentes e imágenes que el generador de PDF lee del disco en el servidor.
+  // Archivos que el servidor lee del disco: fuentes e imágenes del PDF y el catálogo de lugares.
   outputFileTracingIncludes: {
-    "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*"],
+    "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*", "public/datos/**/*"],
   },
 };
 

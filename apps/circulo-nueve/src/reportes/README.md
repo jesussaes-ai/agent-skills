@@ -29,7 +29,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 ```
 
-`generarReportePdf` nunca debe importarse desde un componente cliente. Para numerología, `reporteDeNumerologia(resultado)` convierte la salida del motor en datos autorizados, cálculos con pasos y límites.
+`generarReportePdf` nunca debe importarse desde un componente cliente. Para numerología, `reporteDeNumerologia(resultado)` convierte la salida del motor en datos autorizados, cálculos con pasos y límites. Para carta natal, `reporteDeCartaNatal(resultado)` añade además `tablas` (posiciones, cúspides y aspectos) y `rueda` (rueda zodiacal vectorial), que se imprimen dentro de «Cálculos paso a paso». Las fuentes incrustadas no tienen glifos astrológicos ni «≈»: el adaptador usa nombres y abreviaturas, y `carta-natal.test.ts` comprueba que todo carácter impreso exista en las fuentes.
 
 ## Recursos en el servidor
 
@@ -40,7 +40,7 @@ La ruta real de descarga desde el expediente está en `src/app/expedientes/[id]/
 ## Muestra y pruebas
 
 - `npm test` incluye `reportes.test.ts` (contenido editorial, proporción 80/20, adaptador y generación del PDF).
-- `npm run reporte:muestra` escribe `src/reportes/demo/salida/muestra-numerologia.pdf` (ignorado por git) con datos ficticios marcados DEMOSTRACIÓN.
+- `npm run reporte:muestra` escribe `src/reportes/demo/salida/muestra-numerologia.pdf` y `muestra-carta-natal.pdf` (ignorados por git) con datos ficticios marcados DEMOSTRACIÓN.
 
 ## Reglas editoriales
 

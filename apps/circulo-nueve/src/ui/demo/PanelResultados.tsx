@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ErrorNumerologia, Indicador, ResultadoNumerologia } from "@/modulos/calculo/numerologia";
 import { Boton } from "@/ui/componentes/Boton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
+import { SeccionCartaNatal } from "@/ui/carta-natal/SeccionCartaNatal";
 import type { Perfil } from "./tipos";
 
 interface Props {
@@ -144,19 +145,7 @@ export function PanelResultados({ perfil, resultado, onEditar, onBorrar }: Props
         )}
       </Seccion>
 
-      <Seccion titulo="Carta natal" ayuda="carta-natal" etiqueta={<Etiqueta tono="gris">Pendiente</Etiqueta>}>
-        <p className="text-slate-700">
-          Aún no se calcula. Falta elegir y validar el motor de efemérides y la resolución de zona horaria histórica.
-        </p>
-        <ul className="mt-3 list-disc pl-5 text-sm text-slate-600">
-          <li>Fecha: {perfil.fecha || "no indicada"}</li>
-          <li>
-            Hora: {perfil.precisionHora === "desconocida" ? "desconocida (la carta se haría sin casas ni ascendente)" : `${perfil.hora || "no indicada"} (${perfil.precisionHora})`}
-          </li>
-          <li>Lugar: {perfil.lugar || "no indicado"}</li>
-          <li>Zona horaria: {perfil.zonaHoraria || "no indicada (no se adivina)"}</li>
-        </ul>
-      </Seccion>
+      <SeccionCartaNatal perfil={perfil} />
 
       <Seccion titulo="Cábala" ayuda="cabala" etiqueta={<Etiqueta tono="gris">Pendiente</Etiqueta>}>
         <p className="text-slate-700">

@@ -12,7 +12,8 @@ Uso personal, no comercial y gratuito.
 |---|---|
 | Flujo de demo: bienvenida → consentimiento granular → perfil → resultados | Demo con datos ficticios |
 | Numerología pitagórica configurable con pasos visibles | Disponible ([reglas](docs/numerologia-reglas.md)) |
-| Carta natal y cábala | Pendientes (se muestran como tales) |
+| Carta natal determinista: efemérides MIT (`astronomy-engine`), zona horaria histórica IANA, lugares GeoNames, casas configurables, ayanamsas, aspectos, precisión según los datos | Demo ([motor y casos de referencia](docs/astrologia-motor.md)) |
+| Cábala | Pendiente (se muestra como tal) |
 | Centro de ayuda `/ayuda` y botón «?» en cada sección | Disponible |
 | Ventana explicativa (tooltip) en todos los botones y enlaces | Disponible |
 | Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA; capa LLM preparada |
@@ -23,7 +24,7 @@ Uso personal, no comercial y gratuito.
 | Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
 | Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
-| Supabase remoto, carta natal, cábala, biblioteca RAG, voz | Etapas posteriores |
+| Supabase remoto, cábala, biblioteca RAG, voz | Etapas posteriores |
 
 ## Requisitos
 
@@ -92,6 +93,7 @@ src/
   ui/
     componentes/          Explicacion (tooltip), Boton, EnlaceBoton, Seccion, AyudaContextual
     demo/                 Pasos del flujo de demostración
+    carta-natal/          Sección de carta natal: buscador de lugar, ajustes, rueda y tablas
     asistente/            Interfaz del asistente de la app
     auth/                 Formularios de cuentas, MFA y panel de usuarios
     expedientes/          Secciones del expediente, documentos, permisos y ajustes
@@ -101,6 +103,7 @@ src/
     auth/                 Sesión, acciones de servidor, clave de alta, límites de intentos, validación
     expedientes/          Consultas y acciones de expedientes, lecturas, documentos y ajustes
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
+    calculo/astrologia/   Carta natal: efemérides, tzdb, casas, aspectos y casos contra Swiss Ephemeris
     conversacion/         Asistente de la app (modo demo y capa LLM)
     proveedores/          Interfaces LLM / TTS / embeddings y lectura de configuración
     fuentes/              Tipos y estados de la futura biblioteca RAG de libros
@@ -110,8 +113,9 @@ supabase/
   templates/              Correos de invitación y recuperación
   tests/database/         Pruebas pgTAP
 public/iconos/            Iconos PWA del emblema
+public/datos/             Catálogo de lugares GeoNames (CC BY 4.0) para la carta natal
 e2e/                      Pruebas Playwright
-scripts/                  e2e.sh, generar-hash-clave, purgar-retencion, admin-emergencia
+scripts/                  e2e.sh, generar-hash-clave, purgar-retencion, admin-emergencia, generar-lugares.mjs y referencias-astrologia/ (herramienta de desarrollo con Swiss Ephemeris, no se distribuye)
 .github/workflows/ci.yml  CI para cuando la app tenga repo propio
 docs/                     Línea del tiempo, reglas de cálculo y base de datos
 ```
@@ -134,6 +138,12 @@ Las capas no se mezclan: la UI no calcula ni guarda secretos; los motores de cá
 ## Numerología
 
 Tabla pitagórica, reglas para acentos, ñ, Y, espacios, guiones, apóstrofos, caracteres no latinos y números maestros, métodos alternativos y casos de referencia: [docs/numerologia-reglas.md](docs/numerologia-reglas.md).
+
+## Carta natal
+
+Posiciones de los planetas y del nodo lunar, casas (Placidus por defecto, con respaldo en latitudes polares), Ascendente, Medio Cielo y aspectos, con zodiaco tropical o sideral. Las efemérides son de `astronomy-engine` (MIT); se eligió en lugar de Swiss Ephemeris (AGPL) para no obligar a publicar la app bajo AGPL. Se comprobaron contra Swiss Ephemeris 2.10.03 en 13 cartas de referencia (diferencia máxima: 18″) y la conversión de hora contra Python `zoneinfo` en 21 casos. Sin hora no hay casas ni Ascendente, y cada valor se muestra con la precisión que permiten la hora y el lugar. En un expediente, la carta se guarda en el historial recalculada en el servidor (con consentimiento, versiones, ajustes y huella) y genera su PDF con rueda y tablas. Detalle, licencias, tolerancias y limitaciones: [docs/astrologia-motor.md](docs/astrologia-motor.md).
+
+Atribución: datos de lugares de [GeoNames](https://www.geonames.org/), licencia CC BY 4.0.
 
 ## Marca
 

@@ -173,26 +173,98 @@
     },
     {
       "id": "carta-natal",
-      "titulo": "Carta natal (pendiente)",
-      "resumen": "Se construirá en una etapa posterior.",
-      "deQueTrata": "La carta natal necesita fecha, hora y lugar de nacimiento, coordenadas y la zona horaria histórica. Falta elegir el motor de efemérides (con una licencia compatible con uso no comercial) y validarlo con casos de referencia. Si la hora es desconocida, la carta se calculará sin casas ni ascendente y se avisará.",
+      "titulo": "Carta natal",
+      "resumen": "Posiciones de planetas, casas y aspectos calculadas con efemérides identificables y la zona horaria histórica.",
+      "deQueTrata": "Calcula la posición del Sol, la Luna, los planetas hasta Plutón y el nodo lunar en el zodiaco, el Ascendente, el Medio Cielo, las doce casas y los aspectos entre ellos. Usa la librería astronomy-engine (licencia MIT) y se comprobó contra Swiss Ephemeris en casos de referencia (diferencia máxima medida: 18″). La hora local se convierte a tiempo universal con la base de zonas horarias IANA, incluidos los cambios históricos de México. Cada valor se muestra con la precisión que permiten los datos: al minuto, al grado o como rango. Solo son datos calculados; las interpretaciones llegarán con los libros del propietario y con citas.",
       "datosQueUsa": [
-        "Fecha, hora con su precisión, lugar y zona horaria (aún no se usan)."
+        "Fecha de nacimiento (obligatoria).",
+        "Hora local y su precisión: exacta (±1 min), aproximada (margen configurable) o desconocida.",
+        "Lugar de nacimiento: coordenadas y zona horaria del catálogo GeoNames o escritas a mano.",
+        "Zona horaria del perfil, si la indicaste: tiene prioridad sobre la del lugar y se avisa si no coinciden."
       ],
       "comoSeUsa": [
-        "Todavía no está disponible."
+        "Elige el lugar en «Lugar y zona horaria»: busca la ciudad o escribe las coordenadas.",
+        "Revisa qué zona horaria y qué desfase se usaron en el resumen sobre la rueda.",
+        "Si la hora es desconocida, la carta sale sin casas, Ascendente ni Medio Cielo, y la Luna se muestra con el rango de todo el día.",
+        "Lee los avisos: indican qué datos podrían cambiar de signo o de casa dentro de los márgenes.",
+        "Abre «Ver datos del cálculo» para ver el motor, el tiempo universal, el día juliano y cada paso."
       ],
-      "estado": "pendiente",
+      "estado": "demo",
       "palabrasClave": [
         "carta natal",
         "astrología",
         "signo",
         "ascendente",
+        "medio cielo",
         "casas",
         "planetas",
         "efemérides",
         "hora",
-        "zodiaco"
+        "zodiaco",
+        "aspectos",
+        "retrógrado",
+        "rueda"
+      ]
+    },
+    {
+      "id": "carta-natal-lugar",
+      "titulo": "Lugar y zona horaria de la carta",
+      "resumen": "De dónde salen las coordenadas y cómo se convierte la hora local a tiempo universal.",
+      "deQueTrata": "Las coordenadas y la zona horaria salen del catálogo GeoNames (licencia CC BY 4.0): ciudades del mundo con 15 000 habitantes o más y de México con 1 000 o más. La búsqueda se hace en tu navegador; lo que escribes no se envía a ningún servicio. Como una ciudad se representa con un solo punto, se asume una incertidumbre de ±0,03° a ±0,15° según su tamaño, y esa incertidumbre se refleja en el Ascendente y las casas. La hora local se convierte con la base IANA de zonas horarias del navegador, que incluye los horarios de verano y los cambios oficiales históricos. Si la hora se repitió (fin del horario de verano) se pide elegir; si no existió (inicio), se explica y no se corrige sola.",
+      "datosQueUsa": [
+        "Nombre de la ciudad y, opcionalmente, región o país tras una coma.",
+        "O bien latitud, longitud y zona IANA escritas a mano."
+      ],
+      "comoSeUsa": [
+        "Escribe la ciudad (por ejemplo «Guadalajara, Jalisco») y pulsa «Buscar lugar».",
+        "Elige el resultado correcto: verás coordenadas, zona horaria y el enlace a la ficha de GeoNames.",
+        "Si el lugar no aparece, usa «Escribir coordenadas a mano»; la zona horaria es obligatoria porque no se adivina.",
+        "Para fechas anteriores a 1970, compara el desfase mostrado con una fuente local si la tienes."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "lugar",
+        "ciudad",
+        "coordenadas",
+        "latitud",
+        "longitud",
+        "GeoNames",
+        "zona horaria",
+        "horario de verano",
+        "UTC",
+        "tzdb",
+        "IANA"
+      ]
+    },
+    {
+      "id": "carta-natal-ajustes",
+      "titulo": "Ajustes de la carta natal",
+      "resumen": "Zodiaco, ayanamsa, sistema de casas, nodo lunar y orbes de los aspectos.",
+      "deQueTrata": "Por defecto se usa el zodiaco tropical, casas Placidus, nodo verdadero y los aspectos mayores con orbes de 8° (conjunción y oposición), 7° (trígono y cuadratura) y 5° (sextil). El zodiaco sideral resta una ayanamsa (Lahiri, Fagan-Bradley, Raman o Krishnamurti) con los valores de Swiss Ephemeris. Placidus, Koch, Regiomontano y Campano no se usan dentro de los círculos polares (más allá de unos 66,5° de latitud) y se sustituyen por el sistema de respaldo que elijas, con aviso. Un aspecto se marca como «incierto» si, dentro de los márgenes de hora o lugar, podría quedar fuera del orbe.",
+      "datosQueUsa": [
+        "Solo tus elecciones de cálculo; no usa datos personales adicionales."
+      ],
+      "comoSeUsa": [
+        "Abre «Ajustes de cálculo» bajo el lugar.",
+        "Cambia el zodiaco, el sistema de casas o los orbes; la carta se recalcula al instante.",
+        "Activa los aspectos menores si tu tradición los usa.",
+        "Pulsa «Restablecer ajustes» para volver a los valores por defecto."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "tropical",
+        "sideral",
+        "ayanamsa",
+        "Lahiri",
+        "Placidus",
+        "Koch",
+        "Regiomontano",
+        "Campano",
+        "Porfirio",
+        "signos enteros",
+        "orbe",
+        "aspectos",
+        "nodo"
       ]
     },
     {
@@ -445,6 +517,32 @@
         "numerología",
         "calcular",
         "borrar"
+      ]
+    },
+    {
+      "id": "expediente-carta-natal",
+      "titulo": "Carta natal del expediente",
+      "resumen": "Calcular la carta con los datos del perfil y guardarla en el historial, recalculada en el servidor.",
+      "deQueTrata": "Usa la fecha, la hora, su precisión y la zona horaria que constan en el perfil del expediente. Primero eliges el lugar (catálogo GeoNames o coordenadas a mano) y los ajustes; la carta se calcula al momento en tu navegador, sin guardarse. «Guardar carta natal» vuelve a calcularla en el servidor: el servidor lee el perfil de la base, busca el lugar en su propia copia del catálogo y guarda la carta en el historial con el motor, la versión de las reglas, las efemérides, la versión de la base de zonas horarias, los ajustes y una huella SHA-256 de todo ello. Requiere el consentimiento «Guardar el historial» y el permiso de modificar. Desde la carta guardada se genera su PDF.",
+      "datosQueUsa": [
+        "Fecha, hora, precisión de la hora y zona horaria que constan en el perfil del expediente.",
+        "El lugar elegido y los ajustes de cálculo (zodiaco, casas, nodo, orbes)."
+      ],
+      "comoSeUsa": [
+        "Guarda el perfil con la fecha (y la hora si la conoces).",
+        "Elige el lugar y revisa la carta y sus avisos.",
+        "Pulsa «Guardar carta natal»; aparecerá en «Historial de lecturas».",
+        "En el historial, pulsa «Ver carta completa» o «Generar PDF»."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "carta natal",
+        "expediente",
+        "guardar carta",
+        "historial",
+        "PDF",
+        "consentimiento",
+        "astrología"
       ]
     },
     {
