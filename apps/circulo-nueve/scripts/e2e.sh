@@ -25,6 +25,9 @@ E2E_CLAVE_ALTA="$(node -e 'process.stdout.write(require("crypto").randomBytes(24
 export E2E_CLAVE_ALTA
 ADMIN_SETUP_KEY_HASH="$(printf '%s' "$E2E_CLAVE_ALTA" | npx tsx scripts/generar-hash-clave.mts 2>/dev/null)"
 export ADMIN_SETUP_KEY_HASH
+# Llave efímera del proveedor LLM simulado (e2e/proveedores.spec.ts).
+LLM_KEY_E2E="$(node -e 'process.stdout.write(require("crypto").randomBytes(18).toString("base64url"))')"
+export LLM_KEY_E2E
 
 echo "Compilando la app…" >&2
 npm run -s build >&2

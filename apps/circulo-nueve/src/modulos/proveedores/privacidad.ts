@@ -62,5 +62,5 @@ export function textoConsentimiento(p: ProveedorPublico): string {
   const uso = p.politicaDatos.permiteDatosReales
     ? "La administración lo marcó como apto para datos reales."
     : "Es solo para demostración: no escribas datos personales.";
-  return `Tu pregunta y hasta 6 fragmentos del Centro de ayuda se enviarán a ${p.destinatarios} (modelos: ${modelos}). ${uso}`;
+  return `Se enviarán tu pregunta y hasta 6 fragmentos del Centro de ayuda. Los recibe: ${p.destinatarios.replace(/\.$/, "")}. Modelos: ${modelos}. ${uso}`;
 }

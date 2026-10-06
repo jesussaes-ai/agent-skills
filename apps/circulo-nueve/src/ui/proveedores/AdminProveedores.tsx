@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useId, useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
+import { useActionState, useEffect, useId, useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 import { accionBorrarProveedor, accionGuardarProveedor, accionProbarProveedor } from "@/modulos/proveedores/acciones";
 import { LIMITES_GRATUITOS_OPENROUTER, PLANTILLAS, esModeloGratuito, type ModeloCatalogo } from "@/modulos/proveedores/catalogo";
 import { motivoNoDatosReales } from "@/modulos/proveedores/esquemas";
@@ -172,11 +172,23 @@ const NOMBRE_TIPO: Record<TipoProveedor, string> = {
   openai_compatible: "Compatible con OpenAI (local o propio)",
 };
 
-export function FormularioProveedor({ inicial, alTerminar }: { inicial?: ConfigProveedor; alTerminar?: () => void }) {
+export function FormularioProveedor({
+  inicial,
+  alTerminar,
+  alGuardar,
+}: {
+  inicial?: ConfigProveedor;
+  alTerminar?: () => void;
+  /** Se llama al crear con éxito, con el mensaje para mostrar fuera del formulario. */
+  alGuardar?: (mensaje: string) => void;
+}) {
   const nuevo = !inicial;
   const [v, setV] = useState<Valores>(() => (inicial ? desdeConfig(inicial) : desdePlantilla("openrouter")));
   const [estado, accion] = useActionState(accionGuardarProveedor, ESTADO_INICIAL);
   const e = estado.errores ?? {};
+  useEffect(() => {
+    if (estado.ok && estado.mensaje) alGuardar?.(estado.mensaje);
+  }, [estado, alGuardar]);
   const cambiar = <K extends keyof Valores>(k: K, valor: Valores[K]) => setV((x) => ({ ...x, [k]: valor }));
   const texto = (k: keyof Valores) => ({ name: k, value: String(v[k]), onChange: (ev: { target: { value: string } }) => cambiar(k, ev.target.value as never) });
   const casilla = (k: keyof Valores) => ({ name: k, checked: Boolean(v[k]), onChange: (ev: { target: { checked: boolean } }) => cambiar(k, ev.target.checked as never) });
@@ -412,8 +424,14 @@ function AccionesProveedor({ id, nombre, onEditar }: { id: string; nombre: strin
 export function ListaProveedores({ proveedores }: { proveedores: { config: ConfigProveedor; tieneLlave: boolean }[] }) {
   const [editando, setEditando] = useState<string | null>(null);
   const [creando, setCreando] = useState(proveedores.length === 0);
+  const [aviso, setAviso] = useState("");
   return (
     <div className="space-y-4">
+      {aviso && (
+        <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
+          {aviso}
+        </p>
+      )}
       {proveedores.length === 0 && <p className="text-slate-700">Aún no hay proveedores. El asistente funciona en modo demo sin IA.</p>}
       {proveedores.map(({ config: c, tieneLlave }) => (
         <article key={c.id} className="space-y-3 rounded-xl border border-slate-200 p-4">
@@ -467,10 +485,22 @@ export function ListaProveedores({ proveedores }: { proveedores: { config: Confi
       {creando ? (
         <div className="rounded-xl border border-marino-200 bg-marino-50/40 p-4">
           <h3 className="mb-3 text-lg font-semibold text-slate-900">Nuevo proveedor</h3>
-          <FormularioProveedor alTerminar={proveedores.length ? () => setCreando(false) : undefined} />
+          <FormularioProveedor
+            alTerminar={proveedores.length ? () => setCreando(false) : undefined}
+            alGuardar={(mensaje) => {
+              setAviso(mensaje);
+              setCreando(false);
+            }}
+          />
         </div>
       ) : (
-        <Boton descripcion="Abre el formulario para dar de alta un proveedor desde una plantilla (OpenRouter, FreeLLMAPI o compatible con OpenAI)." onClick={() => setCreando(true)}>
+        <Boton
+          descripcion="Abre el formulario para dar de alta un proveedor desde una plantilla (OpenRouter, FreeLLMAPI o compatible con OpenAI)."
+          onClick={() => {
+            setAviso("");
+            setCreando(true);
+          }}
+        >
           Añadir proveedor
         </Boton>
       )}
