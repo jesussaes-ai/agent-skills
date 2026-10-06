@@ -15,7 +15,9 @@ Uso personal, no comercial y gratuito.
 | Carta natal y cábala | Pendientes (se muestran como tales) |
 | Centro de ayuda `/ayuda` y botón «?» en cada sección | Disponible |
 | Ventana explicativa (tooltip) en todos los botones y enlaces | Disponible |
-| Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA; capa LLM preparada |
+| Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA, o con un proveedor de IA activo y consentimiento previo |
+| Proveedores de IA intercambiables: OpenRouter, FreeLLMAPI, compatible con OpenAI/local; límites, reintentos ante 429, respaldo, consumo sin prompts | Funciona con Supabase local ([detalle](docs/proveedores-ia-y-voz.md)) |
+| Voz del asistente (Web Speech API es-MX/es-ES) y dictado con permiso de micrófono | Disponible ([detalle](docs/proveedores-ia-y-voz.md#voz)) |
 | Logotipo en la cabecera, emblema como favicon, icono PWA e icono de navegación | Disponible |
 | Esquema Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector, auditoría | Migraciones y pruebas locales ([detalle](docs/base-de-datos.md)) |
 | Cuentas: alta inicial `/setup` (clave con hash argon2id, un solo uso, 410 después), entrar, recuperar, MFA TOTP, invitaciones, panel de usuarios, roles y permisos | Funciona con Supabase local ([detalle](docs/cuentas-y-acceso.md)) |
@@ -23,7 +25,7 @@ Uso personal, no comercial y gratuito.
 | Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
 | Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
-| Supabase remoto, carta natal, cábala, biblioteca RAG, voz | Etapas posteriores |
+| Supabase remoto, carta natal, cábala, biblioteca RAG | Etapas posteriores |
 
 ## Requisitos
 
@@ -102,7 +104,7 @@ src/
     expedientes/          Consultas y acciones de expedientes, lecturas, documentos y ajustes
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
     conversacion/         Asistente de la app (modo demo y capa LLM)
-    proveedores/          Interfaces LLM / TTS / embeddings y lectura de configuración
+    proveedores/          Proveedores LLM intercambiables, límites, respaldo, consumo y voz (TTS/dictado)
     fuentes/              Tipos y estados de la futura biblioteca RAG de libros
   assets/marca/           Logotipo horizontal y emblema optimizados
 supabase/
@@ -129,7 +131,7 @@ Las capas no se mezclan: la UI no calcula ni guarda secretos; los motores de cá
 
 - Base de conocimiento: **solo** el Centro de ayuda (`ayuda-app`), separada de la futura biblioteca de libros (`modulos/fuentes`).
 - **Modo demo (actual):** busca en los fragmentos de ayuda en el navegador y muestra extractos literales, cada uno con su cita (sección y campo, con enlace). Si no encuentra respaldo, lo dice.
-- **Modo LLM (preparado, sin activar):** `crearAsistenteLlm(proveedor, secciones)` recupera fragmentos, se los pasa al modelo como datos delimitados, exige JSON con ids de fragmento y descarta afirmaciones con citas inexistentes. Falta implementar un `LlmProvider` real (OpenRouter, FreeLLMAPI u Ollama) en el servidor.
+- **Modo LLM:** `crearAsistenteLlm(proveedor, secciones)` recupera fragmentos, se los pasa al modelo como datos delimitados, exige JSON con ids de fragmento y descarta afirmaciones con citas inexistentes. El servidor (`/api/asistente`) usa los proveedores activos de `/admin/proveedores` solo tras el consentimiento de la persona; ver [docs/proveedores-ia-y-voz.md](docs/proveedores-ia-y-voz.md).
 
 ## Numerología
 

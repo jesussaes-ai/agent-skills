@@ -47,10 +47,22 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Corregido: los recursos del PDF no cargaban dentro de Next (Turbopack).
   - Verificado: 80 pruebas unitarias, 74 pgTAP, 19 e2e y el build.
 
+- **06:40** — Proveedores de IA y voz del asistente ([detalle](proveedores-ia-y-voz.md)):
+  - Proveedores intercambiables configurables en `/admin/proveedores`: OpenRouter, FreeLLMAPI autoalojado y endpoint compatible con OpenAI o local.
+  - Llaves solo como secretos `LLM_KEY_*` del servidor.
+  - Límites por minuto, día y gasto; reintentos ante 429 con `Retry-After` y respaldo.
+  - Consumo registrado sin prompts; consentimiento visible antes de enviar.
+  - Catálogo verificado en OpenRouter el 6 oct 2026:
+    - Hay modelos NVIDIA gratuitos, pero NVIDIA puede entrenar con los textos: solo demo.
+    - No hay variantes gratuitas de Qwen ni DeepSeek.
+    - DeepSeek V4 Flash de pago con retención cero es la opción posible para datos reales, si se aprueba.
+  - Voz con Web Speech API: voces es-MX y es-ES, prueba, reproducir, pausar y detener, aviso de voz remota y dictado con permiso explícito.
+  - Verificado: 137 pruebas unitarias, 88 pgTAP, 23 e2e y el build.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
 - Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
-- Carta natal (otra rama, `src/calculo/astrologia/`), cábala, biblioteca RAG, voz, interpretaciones con fuentes.
+- Carta natal (otra rama, `src/calculo/astrologia/`), cábala, biblioteca RAG, interpretaciones con fuentes.
 - Carta natal (motor de efemérides y zona horaria histórica), cábala (tradición y tabla), biblioteca RAG, voz, PDF.
-- Proveedor LLM real para el asistente.
+- Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.
