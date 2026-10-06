@@ -4,7 +4,7 @@ Aplicación web en español, para teléfono y computadora, que ayuda a explorar 
 
 Uso personal, no comercial y gratuito.
 
-> **Estado: demo + base de datos + cuentas, probado con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas por invitación, el alta de administración, la verificación en dos pasos y el panel de usuarios. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+> **Estado: demo, cuentas, expedientes y PDF, probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas por invitación, el alta de administración, la verificación en dos pasos, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
 
 ## Qué incluye
 
@@ -20,7 +20,10 @@ Uso personal, no comercial y gratuito.
 | Esquema Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector, auditoría | Migraciones y pruebas locales ([detalle](docs/base-de-datos.md)) |
 | Cuentas: alta inicial `/setup` (clave con hash argon2id, un solo uso, 410 después), entrar, recuperar, MFA TOTP, invitaciones, panel de usuarios, roles y permisos | Funciona con Supabase local ([detalle](docs/cuentas-y-acceso.md)) |
 | CI (tipos, pruebas, compilación, pgTAP, e2e) | Workflow `.github/workflows/circulo-nueve-ci.yml` en la raíz del repo; copia en `.github/workflows/ci.yml` para cuando la app tenga repo propio |
-| Supabase remoto, expedientes en la interfaz, biblioteca RAG, voz, PDF | Etapas posteriores |
+| Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
+| Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
+| Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
+| Supabase remoto, carta natal, cábala, biblioteca RAG, voz | Etapas posteriores |
 
 ## Requisitos
 
@@ -49,6 +52,9 @@ npm run dev        # http://localhost:3000
 | `npm run test:db` | Reinicia la base local y ejecuta las pruebas pgTAP |
 | `npm run test:e2e` | Pruebas de extremo a extremo con Auth local (Playwright) |
 | `npm run setup:hash` | Genera el hash argon2id de la clave de alta |
+| `npm run retencion:purgar` | Borra los documentos con retención vencida (llave de servicio; `-- --simular` para solo listar) |
+| `npm run admin:emergencia` | Recuperación de emergencia de la administración (ver docs) |
+| `npm run reporte:muestra` | Genera un PDF de muestra con datos ficticios |
 
 No hace falta ninguna variable de entorno en la etapa 1. Para etapas futuras, copia `.env.example` a `.env.local` en tu máquina; nunca subas `.env.local` ni pegues claves en chats o documentos.
 
@@ -88,9 +94,12 @@ src/
     demo/                 Pasos del flujo de demostración
     asistente/            Interfaz del asistente de la app
     auth/                 Formularios de cuentas, MFA y panel de usuarios
+    expedientes/          Secciones del expediente, documentos, permisos y ajustes
+  reportes/               Generador de PDF (marca, tipografías, adaptadores)
   content/ayuda/          Contenido del Centro de ayuda (secciones.json) y su cargador
   modulos/
     auth/                 Sesión, acciones de servidor, clave de alta, límites de intentos, validación
+    expedientes/          Consultas y acciones de expedientes, lecturas, documentos y ajustes
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
     conversacion/         Asistente de la app (modo demo y capa LLM)
     proveedores/          Interfaces LLM / TTS / embeddings y lectura de configuración
@@ -102,7 +111,7 @@ supabase/
   tests/database/         Pruebas pgTAP
 public/iconos/            Iconos PWA del emblema
 e2e/                      Pruebas Playwright
-scripts/                  e2e.sh y generar-hash-clave.mts
+scripts/                  e2e.sh, generar-hash-clave, purgar-retencion, admin-emergencia
 .github/workflows/ci.yml  CI para cuando la app tenga repo propio
 docs/                     Línea del tiempo, reglas de cálculo y base de datos
 ```

@@ -35,9 +35,22 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Ayuda y tooltips en todo lo nuevo.
   - CI en la raíz filtrado a la carpeta, con copia dentro de la app para el repo propio.
   - Verificado: 70 pruebas unitarias, 53 pgTAP, 11 e2e con Playwright y Auth local, y `npm run build`.
+- **05:30** — Se integra el PR #2 (módulo de reportes PDF en `src/reportes`).
+- **05:55** — Etapa 4 (expedientes, con Supabase local):
+  - Expedientes con perfil separado y consentimientos granulares, exigidos por la base de datos.
+  - Lecturas de numerología guardadas con historial; modo efímero «Calcular sin guardar».
+  - Exportar en JSON y borrado total.
+  - Permisos por expediente y por archivo.
+  - PDF generado en servidor, guardado en privado y descargado con URL firmada de 60 s, con auditoría.
+  - Retención configurable con purga; ajustes y aviso de privacidad editables por la administración.
+  - Recuperación de emergencia de la administración documentada y probada.
+  - Corregido: los recursos del PDF no cargaban dentro de Next (Turbopack).
+  - Verificado: 80 pruebas unitarias, 74 pgTAP, 19 e2e y el build.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
-- Proyecto Supabase remoto (requiere la cuenta del propietario); aviso de privacidad del responsable; recuperación de emergencia de la administración.
+- Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
+- Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
+- Carta natal (otra rama, `src/calculo/astrologia/`), cábala, biblioteca RAG, voz, interpretaciones con fuentes.
 - Carta natal (motor de efemérides y zona horaria histórica), cábala (tradición y tabla), biblioteca RAG, voz, PDF.
 - Proveedor LLM real para el asistente.
