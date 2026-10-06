@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { ADMIN, CONSULTORA, codigoTotp, enlaceDeCorreo, entrar, salir, verificarCodigo } from "./utilidades";
+import { ADMIN, CONSULTORA, codigoTotp, enlaceDeCorreo, entrar, estado, salir, verificarCodigo } from "./utilidades";
 
 const MEDIA = process.env.E2E_CAPTURAS;
 const captura = async (page: import("@playwright/test").Page, nombre: string) => {
@@ -49,6 +49,7 @@ test("alta inicial con la clave correcta y MFA obligatoria", async ({ page }) =>
   await page.getByRole("button", { name: "Configurar verificación en dos pasos", exact: true }).click();
   secretoAdmin = (await page.getByTestId("secreto-totp").textContent())?.trim() ?? "";
   expect(secretoAdmin).toMatch(/^[A-Z2-7]+=*$/);
+  estado.secretoAdmin = secretoAdmin;
   await captura(page, "02-configurar-verificacion");
   await page.getByLabel("Código de 6 dígitos", { exact: true }).fill(await codigoTotp(secretoAdmin));
   await page.getByRole("button", { name: "Activar", exact: true }).click();
@@ -65,7 +66,7 @@ test("administración invita a una consultora", async ({ page }) => {
   await entrar(page, ADMIN.correo, ADMIN.contrasena);
   await verificarCodigo(page, secretoAdmin);
   await page.goto("/admin/usuarios");
-  const desde = new Date(Date.now() - 2000);
+  const desde = new Date(Date.now() - 500);
   await page.getByLabel("Nombre", { exact: true }).fill(CONSULTORA.nombre);
   await page.getByLabel("Correo", { exact: true }).fill(CONSULTORA.correo);
   await page.getByLabel("Rol inicial", { exact: true }).selectOption("consultor");
@@ -94,7 +95,7 @@ test("una consultora no entra a la administración", async ({ page }) => {
 });
 
 test("recuperación de contraseña por correo", async ({ page }) => {
-  const desde = new Date(Date.now() - 2000);
+  const desde = new Date(Date.now() - 500);
   await page.goto("/recuperar");
   await page.getByLabel("Correo de tu cuenta", { exact: true }).fill(CONSULTORA.correo);
   await page.getByRole("button", { name: "Enviar enlace", exact: true }).click();
@@ -108,14 +109,13 @@ test("recuperación de contraseña por correo", async ({ page }) => {
   await expect(page).toHaveURL(/\/cuenta\?contrasena=actualizada/);
   await salir(page);
 
-  await entrar(page, CONSULTORA.correo, CONSULTORA.contrasena);
-  await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
+  await entrar(page, CONSULTORA.correo, CONSULTORA.contrasena, { esperaError: true });
   await entrar(page, CONSULTORA.correo, "NuevaClave2026x");
   await expect(page).toHaveURL(/\/cuenta$/);
 });
 
 test("un enlace de un solo uso no sirve dos veces", async ({ page }) => {
-  const desde = new Date(Date.now() - 2000);
+  const desde = new Date(Date.now() - 500);
   await page.goto("/recuperar");
   await page.getByLabel("Correo de tu cuenta", { exact: true }).fill(CONSULTORA.correo);
   await page.getByRole("button", { name: "Enviar enlace", exact: true }).click();
@@ -137,8 +137,7 @@ test("administración suspende la cuenta y la consultora pierde el acceso", asyn
   await expect(page.getByTestId(`usuario-${ADMIN.correo}`)).toContainText("No puedes cambiar tu propio estado");
   await salir(page);
 
-  await entrar(page, CONSULTORA.correo, "NuevaClave2026x");
-  await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
+  await entrar(page, CONSULTORA.correo, "NuevaClave2026x", { esperaError: true });
 });
 
 test("los botones nuevos tienen ventana explicativa", async ({ page }) => {

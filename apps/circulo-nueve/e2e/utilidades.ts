@@ -1,9 +1,29 @@
 import { expect, type Page } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
 import { Secret, TOTP } from "otpauth";
 
 const MAILPIT = process.env.E2E_MAILPIT_URL ?? "http://127.0.0.1:54324";
 
 export const ADMIN = { correo: "admin@demo.invalid", nombre: "Admin Demo", contrasena: "AdminDemo2026" };
+/** Estado compartido entre archivos de prueba (mismo proceso, ejecución en orden). */
+export const estado = { secretoAdmin: "" };
+
+export function supabaseServicio() {
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Crea una cuenta activa con rol directamente (sin invitación), para preparar escenarios. */
+export async function crearCuenta(correo: string, nombre: string, rol: string, contrasena: string): Promise<string> {
+  const admin = supabaseServicio();
+  const { data, error } = await admin.auth.admin.createUser({ email: correo, password: contrasena, email_confirm: true });
+  if (error || !data.user) throw new Error(`No se pudo crear ${correo}: ${error?.message}`);
+  await admin.from("user_profiles").insert({ user_id: data.user.id, display_name: nombre });
+  await admin.from("user_roles").insert({ user_id: data.user.id, role_id: rol });
+  return data.user.id;
+}
+
 export const CONSULTORA = { correo: "consultora@demo.invalid", nombre: "Consultora Demo", contrasena: "Consultora2026" };
 
 let ultimoCodigo = "";
@@ -36,11 +56,14 @@ export async function enlaceDeCorreo(destinatario: string, desde: Date): Promise
   throw new Error(`No llegó correo para ${destinatario}`);
 }
 
-export async function entrar(page: Page, correo: string, contrasena: string) {
+/** Inicia sesión. Por defecto espera a salir de /entrar; con `esperaError` espera el aviso de credenciales. */
+export async function entrar(page: Page, correo: string, contrasena: string, { esperaError = false } = {}) {
   await page.goto("/entrar");
   await page.getByLabel("Correo", { exact: true }).fill(correo);
   await page.getByLabel("Contraseña", { exact: true }).fill(contrasena);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  if (esperaError) await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
+  else await expect(page).not.toHaveURL(/\/entrar(\?|$)/);
 }
 
 export async function verificarCodigo(page: Page, secreto: string) {
