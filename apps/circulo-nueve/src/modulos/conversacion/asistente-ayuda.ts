@@ -172,8 +172,8 @@ export function crearAsistenteLlm(llm: LlmProvider, secciones: SeccionAyuda[], l
     modo: "llm",
     async responder(pregunta) {
       const fragmentos = buscarEnAyuda(pregunta, secciones, limite).map((r) => r.fragmento);
-      const aviso = `Respuesta redactada por ${llm.nombre} (${llm.modelo}) a partir del centro de ayuda.`;
       if (!fragmentos.length) {
+        const aviso = "No hubo fragmentos del centro de ayuda que enviar: no se llamó al modelo.";
         return { modo: "llm", sinRespaldo: true, aviso, afirmaciones: [{ texto: SIN_RESPALDO, tipo: "extracto", citas: [] }] };
       }
       const porId = new Map(fragmentos.map((f) => [f.id, f]));
@@ -182,6 +182,7 @@ export function crearAsistenteLlm(llm: LlmProvider, secciones: SeccionAyuda[], l
         respuestaJson: true,
         temperatura: 0.2,
       });
+      const aviso = `Respuesta redactada por ${respuesta.proveedor ?? llm.nombre} (${respuesta.modelo}) a partir del centro de ayuda.`;
 
       let crudas: { texto?: unknown; fragmentos?: unknown }[] = [];
       try {

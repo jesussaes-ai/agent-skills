@@ -35,7 +35,7 @@ describe("convenciones de la interfaz", () => {
 
   it("cada ayuda contextual apunta a una sección existente", () => {
     const ids = new Set(SECCIONES_AYUDA.map((s) => s.id));
-    const usados = archivos.flatMap((a) => [...a.codigo.matchAll(/\bayuda="([^"]+)"/g)].map((m) => m[1]));
+    const usados = archivos.flatMap((a) => [...a.codigo.matchAll(/\b(?:ayuda|seccion)="([^"]+)"/g)].map((m) => m[1]));
     expect(usados.length).toBeGreaterThan(0);
     for (const id of usados) expect(ids.has(id), id).toBe(true);
   });
