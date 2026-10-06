@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-06.3",
+  "version": "2026-10-06.4",
   "secciones": [
     {
       "id": "proyecto",
@@ -517,6 +517,32 @@
         "numerología",
         "calcular",
         "borrar"
+      ]
+    },
+    {
+      "id": "expediente-carta-natal",
+      "titulo": "Carta natal del expediente",
+      "resumen": "Calcular la carta con el perfil guardado y guardarla en el historial, recalculada en el servidor.",
+      "deQueTrata": "Usa la fecha, la hora, su precisión y la zona horaria del perfil guardado. Primero eliges el lugar (catálogo GeoNames o coordenadas a mano) y los ajustes; la carta se calcula al momento en tu navegador, sin guardarse. «Guardar carta natal» vuelve a calcularla en el servidor: el servidor lee el perfil de la base, busca el lugar en su propia copia del catálogo y guarda la carta en el historial con el motor, la versión de las reglas, las efemérides, la versión de la base de zonas horarias, los ajustes y una huella SHA-256 de todo ello. Requiere el consentimiento «Guardar el historial» y el permiso de modificar. Desde la carta guardada se genera su PDF.",
+      "datosQueUsa": [
+        "Fecha, hora, precisión de la hora y zona horaria del perfil guardado.",
+        "El lugar elegido y los ajustes de cálculo (zodiaco, casas, nodo, orbes)."
+      ],
+      "comoSeUsa": [
+        "Guarda el perfil con la fecha (y la hora si la conoces).",
+        "Elige el lugar y revisa la carta y sus avisos.",
+        "Pulsa «Guardar carta natal»; aparecerá en «Historial de lecturas».",
+        "En el historial, pulsa «Ver carta completa» o «Generar PDF»."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "carta natal",
+        "expediente",
+        "guardar carta",
+        "historial",
+        "PDF",
+        "consentimiento",
+        "astrología"
       ]
     },
     {

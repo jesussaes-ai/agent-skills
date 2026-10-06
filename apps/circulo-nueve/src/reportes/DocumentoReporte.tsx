@@ -5,6 +5,7 @@ import { pensamientoDe } from "./contenido/pensamientos";
 import { estilos as e } from "./estilos";
 import { calcularProporcion, formatearLocalizador } from "./proporcion";
 import { EMBLEMA, LOGOTIPO } from "./recursos";
+import { RuedaPdf, TablaPdf } from "./TablaRueda";
 import { PAGINA } from "./tema";
 import type { AvisoPrivacidad, Cita, DatosReporte, Interpretacion, Pensamiento } from "./tipos";
 
@@ -254,6 +255,8 @@ export function DocumentoReporte({ datos }: { datos: DatosReporte }) {
               ))}
             </View>
           ))}
+          {datos.rueda ? <RuedaPdf rueda={datos.rueda} /> : null}
+          {datos.tablas?.map((t) => <TablaPdf key={t.titulo} tabla={t} />)}
         </Seccion>
 
         <Seccion

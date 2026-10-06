@@ -25,6 +25,32 @@ export interface Calculo {
   pasos: PasoCalculo[];
 }
 
+/** Tabla de datos calculados (p. ej. posiciones de una carta natal). */
+export interface TablaReporte {
+  titulo: string;
+  nota?: string;
+  columnas: string[];
+  /** Anchos relativos de cada columna; si se omiten, se reparten por igual. */
+  anchos?: number[];
+  filas: string[][];
+}
+
+/** Punto de la rueda zodiacal del PDF; longitudes en grados eclípticos [0, 360). */
+export interface PuntoRueda {
+  abreviatura: string;
+  longitud: number;
+  /** Si existe, se dibuja como arco: la posición solo se conoce dentro de este rango. */
+  rango?: { desde: number; hasta: number };
+}
+
+export interface RuedaReporte {
+  /** Ascendente: se coloca a la izquierda. Sin él, 0° Aries queda a la izquierda. */
+  ascendente?: number;
+  cuspides?: number[];
+  puntos: PuntoRueda[];
+  pie: string;
+}
+
 export interface Cita {
   fuenteId: string;
   localizador: Localizador;
@@ -89,6 +115,9 @@ export interface DatosReporte {
   versionReglas?: string;
   datosAutorizados: DatoAutorizado[];
   calculos: Calculo[];
+  /** Tablas y rueda opcionales; se imprimen dentro de «Cálculos paso a paso». */
+  tablas?: TablaReporte[];
+  rueda?: RuedaReporte;
   interpretaciones: Interpretacion[];
   limites: string[];
   fuentes: FuenteCitada[];

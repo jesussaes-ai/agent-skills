@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CONFIG_POR_DEFECTO,
   NOMBRES_AYANAMSA,
@@ -37,7 +37,7 @@ const ETIQUETA_PRECISION: Record<ClasePrecision, { texto: string; tono: "violeta
 
 const PRECISION_HORA = { exacta: "exacta", aproximada: "aproximada", desconocida: "desconocida" } as const;
 
-function Resultados({ r }: { r: ResultadoCarta }) {
+export function ResultadosCarta({ r }: { r: ResultadoCarta }) {
   const [verDatos, setVerDatos] = useState(false);
   const cuerpos = r.posiciones.filter((p) => p.clave !== "asc" && p.clave !== "mc");
   const angulos = r.posiciones.filter((p) => p.clave === "asc" || p.clave === "mc");
@@ -224,91 +224,131 @@ function Resultados({ r }: { r: ResultadoCarta }) {
   );
 }
 
-export function SeccionCartaNatal({ perfil }: { perfil: Perfil }) {
-  const [lugar, setLugar] = useState<LugarNacimiento | null>(null);
+export interface DatosNacimiento {
+  fecha: string;
+  hora: string;
+  precisionHora: "exacta" | "aproximada" | "desconocida";
+  /** Texto libre del perfil, para precargar el buscador. */
+  lugarTexto: string;
+  zonaHoraria: string;
+  esDemo: boolean;
+}
+
+export interface EstadoCarta {
+  lugar: LugarNacimiento | null;
+  config: ConfigAstrologia;
+  ocurrencia?: "primera" | "segunda";
+  resultado: ReturnType<typeof calcularCartaNatal> | null;
+}
+
+interface PropsPanel {
+  datos: DatosNacimiento;
+  lugarInicial?: LugarNacimiento | null;
+  /** Controles adicionales bajo el resultado (p. ej. guardar en el expediente). */
+  acciones?: (estado: EstadoCarta) => ReactNode;
+}
+
+/** Cálculo local de la carta: lugar, ajustes y resultado. No guarda nada por sí solo. */
+export function PanelCartaNatal({ datos, lugarInicial = null, acciones }: PropsPanel) {
+  const [lugar, setLugar] = useState<LugarNacimiento | null>(lugarInicial);
   const [config, setConfig] = useState<ConfigAstrologia>(CONFIG_POR_DEFECTO);
   const [ocurrencia, setOcurrencia] = useState<"primera" | "segunda" | undefined>();
   const [verAjustes, setVerAjustes] = useState(false);
 
   const resultado = useMemo(() => {
-    if (!perfil.fecha) return null;
+    if (!datos.fecha) return null;
     return calcularCartaNatal(
       {
-        fecha: perfil.fecha,
-        hora: perfil.hora || undefined,
-        precisionHora: perfil.precisionHora,
+        fecha: datos.fecha,
+        hora: datos.hora || undefined,
+        precisionHora: datos.precisionHora,
         lugar: lugar ?? undefined,
-        zonaHoraria: perfil.zonaHoraria.trim() || undefined,
+        zonaHoraria: datos.zonaHoraria.trim() || undefined,
         ocurrencia,
       },
       config,
     );
-  }, [perfil, lugar, config, ocurrencia]);
+  }, [datos, lugar, config, ocurrencia]);
 
   return (
-    <Seccion
-      titulo="Carta natal"
-      ayuda="carta-natal"
-      etiqueta={resultado?.ok ? <Etiqueta>Calculada</Etiqueta> : <Etiqueta tono="gris">Faltan datos</Etiqueta>}
-    >
-      <div className="space-y-5">
-        {perfil.esDemo && !lugar && (
-          <Boton
-            variante="secundario"
-            descripcion="Usa la Ciudad de México (coordenadas de GeoNames) como lugar de la persona ficticia."
-            onClick={() => setLugar(LUGAR_DEMO)}
-          >
-            Usar el lugar de la demostración
-          </Boton>
-        )}
-        <BuscadorLugar consultaInicial={perfil.esDemo ? "" : perfil.lugar} lugar={lugar} onElegir={setLugar} />
+    <div className="space-y-5">
+      {datos.esDemo && !lugar && (
+        <Boton
+          variante="secundario"
+          descripcion="Usa la Ciudad de México (coordenadas de GeoNames) como lugar de la persona ficticia."
+          onClick={() => setLugar(LUGAR_DEMO)}
+        >
+          Usar el lugar de la demostración
+        </Boton>
+      )}
+      <BuscadorLugar consultaInicial={datos.esDemo ? "" : datos.lugarTexto} lugar={lugar} onElegir={setLugar} />
 
-        <div className="rounded-xl border border-slate-200 p-4">
-          <Boton
-            variante="sutil"
-            className="px-0"
-            aria-expanded={verAjustes}
-            descripcion="Muestra u oculta el zodiaco, la ayanamsa, el sistema de casas, el nodo y los orbes de los aspectos."
-            onClick={() => setVerAjustes((v) => !v)}
-          >
-            {verAjustes ? "Ocultar ajustes de cálculo" : "Ajustes de cálculo (zodiaco, casas, aspectos)"}
-          </Boton>
-          {verAjustes && (
-            <div className="mt-3">
-              <AjustesCarta config={config} onCambiar={setConfig} />
+      <div className="rounded-xl border border-slate-200 p-4">
+        <Boton
+          variante="sutil"
+          className="px-0"
+          aria-expanded={verAjustes}
+          descripcion="Muestra u oculta el zodiaco, la ayanamsa, el sistema de casas, el nodo y los orbes de los aspectos."
+          onClick={() => setVerAjustes((v) => !v)}
+        >
+          {verAjustes ? "Ocultar ajustes de cálculo" : "Ajustes de cálculo (zodiaco, casas, aspectos)"}
+        </Boton>
+        {verAjustes && (
+          <div className="mt-3">
+            <AjustesCarta config={config} onCambiar={setConfig} />
+          </div>
+        )}
+      </div>
+
+      {!resultado ? (
+        <p className="text-slate-700">Falta la fecha de nacimiento. Indícala en el perfil.</p>
+      ) : !resultado.ok ? (
+        <div role="alert" className="space-y-3 rounded-lg bg-red-50 p-4 text-sm text-red-900">
+          <p className="font-semibold">No se pudo calcular la carta:</p>
+          <ul className="list-disc pl-5">
+            {resultado.errores.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+          {resultado.opcionesHoraRepetida && (
+            <div className="flex flex-wrap gap-3">
+              {resultado.opcionesHoraRepetida.map((o) => (
+                <Boton
+                  key={o.ocurrencia}
+                  variante="secundario"
+                  descripcion={`Usa la ${o.ocurrencia} vez que el reloj marcó esa hora (${o.desfaseTexto}).`}
+                  onClick={() => setOcurrencia(o.ocurrencia)}
+                >
+                  {o.ocurrencia === "primera" ? "Primera" : "Segunda"} ocurrencia ({o.desfaseTexto})
+                </Boton>
+              ))}
             </div>
           )}
         </div>
+      ) : (
+        <ResultadosCarta r={resultado} />
+      )}
+      {acciones?.({ lugar, config, ocurrencia, resultado })}
+    </div>
+  );
+}
 
-        {!resultado ? (
-          <p className="text-slate-700">Falta la fecha de nacimiento. Vuelve al perfil para indicarla.</p>
-        ) : !resultado.ok ? (
-          <div role="alert" className="space-y-3 rounded-lg bg-red-50 p-4 text-sm text-red-900">
-            <p className="font-semibold">No se pudo calcular la carta:</p>
-            <ul className="list-disc pl-5">
-              {resultado.errores.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-            {resultado.opcionesHoraRepetida && (
-              <div className="flex flex-wrap gap-3">
-                {resultado.opcionesHoraRepetida.map((o) => (
-                  <Boton
-                    key={o.ocurrencia}
-                    variante="secundario"
-                    descripcion={`Usa la ${o.ocurrencia} vez que el reloj marcó esa hora (${o.desfaseTexto}).`}
-                    onClick={() => setOcurrencia(o.ocurrencia)}
-                  >
-                    {o.ocurrencia === "primera" ? "Primera" : "Segunda"} ocurrencia ({o.desfaseTexto})
-                  </Boton>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <Resultados r={resultado} />
-        )}
-      </div>
+/** Sección de la demo: misma carta, sin guardar. */
+export function SeccionCartaNatal({ perfil }: { perfil: Perfil }) {
+  const datos = useMemo<DatosNacimiento>(
+    () => ({
+      fecha: perfil.fecha,
+      hora: perfil.hora,
+      precisionHora: perfil.precisionHora,
+      lugarTexto: perfil.lugar,
+      zonaHoraria: perfil.zonaHoraria,
+      esDemo: perfil.esDemo,
+    }),
+    [perfil],
+  );
+  return (
+    <Seccion titulo="Carta natal" ayuda="carta-natal" etiqueta={<Etiqueta tono="gris">Cálculo local, sin guardar</Etiqueta>}>
+      <PanelCartaNatal datos={datos} />
     </Seccion>
   );
 }

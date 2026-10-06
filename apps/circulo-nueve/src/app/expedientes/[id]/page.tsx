@@ -13,6 +13,8 @@ import {
   FormularioPerfil,
   FormularioVincularCliente,
 } from "@/ui/expedientes/Formularios";
+import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
+import { CartaExpediente } from "@/ui/carta-natal/CartaExpediente";
 import { HistorialLecturas, NuevaLectura } from "@/ui/expedientes/Lecturas";
 import { PermisosExpediente } from "@/ui/expedientes/Permisos";
 
@@ -32,6 +34,7 @@ export default async function PaginaExpediente({ params }: { params: Promise<{ i
   const puedeModificar = permisos.modificar;
   const consentidoPerfil = consentimientos.guardar_perfil?.otorgado === true;
   const consentidoHistorial = consentimientos.guardar_historial?.otorgado === true;
+  const ultimaCarta = lecturas.find((l) => l.sistema === "carta_natal")?.resultado as ResultadoCarta | undefined;
 
   return (
     <div className="space-y-6">
@@ -71,6 +74,27 @@ export default async function PaginaExpediente({ params }: { params: Promise<{ i
 
       <Seccion titulo="Nueva lectura de numerología" ayuda="expediente-lecturas">
         <NuevaLectura id={id} nombre={perfil?.nombreNacimiento ?? ""} fecha={perfil?.fecha ?? ""} puedeGuardar={puedeModificar} consentido={consentidoHistorial} />
+      </Seccion>
+
+      <Seccion titulo="Carta natal" ayuda="expediente-carta-natal">
+        {perfil?.fecha ? (
+          <CartaExpediente
+            id={id}
+            datos={{
+              fecha: perfil.fecha,
+              hora: perfil.hora,
+              precisionHora: perfil.precisionHora,
+              lugarTexto: perfil.lugar,
+              zonaHoraria: perfil.zonaHoraria,
+              esDemo: false,
+            }}
+            lugarInicial={ultimaCarta?.entradas.lugar ?? null}
+            puedeGuardar={puedeModificar}
+            consentido={consentidoHistorial}
+          />
+        ) : (
+          <p className="text-slate-700">Guarda primero la fecha de nacimiento en el perfil para calcular la carta natal.</p>
+        )}
       </Seccion>
 
       <Seccion titulo="Historial de lecturas" ayuda="expediente-lecturas">

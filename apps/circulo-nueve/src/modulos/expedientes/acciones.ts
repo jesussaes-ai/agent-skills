@@ -7,7 +7,8 @@ import { calcularNumerologia, crearConfig, type ResultadoNumerologia } from "@/m
 import { erroresDe, type EstadoFormulario } from "@/modulos/auth/esquemas";
 import { esAdmin, obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
-import { generarReportePdf, reporteDeNumerologia } from "@/reportes";
+import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
+import { generarReportePdf, reporteDeCartaNatal, reporteDeNumerologia } from "@/reportes";
 import { borrarArchivosDeExpediente } from "./consultas";
 import {
   CONSENTIMIENTOS,
@@ -229,20 +230,22 @@ export async function accionGenerarPdf(_: EstadoFormulario, form: FormData): Pro
   const { data: puede } = await supabase.rpc("has_case_perm", { case_id: expedienteId, p: "abrir_descargar" });
   if (!puede) return SIN_PERMISO;
   const [{ data: lectura }, { data: expediente }, { data: perfil }, { data: aviso }] = await Promise.all([
-    supabase.from("readings").select("id, resultado_calculado, created_at").eq("id", lecturaId).eq("case_file_id", expedienteId).maybeSingle(),
+    supabase.from("readings").select("id, sistema, resultado_calculado, created_at").eq("id", lecturaId).eq("case_file_id", expedienteId).maybeSingle(),
     supabase.from("case_files").select("display_label, es_demo").eq("id", expedienteId).maybeSingle(),
     supabase.from("birth_profiles").select("preferred_name").eq("case_file_id", expedienteId).maybeSingle(),
     supabase.from("privacy_notice_settings").select("responsable, finalidades, datos_tratados, conservacion, derechos, contacto").single(),
   ]);
   if (!lectura || !expediente) return SIN_PERMISO;
 
-  const resultado = lectura.resultado_calculado as ResultadoNumerologia;
+  const esCarta = lectura.sistema === "carta_natal";
   const hoy = new Date().toISOString().slice(0, 10);
   const documentoId = randomUUID();
   const folio = `CN-${hoy.replaceAll("-", "")}-${documentoId.slice(0, 8).toUpperCase()}`;
   const pdf = await generarReportePdf({
-    ...reporteDeNumerologia(resultado),
-    titulo: "Lectura de numerología",
+    ...(esCarta
+      ? reporteDeCartaNatal(lectura.resultado_calculado as ResultadoCarta)
+      : reporteDeNumerologia(lectura.resultado_calculado as ResultadoNumerologia)),
+    titulo: esCarta ? "Carta natal" : "Lectura de numerología",
     nombrePersona: perfil?.preferred_name || expediente.display_label,
     folio,
     fechaElaboracion: hoy,

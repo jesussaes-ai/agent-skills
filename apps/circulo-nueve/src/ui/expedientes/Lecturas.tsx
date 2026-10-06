@@ -7,6 +7,8 @@ import type { Lectura } from "@/modulos/expedientes/consultas";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
 import { Boton } from "@/ui/componentes/Boton";
 import { Etiqueta } from "@/ui/componentes/Seccion";
+import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
+import { CartaGuardada } from "@/ui/carta-natal/CartaExpediente";
 import { Casilla, Selector } from "./Selector";
 
 function Indicadores({ resultado }: { resultado: ResultadoNumerologia }) {
@@ -160,9 +162,14 @@ export function HistorialLecturas({ id, lecturas, puedeBorrar, puedeDescargar }:
       {lecturas.map((l) => (
         <li key={l.id} className="rounded-xl border border-slate-200 p-4" data-testid="lectura-guardada">
           <p className="mb-2 text-sm text-slate-600">
-            {new Date(l.creada).toLocaleString("es-MX")} · Numerología · motor {l.motor} v{l.motorVersion} · reglas {l.reglasVersion}
+            {new Date(l.creada).toLocaleString("es-MX")} · {l.sistema === "carta_natal" ? "Carta natal" : "Numerología"} · motor {l.motor} v
+            {l.motorVersion} · reglas {l.reglasVersion}
           </p>
-          <Indicadores resultado={l.resultado} />
+          {l.sistema === "carta_natal" ? (
+            <CartaGuardada r={l.resultado as ResultadoCarta} />
+          ) : (
+            <Indicadores resultado={l.resultado as ResultadoNumerologia} />
+          )}
           <div className="mt-3">
             <AccionesLectura id={id} lecturaId={l.id} puedeBorrar={puedeBorrar} puedeDescargar={puedeDescargar} />
           </div>

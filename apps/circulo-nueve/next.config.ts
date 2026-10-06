@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Fuentes e imágenes que el generador de PDF lee del disco en el servidor.
+  // Archivos que el servidor lee del disco: fuentes e imágenes del PDF y el catálogo de lugares.
   outputFileTracingIncludes: {
-    "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*"],
+    "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*", "public/datos/**/*"],
   },
 };
 
