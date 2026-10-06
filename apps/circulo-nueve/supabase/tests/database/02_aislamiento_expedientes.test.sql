@@ -43,6 +43,8 @@ insert into public.case_files (id, display_label, created_by, client_user_id) va
 insert into public.birth_profiles (case_file_id, birth_name, birth_date) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Ana María Núñez', '1990-07-15'),
   ('bbbbbbbb-0000-0000-0000-000000000001', 'Gina Demo', '1980-01-01');
+insert into public.consents (case_file_id, tipo, otorgado, version_texto) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'guardar_historial', true, 'demo-1');
 insert into storage.objects (bucket_id, name) values
   ('expedientes', 'bbbbbbbb-0000-0000-0000-000000000001/11111111-1111-1111-1111-111111111111.pdf');
 
