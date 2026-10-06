@@ -11,8 +11,9 @@ import { aVector, crearEmbeddingsLocales } from "./embeddings";
 import { esquemaEditarFuente, esquemaMetadatos, esquemaPregunta, esquemaWeb } from "./esquemas";
 import { EXTENSIONES, detectarFormato, revisarContenidoActivo } from "./formatos";
 import { procesarSiguiente, type ResultadoTrabajo } from "./ingesta";
-import { llmBiblioteca } from "./llm";
+import { llmParaBiblioteca, mensajeErrorProveedor } from "./llm";
 import { construirMensajes, medirProporcion, respuestaExtractiva, validarRespuesta } from "./respuesta";
+import type { LlmProvider } from "@/modulos/proveedores/tipos";
 import type { AfirmacionValidada, FragmentoRecuperado, ProporcionAfirmaciones } from "./tipos";
 
 const SIN_PERMISO: EstadoFormulario = { mensaje: "No tienes permiso para administrar la biblioteca." };
@@ -303,8 +304,14 @@ export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: Fo
     return { estado: "sin_aportadas", mensaje: "No encontré respaldo en las fuentes aportadas por el propietario." };
   }
   const recuperados = incluir ? await buscar(null) : aportadas;
-  const llm = llmBiblioteca();
-  const usarLlm = Boolean(llm && datos.data.enviarALlm === "on");
+  const proveedorId = String(form.get("proveedorId") ?? "");
+  let llm: LlmProvider | null = null;
+  if (proveedorId) {
+    const elegido = await llmParaBiblioteca({ proveedorId, consentido: datos.data.enviarALlm === "on", pregunta, usuarioId: sesion.usuarioId });
+    if (!elegido.ok) return { estado: "error", mensaje: elegido.mensaje };
+    llm = elegido.llm;
+  }
+  const usarLlm = llm !== null;
   // Los fragmentos marcados como posible instrucción incrustada nunca se envían a un LLM;
   // en modo extractivo se muestran con aviso porque solo se citan literalmente.
   const utilizables = usarLlm ? recuperados.filter((f) => !f.sospechoso) : recuperados;
@@ -312,21 +319,30 @@ export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: Fo
 
   let afirmaciones: AfirmacionValidada[];
   let modo: RespuestaBiblioteca["modo"] = "extractivo";
-  if (llm && usarLlm) {
-    const salida = await llm.completar({ mensajes: construirMensajes(pregunta, utilizables), respuestaJson: true, temperatura: 0.2, maxTokens: 1200 });
-    afirmaciones = validarRespuesta(salida.texto, utilizables);
-    modo = "llm";
+  let aviso: string | undefined;
+  if (llm) {
+    try {
+      const salida = await llm.completar({ mensajes: construirMensajes(pregunta, utilizables), respuestaJson: true, temperatura: 0.2, maxTokens: 1200 });
+      afirmaciones = validarRespuesta(salida.texto, utilizables);
+      modo = "llm";
+    } catch (e) {
+      const mensaje = mensajeErrorProveedor(e);
+      if (!mensaje) throw e;
+      aviso = `${mensaje} Se muestran citas literales de las fuentes.`;
+      afirmaciones = respuestaExtractiva(recuperados);
+    }
   } else {
     afirmaciones = respuestaExtractiva(utilizables);
   }
   const citados = new Set(afirmaciones.flatMap((a) => a.chunkIds));
   return {
     estado: "ok",
+    mensaje: aviso,
     modo,
     proveedor: modo === "llm" && llm ? `${llm.nombre} (${llm.modelo})` : undefined,
     afirmaciones,
-    fragmentos: utilizables.filter((f) => citados.has(f.chunkId)),
-    proporcion: medirProporcion(afirmaciones, utilizables),
+    fragmentos: recuperados.filter((f) => citados.has(f.chunkId)),
+    proporcion: medirProporcion(afirmaciones, recuperados),
     incluyoComplementarias: incluir,
   };
 }

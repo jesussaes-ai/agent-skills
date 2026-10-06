@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useRef, useState, type FormEvent } from "react";
 import { accionPreguntarBiblioteca, type RespuestaBiblioteca } from "@/modulos/biblioteca/acciones";
+import type { ProveedorBiblioteca } from "@/modulos/biblioteca/llm";
 import { formatearLocalizador } from "@/modulos/biblioteca/respuesta";
 import type { FragmentoRecuperado } from "@/modulos/biblioteca/tipos";
-import { BotonEnviar } from "@/ui/auth/Campos";
 import { Boton } from "@/ui/componentes/Boton";
 import { Etiqueta } from "@/ui/componentes/Seccion";
-import { Casilla } from "@/ui/expedientes/Selector";
+import { Casilla, Selector } from "@/ui/expedientes/Selector";
 
 const TIPO: Record<string, string> = { textual: "Cita textual", parafrasis: "Paráfrasis", sintesis: "Síntesis" };
 
@@ -35,18 +35,26 @@ function Pasaje({ fragmento }: { fragmento: FragmentoRecuperado }) {
   );
 }
 
-export function BotBiblioteca({ proveedor }: { proveedor: string | null }) {
-  const [respuesta, accion] = useActionState(accionPreguntarBiblioteca, { estado: "ok" } as RespuestaBiblioteca);
+export function BotBiblioteca({ proveedores }: { proveedores: ProveedorBiblioteca[] }) {
+  const [respuesta, accion, pendiente] = useActionState(accionPreguntarBiblioteca, { estado: "ok" } as RespuestaBiblioteca);
   const formulario = useRef<HTMLFormElement>(null);
-  // Controlado: React vacía los campos no controlados tras cada acción, y la
-  // autorización para incluir complementarias reenvía la misma pregunta.
   const [pregunta, setPregunta] = useState("");
+  // Envío manual (sin `action` en el formulario): React restablece los formularios
+  // con acción al terminar, y aquí se reenvía la misma pregunta al autorizar las
+  // complementarias o al aceptar el envío a un proveedor.
+  const enviar = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const datos = new FormData(e.currentTarget);
+    startTransition(() => accion(datos));
+  };
+  const [proveedorId, setProveedorId] = useState("");
+  const elegido = proveedores.find((p) => p.id === proveedorId);
   const porId = new Map((respuesta.fragmentos ?? []).map((f) => [f.chunkId, f]));
   const p = respuesta.proporcion;
 
   return (
     <div className="space-y-5">
-      <form ref={formulario} action={accion} className="space-y-3" noValidate>
+      <form ref={formulario} onSubmit={enviar} className="space-y-3" noValidate>
         <label htmlFor="pregunta-biblioteca" className="text-sm font-medium text-slate-700">
           Tu pregunta
         </label>
@@ -62,14 +70,33 @@ export function BotBiblioteca({ proveedor }: { proveedor: string | null }) {
         />
         {respuesta.errores?.pregunta && <p className="text-sm text-red-700">{respuesta.errores.pregunta}</p>}
         <Casilla etiqueta="Incluir también fuentes complementarias" name="incluirComplementarias" />
-        {proveedor ? (
-          <Casilla etiqueta={`Enviar la pregunta y los fragmentos recuperados a ${proveedor} para redactar la respuesta`} name="enviarALlm" />
+        {proveedores.length ? (
+          <div className="space-y-2">
+            <Selector
+              etiqueta="Redacción de la respuesta"
+              name="proveedorId"
+              value={proveedorId}
+              onChange={(e) => setProveedorId(e.target.value)}
+              opciones={[["", "Sin IA: citas literales (nada sale del servidor)"], ...proveedores.map((p) => [p.id, `${p.nombre} (${p.modelo})`] as const)]}
+            />
+            {elegido && (
+              <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-950">
+                <p className="mb-2">{elegido.consentimiento}</p>
+                <Casilla etiqueta="Acepto este envío" name="enviarALlm" />
+              </div>
+            )}
+          </div>
         ) : (
-          <p className="text-xs text-slate-500">Sin proveedor de IA configurado: el bot responde con citas literales de las fuentes y nada sale del servidor.</p>
+          <p className="text-xs text-slate-500">Sin proveedor de IA activo: el bot responde con citas literales de las fuentes y nada sale del servidor.</p>
         )}
-        <BotonEnviar descripcion="Busca en la biblioteca (texto y significado) solo entre las fuentes que puedes consultar y responde con citas verificables.">
-          Preguntar a la biblioteca
-        </BotonEnviar>
+        <Boton
+          type="submit"
+          disabled={pendiente}
+          aria-busy={pendiente || undefined}
+          descripcion="Busca en la biblioteca (texto y significado) solo entre las fuentes que puedes consultar y responde con citas verificables."
+        >
+          {pendiente ? "Buscando…" : "Preguntar a la biblioteca"}
+        </Boton>
       </form>
 
       <div aria-live="polite" className="space-y-4">
@@ -99,6 +126,7 @@ export function BotBiblioteca({ proveedor }: { proveedor: string | null }) {
         )}
         {respuesta.estado === "ok" && respuesta.afirmaciones && (
           <>
+            {respuesta.mensaje && <p role="status" className="rounded-lg bg-amber-50 p-2 text-sm text-amber-950">{respuesta.mensaje}</p>}
             <p className="text-xs text-slate-500">
               {respuesta.modo === "llm" ? `Respuesta redactada por ${respuesta.proveedor} y validada contra los fragmentos.` : "Modo extractivo: citas literales, sin IA."}
               {respuesta.incluyoComplementarias ? " Incluye fuentes complementarias (autorizado)." : " Solo fuentes aportadas."}

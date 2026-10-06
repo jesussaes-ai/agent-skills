@@ -133,7 +133,7 @@ export interface RegistroUso {
   codigoResultado: CodigoResultado;
   intento: number;
   latenciaMs: number;
-  origen: "asistente-ayuda" | "prueba-admin";
+  origen: "asistente-ayuda" | "prueba-admin" | "biblioteca";
 }
 
 export interface UsoActual {
