@@ -1,14 +1,13 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { ADMIN, crearCuenta, entrar, estado, salir, supabaseServicio, verificarCodigo } from "./utilidades";
+import { ADMIN, ANA, crearCuenta, entrar, estado, salir, supabaseServicio, verificarCodigo } from "./utilidades";
 
 const MEDIA = process.env.E2E_CAPTURAS;
 const captura = async (page: Page, nombre: string) => {
   if (MEDIA) await page.screenshot({ path: `${MEDIA}/${nombre}.png`, fullPage: true });
 };
 
-const ANA = { correo: "ana@demo.invalid", nombre: "Ana Consultora", contrasena: "AnaDemo20261" };
 const BETO = { correo: "beto@demo.invalid", nombre: "Beto Consultor", contrasena: "BetoDemo20261" };
 
 test.describe.configure({ mode: "serial" });

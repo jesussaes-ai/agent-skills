@@ -24,6 +24,9 @@ export async function crearCuenta(correo: string, nombre: string, rol: string, c
   return data.user.id;
 }
 
+/** Consultora creada en 02-expedientes.spec.ts (activa durante el resto de la suite). */
+export const ANA = { correo: "ana@demo.invalid", nombre: "Ana Consultora", contrasena: "AnaDemo20261" };
+
 export const CONSULTORA = { correo: "consultora@demo.invalid", nombre: "Consultora Demo", contrasena: "Consultora2026" };
 
 let ultimoCodigo = "";
