@@ -19,10 +19,12 @@
     "db:reset": "supabase db reset",
     "test:db": "supabase db reset && supabase test db",
     "setup:hash": "tsx scripts/generar-hash-clave.mts",
-    "test:e2e": "bash scripts/e2e.sh"
+    "test:e2e": "bash scripts/e2e.sh",
+    "reporte:muestra": "vitest run --config src/reportes/demo/vitest.muestra.config.mts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.1",
+    "@react-pdf/renderer": "4.9.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "next": "16.3.8",
