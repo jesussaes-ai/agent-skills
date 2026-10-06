@@ -2,7 +2,7 @@
 -- Todos los datos son ficticios.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(37);
+select plan(41);
 
 -- Usuarios ficticios
 insert into auth.users (id, email, aud, role) values
@@ -150,7 +150,13 @@ select is((select count(*) from public.case_files), 1::bigint, 'consultor B solo
 select is((select count(*) from storage.objects where bucket_id = 'expedientes'), 1::bigint, 'consultor B ve los archivos de su expediente');
 
 -- ---------------------------------------------------------------- administración
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal1"}', true);
+select is((select count(*) from public.case_files), 0::bigint, 'administración sin verificación en dos pasos no ve expedientes');
+select is((select count(*) from public.user_profiles), 1::bigint, 'administración sin verificación en dos pasos solo ve su propio perfil');
+select is((public.mi_acceso() ->> 'aal2')::boolean, false, 'mi_acceso informa que falta la verificación en dos pasos');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal2"}', true);
+select is((public.mi_acceso() -> 'roles'), '["admin"]'::jsonb, 'mi_acceso devuelve los roles propios');
 select is((select count(*) from public.case_files), 3::bigint, 'administración ve todos los expedientes');
 select throws_ok(
   $$ insert into public.case_file_grants (case_file_id, user_id, permissions, granted_by)
@@ -168,7 +174,7 @@ select ok((select count(*) from public.audit_log where recurso_tipo = 'case_file
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
 select is((select count(*) from public.case_files), 1::bigint, 'una asignación vencida no da acceso');
 
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal2"}', true);
 update public.case_file_grants set expires_at = now() + interval '1 day'
   where case_file_id = 'aaaaaaaa-0000-0000-0000-000000000001' and user_id = '00000000-0000-0000-0000-0000000000b1';
 
