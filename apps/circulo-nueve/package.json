@@ -25,6 +25,7 @@
     "@node-rs/argon2": "^2.2.1",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
+    "astronomy-engine": "2.1.19",
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
