@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type FocusEvent, type ReactNode } from "react";
 
 export interface PropsDisparador {
   "aria-describedby": string;
   onMouseEnter: () => void;
-  onFocus: () => void;
+  onFocus: (e: FocusEvent<HTMLElement>) => void;
   onBlur: () => void;
   onPointerDown: (e: { pointerType: string }) => void;
 }
@@ -58,10 +58,14 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
       {children({
         "aria-describedby": id,
         onMouseEnter: abrir,
-        onFocus: abrir,
+        // Solo el foco de teclado: tras un clic con ratón el botón también recibe foco.
+        onFocus: (e) => {
+          if (e.currentTarget.matches(":focus-visible")) abrir();
+        },
         onBlur: cerrar,
         onPointerDown: (e) => {
-          if (e.pointerType !== "touch") return;
+          // Con ratón, al pulsar se cierra: la acción puede mostrar contenido nuevo debajo.
+          if (e.pointerType !== "touch") return cerrar();
           limpiar();
           setAbierta(true);
           temporizador.current = setTimeout(() => setAbierta(false), DURACION_TOQUE_MS);

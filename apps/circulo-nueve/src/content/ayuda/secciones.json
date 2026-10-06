@@ -1,11 +1,11 @@
 {
-  "version": "2026-10-06.3",
+  "version": "2026-10-06.4",
   "secciones": [
     {
       "id": "proyecto",
       "titulo": "Sobre Círculo Nueve",
       "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
-      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado. La etapa 5 añade la biblioteca de fuentes: centro de carga, ingesta web, revisión, búsqueda híbrida y bot con citas.",
       "datosQueUsa": [
         "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
         "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
@@ -541,6 +541,148 @@
         "vigencia",
         "aviso de privacidad",
         "responsable"
+      ]
+    },
+    {
+      "id": "biblioteca",
+      "titulo": "Biblioteca de fuentes",
+      "resumen": "Libros y páginas autorizados que respaldan las respuestas.",
+      "deQueTrata": "La biblioteca reúne las fuentes que el propietario autoriza: aportadas por él (el objetivo es que sean ~80 % de lo citado) y complementarias (≤20 %). Cada fuente registra título, autor, referencia, edición, idioma, tradición, licencia o permiso, quién puede consultarla y su estado: pendiente, procesando, requiere revisión, indexado, fallido o retirado. Es una base de conocimiento distinta del Centro de ayuda: el asistente de la app explica la app; el bot de la biblioteca responde sobre las fuentes.",
+      "datosQueUsa": [
+        "Metadatos y derechos de cada fuente.",
+        "Texto extraído, fragmentos con su referencia y vectores para la búsqueda."
+      ],
+      "comoSeUsa": [
+        "Abre «Biblioteca» (solo administración).",
+        "Carga un archivo o añade una página web; procesa la cola; revisa y aprueba.",
+        "Abre una fuente para editar sus metadatos, ver versiones o retirarla."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "biblioteca",
+        "fuentes",
+        "fuente",
+        "libros",
+        "aportadas",
+        "complementarias",
+        "catálogo",
+        "estado",
+        "rag",
+        "derechos",
+        "licencia"
+      ]
+    },
+    {
+      "id": "biblioteca-carga",
+      "titulo": "Centro de carga",
+      "resumen": "Subir libros y documentos de forma segura.",
+      "deQueTrata": "Acepta PDF, EPUB, DOCX, TXT, Markdown e imágenes (PNG, JPEG, WebP, con OCR en español). El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo (JavaScript en PDF, macros en DOCX, scripts en EPUB). Límites: 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF. El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. Hay que confirmar que se tiene derecho a usar la fuente.",
+      "datosQueUsa": [
+        "El archivo y los metadatos que escribes."
+      ],
+      "comoSeUsa": [
+        "Elige el archivo, completa título, referencia, grupo, licencia y quién puede consultarla.",
+        "Marca la confirmación de derechos y pulsa «Cargar a cuarentena».",
+        "Pulsa «Procesar pendientes ahora» o deja que lo haga el worker."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "cargar",
+        "subir",
+        "archivo",
+        "pdf",
+        "epub",
+        "docx",
+        "txt",
+        "markdown",
+        "imagen",
+        "ocr",
+        "cuarentena",
+        "formato",
+        "macros",
+        "límite"
+      ]
+    },
+    {
+      "id": "biblioteca-web",
+      "titulo": "Páginas web a Markdown",
+      "resumen": "Guardar el contenido principal de una página pública.",
+      "deQueTrata": "Se descarga la página respetando robots.txt, con límite de tamaño y sin seguir redes internas; no se superan muros de pago ni inicios de sesión. Se extrae el contenido principal sin menús ni publicidad y se convierte a Markdown, conservando URL canónica, título, autor, fecha de publicación y fecha de consulta. Si falla o está restringida, se informa el motivo y se conservan solo los metadatos y el enlace. Cada actualización crea una versión nueva con las diferencias, que también se revisa.",
+      "datosQueUsa": [
+        "La dirección web y los metadatos que escribes."
+      ],
+      "comoSeUsa": [
+        "Escribe la dirección y los metadatos, confirma los derechos y pulsa «Añadir página web».",
+        "En la ficha de la fuente, «Actualizar desde la web» crea otra versión para revisar."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "web",
+        "página",
+        "url",
+        "markdown",
+        "robots",
+        "actualizar",
+        "versión",
+        "enlace",
+        "sitio"
+      ]
+    },
+    {
+      "id": "biblioteca-revision",
+      "titulo": "Revisión, versiones y retiro",
+      "resumen": "Nada se indexa sin aprobación.",
+      "deQueTrata": "Tras procesar, cada versión queda en «Requiere revisión»: se ven el Markdown extraído, los cambios respecto a la versión anterior y los fragmentos con su referencia (página, capítulo, sección o URL). Los fragmentos con forma de instrucción para un modelo (posible prompt injection) y el OCR de baja confianza se marcan. Puedes excluir fragmentos, aprobar (se calculan los vectores y pasa a ser la versión vigente) o rechazar. Retirar una fuente borra original, Markdown, fragmentos y vectores.",
+      "datosQueUsa": [
+        "La versión extraída, sus fragmentos y su huella SHA-256."
+      ],
+      "comoSeUsa": [
+        "Abre la fuente, revisa el Markdown y los fragmentos.",
+        "Pulsa «Excluir» en lo que no deba usarse y luego «Aprobar e indexar».",
+        "Para retirar, escribe RETIRAR y confirma."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "revisión",
+        "revisar",
+        "aprobar",
+        "rechazar",
+        "excluir",
+        "fragmentos",
+        "versión",
+        "diferencias",
+        "retirar",
+        "inyección",
+        "sospechoso"
+      ]
+    },
+    {
+      "id": "biblioteca-bot",
+      "titulo": "Bot de la biblioteca",
+      "resumen": "Respuestas con citas verificables y proporción 80/20.",
+      "deQueTrata": "Busca por texto y por significado (búsqueda híbrida con embeddings multilingües locales) solo entre las fuentes que tu cuenta puede consultar. Primero busca en las aportadas; si no hay respaldo, lo dice y pide tu autorización para incluir complementarias. Sin proveedor de IA responde con citas literales; con proveedor, el texto generado se valida: cada cita debe estar entre los fragmentos recuperados y una cita textual debe aparecer literalmente, o se rebaja a paráfrasis. Lo que no tenga respaldo se marca como interpretación general. Se muestra la proporción de afirmaciones citadas que vienen de fuentes aportadas (objetivo 80 %). El contenido de las fuentes se trata siempre como dato, nunca como instrucción.",
+      "datosQueUsa": [
+        "Tu pregunta (procesada en el servidor; solo se envía a un proveedor de IA si lo autorizas)."
+      ],
+      "comoSeUsa": [
+        "Escribe la pregunta y pulsa «Preguntar a la biblioteca».",
+        "Pulsa «Ver pasaje» para ver el texto exacto que sustenta cada parte.",
+        "Si no hay respaldo en las aportadas, pulsa «Buscar también en complementarias»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "bot",
+        "preguntar",
+        "citas",
+        "cita",
+        "pasaje",
+        "80/20",
+        "proporción",
+        "aportadas",
+        "complementarias",
+        "búsqueda",
+        "embeddings",
+        "fuentes"
       ]
     },
     {

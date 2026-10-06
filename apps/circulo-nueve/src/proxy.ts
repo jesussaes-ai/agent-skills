@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { leerConfigSupabase, origenPublico } from "@/modulos/auth/config";
 
-const PROTEGIDAS = ["/cuenta", "/admin", "/expedientes"];
+const PROTEGIDAS = ["/cuenta", "/admin", "/expedientes", "/biblioteca"];
 
 async function altaCompletada(url: string): Promise<boolean> {
   const llave = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
