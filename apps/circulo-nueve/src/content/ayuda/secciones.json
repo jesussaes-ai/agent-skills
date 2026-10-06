@@ -1,0 +1,137 @@
+{
+  "version": "2026-10-06.1",
+  "secciones": [
+    {
+      "id": "proyecto",
+      "titulo": "Sobre Circulo Nueve",
+      "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
+      "deQueTrata": "Circulo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas; esta es la etapa 1: una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda.",
+      "datosQueUsa": [
+        "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
+        "No hay cuentas, base de datos ni envío a servicios externos todavía."
+      ],
+      "comoSeUsa": [
+        "Recorre el flujo de la página de inicio: bienvenida, consentimiento, perfil y resultados.",
+        "Usa el botón «?» de cada sección para ver su ayuda, o abre el Centro de ayuda.",
+        "Consulta la línea del tiempo del proyecto (docs/LINEA-DEL-TIEMPO.md) para ver hitos y pendientes."
+      ],
+      "estado": "demo",
+      "palabrasClave": ["etapa", "etapas", "proyecto", "pendiente", "pendientes", "falta", "versión", "qué es", "objetivo", "hitos", "cronología", "línea del tiempo"]
+    },
+    {
+      "id": "bienvenida",
+      "titulo": "Bienvenida",
+      "resumen": "Presentación breve de la aplicación y de sus límites.",
+      "deQueTrata": "Explica en pocas líneas qué puedes hacer en la aplicación y aclara que las lecturas son interpretaciones simbólicas, no consejos médicos, psicológicos, legales ni financieros.",
+      "datosQueUsa": ["Ninguno."],
+      "comoSeUsa": ["Lee el texto y pulsa «Comenzar» para ir al consentimiento."],
+      "estado": "demo",
+      "palabrasClave": ["inicio", "empezar", "comenzar", "presentación", "límites", "aviso"]
+    },
+    {
+      "id": "consentimiento",
+      "titulo": "Aviso de privacidad y consentimiento",
+      "resumen": "Decides por separado qué permites hacer con tus datos.",
+      "deQueTrata": "Cada permiso se pide por separado: usar lo que escribes en la conversación, guardar el perfil, guardar el historial y enviar datos a un servicio externo. En la etapa 1 solo está disponible el uso en la sesión actual; los demás permisos aparecen desactivados porque todavía no existe almacenamiento ni proveedores externos. El texto del aviso de privacidad lo completará el responsable; mientras tanto se muestra como pendiente y no se inventa.",
+      "datosQueUsa": ["Tus elecciones de consentimiento, solo en la memoria de la pestaña."],
+      "comoSeUsa": [
+        "Marca que leíste el aviso para continuar.",
+        "Activa o deja desactivado el uso de tus datos en esta sesión.",
+        "Puedes volver y cambiar tus elecciones en cualquier momento."
+      ],
+      "estado": "demo",
+      "palabrasClave": ["privacidad", "consentimiento", "permiso", "permisos", "datos personales", "guardar", "borrar", "aviso", "externo", "proveedor"]
+    },
+    {
+      "id": "perfil",
+      "titulo": "Perfil de nacimiento",
+      "resumen": "Formulario opcional con los datos que usan los cálculos.",
+      "deQueTrata": "Pide solo lo que hace falta: nombre completo de nacimiento, nombre preferido (opcional), fecha, hora local con su precisión (exacta, aproximada o desconocida), lugar y zona horaria si la conoces. Nada se completa ni se adivina: si falta un dato, el cálculo que lo necesita no se hace y se explica por qué. También eliges las reglas de numerología (números maestros, tratamiento de la Y y la ñ, métodos).",
+      "datosQueUsa": [
+        "Nombre de nacimiento: expresión, alma y personalidad.",
+        "Fecha de nacimiento: camino de vida.",
+        "Hora, lugar y zona horaria: se capturan para la carta natal, que todavía está pendiente."
+      ],
+      "comoSeUsa": [
+        "Escribe los datos o pulsa «Cargar persona ficticia» para probar con datos de demostración.",
+        "Revisa las reglas de cálculo y pulsa «Calcular»."
+      ],
+      "estado": "demo",
+      "palabrasClave": ["formulario", "nombre", "fecha", "hora", "lugar", "zona horaria", "nacimiento", "datos", "ficticia", "demo", "reglas"]
+    },
+    {
+      "id": "resultados",
+      "titulo": "Panel de resultados",
+      "resumen": "Resultados separados por sistema: numerología, carta natal y cábala.",
+      "deQueTrata": "Cada sistema tiene su propia sección para no mezclar tradiciones. Los datos calculados se muestran aparte de cualquier interpretación. En la etapa 1 solo la numerología está calculada; la carta natal y la cábala aparecen como pendientes.",
+      "datosQueUsa": ["Los datos del perfil de esta sesión."],
+      "comoSeUsa": [
+        "Abre «Ver pasos» en cada indicador para revisar las operaciones.",
+        "Pulsa «Editar perfil» para corregir datos o «Borrar datos de la sesión» para empezar de cero."
+      ],
+      "estado": "demo",
+      "palabrasClave": ["resultados", "panel", "lectura", "secciones", "borrar", "editar"]
+    },
+    {
+      "id": "numerologia",
+      "titulo": "Numerología pitagórica",
+      "resumen": "Cálculo reproducible con pasos visibles y reglas configurables.",
+      "deQueTrata": "Usa la tabla pitagórica (A=1 … I=9, J=1 … R=9, S=1 … Z=8). Calcula camino de vida (fecha), expresión (todas las letras), alma (vocales) y personalidad (consonantes). Los acentos y diéresis se quitan; la ñ cuenta como N salvo que elijas rechazarla; espacios y guiones separan palabras; apóstrofos y puntos se ignoran; los caracteres no latinos, dígitos y símbolos se rechazan con un aviso. Los números maestros 11, 22 y 33 se conservan si la opción está activa. Cada resultado indica el motor, la versión y las reglas usadas.",
+      "datosQueUsa": ["Nombre completo de nacimiento.", "Fecha de nacimiento."],
+      "comoSeUsa": [
+        "Calcula desde el perfil.",
+        "Cambia las reglas (maestros, Y, ñ, métodos) y vuelve a calcular para comparar.",
+        "Consulta docs/numerologia-reglas.md para las reglas completas y los casos de referencia."
+      ],
+      "estado": "disponible",
+      "palabrasClave": ["numerología", "pitagórica", "camino de vida", "expresión", "destino", "alma", "vocales", "personalidad", "consonantes", "maestro", "maestros", "11", "22", "33", "acentos", "ñ", "y", "guion", "apóstrofo", "reducción", "pasos", "tabla"]
+    },
+    {
+      "id": "carta-natal",
+      "titulo": "Carta natal (pendiente)",
+      "resumen": "Se construirá en una etapa posterior.",
+      "deQueTrata": "La carta natal necesita fecha, hora y lugar de nacimiento, coordenadas y la zona horaria histórica. Falta elegir el motor de efemérides (con una licencia compatible con uso no comercial) y validarlo con casos de referencia. Si la hora es desconocida, la carta se calculará sin casas ni ascendente y se avisará.",
+      "datosQueUsa": ["Fecha, hora con su precisión, lugar y zona horaria (aún no se usan)."],
+      "comoSeUsa": ["Todavía no está disponible."],
+      "estado": "pendiente",
+      "palabrasClave": ["carta natal", "astrología", "signo", "ascendente", "casas", "planetas", "efemérides", "hora", "zodiaco"]
+    },
+    {
+      "id": "cabala",
+      "titulo": "Cábala (pendiente)",
+      "resumen": "Se implementará cuando se confirme la tradición y la tabla.",
+      "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte el propietario. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
+      "datosQueUsa": ["Ninguno todavía."],
+      "comoSeUsa": ["Todavía no está disponible."],
+      "estado": "pendiente",
+      "palabrasClave": ["cábala", "kabbalah", "gematría", "hebreo", "transliteración", "tradición"]
+    },
+    {
+      "id": "asistente",
+      "titulo": "Asistente de la aplicación",
+      "resumen": "Responde preguntas sobre la app y el proyecto citando este centro de ayuda.",
+      "deQueTrata": "El asistente usa como base de conocimiento solo el contenido de este centro de ayuda, separado de la futura biblioteca de libros. En la etapa 1 funciona en modo demo, sin inteligencia artificial: busca en las secciones de ayuda y muestra los fragmentos que coinciden, cada uno con su cita. Si no encuentra respaldo, lo dice. Más adelante podrá usar un modelo de lenguaje configurable, con las mismas citas.",
+      "datosQueUsa": ["Tu pregunta, procesada en el navegador. No se envía a ningún servicio."],
+      "comoSeUsa": [
+        "Escribe una pregunta, por ejemplo «¿cómo se cuenta la ñ?» o «¿qué falta del proyecto?».",
+        "Pulsa «Preguntar» y abre las citas para ir a la sección de ayuda correspondiente."
+      ],
+      "estado": "demo",
+      "palabrasClave": ["asistente", "bot", "chat", "pregunta", "preguntar", "ia", "inteligencia artificial", "llm", "modelo", "citas", "conversación"]
+    },
+    {
+      "id": "centro-ayuda",
+      "titulo": "Centro de ayuda y ventanas explicativas",
+      "resumen": "Dónde encontrar la explicación de cada sección y de cada botón.",
+      "deQueTrata": "Cada sección tiene un botón «?» que muestra de qué trata, qué datos usa y cómo se usa. Todos los botones muestran una ventana explicativa al pasar el ratón, al enfocarlos con el teclado o al tocarlos en el móvil; se cierra con Escape. El Centro de ayuda reúne todas las secciones en una sola página.",
+      "datosQueUsa": ["Ninguno."],
+      "comoSeUsa": [
+        "Pulsa «?» junto al título de una sección.",
+        "Pasa el ratón, enfoca con Tab o toca un botón para ver qué hace.",
+        "Abre «Ayuda» en la barra superior para ver todas las secciones."
+      ],
+      "estado": "disponible",
+      "palabrasClave": ["ayuda", "tooltip", "explicación", "botón", "botones", "teclado", "accesibilidad", "móvil", "escape"]
+    }
+  ]
+}
