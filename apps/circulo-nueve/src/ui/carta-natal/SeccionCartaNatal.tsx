@@ -31,7 +31,7 @@ const LUGAR_DEMO: LugarNacimiento = {
 
 const ETIQUETA_PRECISION: Record<ClasePrecision, { texto: string; tono: "violeta" | "ambar" | "gris" }> = {
   minuto: { texto: "al minuto", tono: "violeta" },
-  grado: { texto: "≈ grado", tono: "gris" },
+  grado: { texto: "aproximada", tono: "gris" },
   rango: { texto: "rango", tono: "ambar" },
 };
 
@@ -46,8 +46,11 @@ function Resultados({ r }: { r: ResultadoCarta }) {
   return (
     <div className="space-y-5">
       <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
-        Hora local {r.entradas.hora ?? "desconocida (referencia 12:00)"} ({PRECISION_HORA[r.entradas.precisionHora]}
-        {r.entradas.precisionHora === "aproximada" ? ` ±${r.entradas.margenMinutos} min` : ""}) en {r.tiempo.zonaHoraria} →{" "}
+        Hora local{" "}
+        {r.entradas.hora
+          ? `${r.entradas.hora} (${PRECISION_HORA[r.entradas.precisionHora]}${r.entradas.precisionHora === "aproximada" ? ` ±${r.entradas.margenMinutos} min` : ""})`
+          : "desconocida (se usa 12:00 como referencia)"}{" "}
+        en {r.tiempo.zonaHoraria} →{" "}
         <strong>
           {r.tiempo.utc.replace("T", " ").replace("Z", "")} UT ({r.tiempo.desfaseTexto})
         </strong>
@@ -105,7 +108,9 @@ function Resultados({ r }: { r: ResultadoCarta }) {
                   </th>
                   <td className="py-1.5 pr-3">{p.texto}</td>
                   <td className="py-1.5 pr-3">
-                    <Etiqueta tono={ETIQUETA_PRECISION[p.precision].tono}>{ETIQUETA_PRECISION[p.precision].texto}</Etiqueta>
+                    <span className="whitespace-nowrap">
+                      <Etiqueta tono={ETIQUETA_PRECISION[p.precision].tono}>{ETIQUETA_PRECISION[p.precision].texto}</Etiqueta>
+                    </span>
                   </td>
                   {r.casas && (
                     <td className="py-1.5 pr-3">

@@ -30,5 +30,5 @@ export const GLOSARIO = {
   incierto: "Dentro de los márgenes de hora o lugar, este aspecto podría estar dentro o fuera del orbe configurado.",
   aplicativo: "Aplicativo: los puntos se acercan al aspecto exacto. Separativo: se alejan.",
   precision:
-    "«Al minuto» si la posición varía menos de 2′ dentro de los márgenes; «≈ grado» si varía menos de 2°; si no, se muestra el rango completo.",
+    "«Al minuto» si la posición varía menos de 2′ dentro de los márgenes de hora y lugar; «aproximada» si varía menos de 2° (se indica el ±); si no, se muestra el rango completo.",
 } as const;

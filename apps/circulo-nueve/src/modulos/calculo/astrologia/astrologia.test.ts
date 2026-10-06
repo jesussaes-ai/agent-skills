@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { anchoRango, formatoMinuto, signosEnRango } from "./angulos";
+import { anchoRango, formatoMinuto, formatoSegunPrecision, signosEnRango } from "./angulos";
 import { calcularCasas, casaDe } from "./casas";
 import { aLugarNacimiento, buscarLugares, lugarManual, type CatalogoLugares } from "./lugares";
 import { calcularCartaNatal } from "./motor";
@@ -150,6 +150,7 @@ describe("zodiaco y aspectos", () => {
   it("respeta orbes y aspectos activos", () => {
     const r = ok(calcularCartaNatal(ANA));
     for (const a of r.aspectos) if (!a.incierto) expect(a.orbe).toBeLessThanOrEqual(a.orbeMaximo);
+    expect(r.aspectos.some((a) => [a.a, a.b].includes("asc") && [a.a, a.b].includes("mc"))).toBe(false);
     const soloConj = ok(
       calcularCartaNatal(ANA, {
         aspectos: [
@@ -182,6 +183,10 @@ describe("formato de ángulos", () => {
     expect(formatoMinuto(119.9999)).toBe("0°00′ Leo");
     expect(formatoMinuto(112.5)).toBe("22°30′ Cáncer");
     expect(formatoMinuto(359.999)).toBe("0°00′ Aries");
+  });
+  it("con precisión aproximada da el ± en vez de más decimales", () => {
+    expect(formatoSegunPrecision(112.4, { desde: 112.37, hasta: 112.43 })).toEqual({ texto: "22°24′ Cáncer (±2′)", precision: "grado" });
+    expect(formatoSegunPrecision(112.4, { desde: 111.6, hasta: 113.2 })).toEqual({ texto: "≈22° Cáncer (±1°)", precision: "grado" });
   });
   it("lista los signos que abarca un rango, incluso cruzando Aries", () => {
     expect(signosEnRango({ desde: 355, hasta: 5 })).toEqual(["Piscis", "Aries"]);

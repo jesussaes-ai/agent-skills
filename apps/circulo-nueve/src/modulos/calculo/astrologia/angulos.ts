@@ -82,10 +82,20 @@ export function formatoGrado(longitud: number): string {
   return `≈${Math.floor(l % 30)}° ${signoDe(l)}`;
 }
 
+/** Mayor distancia entre `longitud` y los extremos del rango. */
+function semiancho(longitud: number, r: Rango): number {
+  return Math.max(Math.abs(diferencia(longitud, r.desde)), Math.abs(diferencia(r.hasta, longitud)));
+}
+
 export function formatoSegunPrecision(longitud: number, r: Rango): { texto: string; precision: ClasePrecision } {
   const precision = clasePrecision(r);
   if (precision === "minuto") return { texto: formatoMinuto(longitud), precision };
-  if (precision === "grado") return { texto: formatoGrado(longitud), precision };
+  if (precision === "grado") {
+    const mitad = semiancho(longitud, r);
+    return mitad < 0.5
+      ? { texto: `${formatoMinuto(longitud)} (±${Math.ceil(mitad * 60)}′)`, precision }
+      : { texto: `${formatoGrado(longitud)} (±${Math.ceil(mitad)}°)`, precision };
+  }
   return {
     texto: `entre ${Math.floor(r.desde % 30)}° ${signoDe(r.desde)} y ${Math.floor(r.hasta % 30)}° ${signoDe(r.hasta)}`,
     precision,

@@ -36,8 +36,15 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - CI en la raíz filtrado a la carpeta, con copia dentro de la app para el repo propio.
   - Verificado: 70 pruebas unitarias, 53 pgTAP, 11 e2e con Playwright y Auth local, y `npm run build`.
 
+- **06:15** — Carta natal (rama `cursor/carta-natal-ccf5`, PR draft #3 contra la etapa 1):
+  - Motor determinista con `astronomy-engine` (MIT); Swiss Ephemeris (AGPL) solo como herramienta para generar casos de referencia.
+  - Zona horaria histórica IANA con detección de horas repetidas e inexistentes; lugares de GeoNames (CC BY 4.0) buscados en el navegador.
+  - Hora exacta, aproximada o desconocida (sin casas ni Ascendente); precisión mostrada según los márgenes de hora y lugar.
+  - Tropical o sideral (4 ayanamsas), 7 sistemas de casas con respaldo polar, aspectos y orbes configurables.
+  - Verificado: 13 cartas y 8 casos de zona horaria contra Swiss Ephemeris 2.10.03 y Python `zoneinfo` (diferencia máxima: 18″), 171 pruebas unitarias y `npm run build`.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta del propietario); aviso de privacidad del responsable; recuperación de emergencia de la administración.
-- Carta natal (motor de efemérides y zona horaria histórica), cábala (tradición y tabla), biblioteca RAG, voz, PDF.
+- Guardar cartas en el expediente y en el PDF; cábala (tradición y tabla), biblioteca RAG, voz.
 - Proveedor LLM real para el asistente.

@@ -27,6 +27,8 @@ export function calcularAspectos(puntos: PuntoParaAspecto[], config: ConfigAspec
     for (let j = i + 1; j < puntos.length; j++) {
       const p = puntos[i];
       const q = puntos[j];
+      // La relación Ascendente–Medio Cielo es geométrica, no un aspecto.
+      if ((p.clave === "asc" && q.clave === "mc") || (p.clave === "mc" && q.clave === "asc")) continue;
       for (const c of activos) {
         const def = ASPECTOS[c.clave];
         const orbes = p.muestras.map((m, k) => orbe(m, q.muestras[k], def.angulo));

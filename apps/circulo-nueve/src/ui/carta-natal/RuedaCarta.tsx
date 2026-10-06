@@ -1,6 +1,8 @@
 import { SIGNOS, type ResultadoCarta } from "@/modulos/calculo/astrologia";
 
-const SIMBOLOS_SIGNO = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+/** U+FE0E pide la forma de texto del símbolo en vez del emoji de color. */
+const TEXTO = "\uFE0E";
+const SIMBOLOS_SIGNO = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"].map((s) => s + TEXTO);
 const C = 160;
 
 /**
@@ -83,7 +85,7 @@ export function RuedaCarta({ resultado }: { resultado: ResultadoCarta }) {
               <line x1={marca.x} y1={marca.y} x2={marcaInt.x} y2={marcaInt.y} className="stroke-marino-800" strokeWidth={1.5} />
             )}
             <text x={s.x} y={s.y} textAnchor="middle" dominantBaseline="central" className="fill-marino-900 text-[15px]">
-              {p.simbolo}
+              {p.simbolo + TEXTO}
             </text>
           </g>
         );
