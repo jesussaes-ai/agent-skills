@@ -45,7 +45,7 @@ function FormularioGuardar({ id, estado, puedeGuardar, consentido }: { id: strin
       )}
       {consentido && !estado.lugar && <p className="text-sm text-slate-700">Elige el lugar de nacimiento para poder guardar la carta.</p>}
       <p className="text-sm text-slate-700">
-        Al guardar, el servidor vuelve a calcular la carta con la fecha, la hora y la zona del perfil guardado, el lugar elegido
+        Al guardar, el servidor vuelve a calcular la carta con la fecha, la hora y la zona que constan en el perfil, el lugar elegido
         y estos ajustes, y registra el motor, las versiones y los ajustes usados.
       </p>
       <MensajeFormulario estado={respuesta} />

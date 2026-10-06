@@ -53,10 +53,15 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Hora exacta, aproximada o desconocida (sin casas ni Ascendente); precisión mostrada según los márgenes de hora y lugar.
   - Tropical o sideral (4 ayanamsas), 7 sistemas de casas con respaldo polar, aspectos y orbes configurables.
   - Verificado: 13 cartas y 8 casos de zona horaria contra Swiss Ephemeris 2.10.03 y Python `zoneinfo` (diferencia máxima: 18″), 171 pruebas unitarias y `npm run build`.
+- **06:55** — Carta natal en el expediente y en PDF (mismo PR #3, con la etapa 1 fusionada antes):
+  - «Guardar carta natal»: con consentimiento del historial y permiso de modificar; recalculada en el servidor con el perfil de la base y el lugar GeoNames resuelto en el servidor; guarda motor, reglas, efemérides, tzdb, ajustes y huella SHA-256.
+  - Historial con resumen y carta completa desplegable; «Generar PDF» usa el nuevo adaptador `reporteDeCartaNatal` (rueda vectorial, tablas de posiciones, casas y aspectos, límites).
+  - Muestra ficticia `muestra-carta-natal.pdf` con portada.
+  - Verificado: 189 pruebas unitarias, build y 23 e2e con Supabase local (4 nuevos de carta natal).
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
 - Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
-- Guardar la carta natal en el expediente y en el PDF; cábala (tradición y tabla), biblioteca RAG, voz, interpretaciones con fuentes.
+- Cábala (tradición y tabla), biblioteca RAG, voz, interpretaciones con fuentes.
 - Proveedor LLM real para el asistente.

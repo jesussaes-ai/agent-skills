@@ -10,7 +10,8 @@ Estado: **funciona con Supabase local** y está probado de extremo a extremo.
 | Consentimientos | `usar_conversacion`, `guardar_perfil`, `guardar_historial`, cada uno por separado. Cada cambio es un registro nuevo y manda el último. Envío externo y entrenamiento: desactivados. | `modificar` |
 | Perfil de nacimiento | Separado del nombre del expediente; no se adivina nada. | `modificar` + consentimiento `guardar_perfil` (lo exige la base de datos) |
 | Nueva lectura | «Calcular sin guardar» = **modo efímero**: se calcula en el navegador y no se guarda. «Guardar lectura» recalcula en el servidor y guarda motor, versión, reglas y la huella de las entradas. | `modificar` + consentimiento `guardar_historial` (lo exige la base de datos) |
-| Historial | Lecturas con sus pasos; generar PDF; borrar. | `abrir_descargar` para el PDF; `borrar` para borrar |
+| Carta natal | Se calcula en el navegador con la fecha, la hora, la precisión y la zona del perfil, más el lugar y los ajustes elegidos. «Guardar carta natal» la recalcula en el servidor (perfil leído de la base, lugar GeoNames resuelto en la copia del servidor) y guarda motor, reglas, efemérides, versión de la tzdb, ajustes y una huella SHA-256. Ver [astrologia-motor.md](astrologia-motor.md#8-carta-guardada-en-el-expediente-y-pdf). | `modificar` + consentimiento `guardar_historial` (lo exige la base de datos) |
+| Historial | Lecturas de numerología con sus pasos y cartas natales (resumen y carta completa desplegable); generar PDF; borrar. | `abrir_descargar` para el PDF; `borrar` para borrar |
 | Documentos | PDF guardados en privado, con tamaño y fecha de retención. Descargar o borrar. La administración puede dar acceso a un solo archivo. | `abrir_descargar` o permiso de archivo |
 | Permisos del expediente | La administración asigna permisos con vencimiento opcional y los retira. | Administración con `aal2` |
 | Actividad registrada | Últimos eventos de la auditoría del expediente. | Administración |
@@ -31,7 +32,7 @@ El modo efímero sin cuenta sigue en la página de inicio: no hay sesión ni alm
    - `documents.retener_hasta` se fija al crear el documento: hoy + `retencion_documentos_dias` (365 por defecto, configurable en `/admin/ajustes`).
    - `npm run retencion:purgar` (con la llave de servicio, a diario desde el cron del hosting) borra primero el archivo, después el registro, y deja constancia en la auditoría. Con `--simular` solo lista lo que borraría.
 
-Los PDF leen fuentes e imágenes del disco con rutas desde `process.cwd()`. `next.config.ts` incluye `src/reportes/fuentes` y `src/reportes/marca` en las trazas del servidor para que viajen a las funciones de Vercel.
+Los PDF leen fuentes e imágenes del disco con rutas desde `process.cwd()`. `next.config.ts` incluye `src/reportes/fuentes`, `src/reportes/marca` y `public/datos` (catálogo de lugares para recalcular la carta) en las trazas del servidor para que viajen a las funciones de Vercel.
 
 ## Garantías en la base de datos (migración `…0700`)
 
@@ -57,3 +58,8 @@ Nota técnica: en las tablas cuya política de lectura usa `has_case_perm` no se
   - la purga por retención borra archivo y registro;
   - el borrado total elimina también el almacenamiento;
   - el script de recuperación de emergencia.
+- e2e `carta-natal.spec.ts`, que recorre:
+  - sin el consentimiento del historial, la carta se calcula pero «Guardar carta natal» está desactivado;
+  - con consentimiento, se guarda recalculada en el servidor; la fila de `readings` lleva motor, versiones, ajustes (Koch), efemérides, tzdb, UT y la fuente GeoNames;
+  - un id de GeoNames manipulado en el formulario se rechaza y no se guarda nada;
+  - la carta guardada genera su PDF privado en «Documentos».

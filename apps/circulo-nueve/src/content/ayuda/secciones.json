@@ -522,10 +522,10 @@
     {
       "id": "expediente-carta-natal",
       "titulo": "Carta natal del expediente",
-      "resumen": "Calcular la carta con el perfil guardado y guardarla en el historial, recalculada en el servidor.",
-      "deQueTrata": "Usa la fecha, la hora, su precisión y la zona horaria del perfil guardado. Primero eliges el lugar (catálogo GeoNames o coordenadas a mano) y los ajustes; la carta se calcula al momento en tu navegador, sin guardarse. «Guardar carta natal» vuelve a calcularla en el servidor: el servidor lee el perfil de la base, busca el lugar en su propia copia del catálogo y guarda la carta en el historial con el motor, la versión de las reglas, las efemérides, la versión de la base de zonas horarias, los ajustes y una huella SHA-256 de todo ello. Requiere el consentimiento «Guardar el historial» y el permiso de modificar. Desde la carta guardada se genera su PDF.",
+      "resumen": "Calcular la carta con los datos del perfil y guardarla en el historial, recalculada en el servidor.",
+      "deQueTrata": "Usa la fecha, la hora, su precisión y la zona horaria que constan en el perfil del expediente. Primero eliges el lugar (catálogo GeoNames o coordenadas a mano) y los ajustes; la carta se calcula al momento en tu navegador, sin guardarse. «Guardar carta natal» vuelve a calcularla en el servidor: el servidor lee el perfil de la base, busca el lugar en su propia copia del catálogo y guarda la carta en el historial con el motor, la versión de las reglas, las efemérides, la versión de la base de zonas horarias, los ajustes y una huella SHA-256 de todo ello. Requiere el consentimiento «Guardar el historial» y el permiso de modificar. Desde la carta guardada se genera su PDF.",
       "datosQueUsa": [
-        "Fecha, hora, precisión de la hora y zona horaria del perfil guardado.",
+        "Fecha, hora, precisión de la hora y zona horaria que constan en el perfil del expediente.",
         "El lugar elegido y los ajustes de cálculo (zodiaco, casas, nodo, orbes)."
       ],
       "comoSeUsa": [

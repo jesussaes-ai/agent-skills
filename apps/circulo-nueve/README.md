@@ -24,7 +24,7 @@ Uso personal, no comercial y gratuito.
 | Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
 | Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
-| Supabase remoto, guardar la carta natal en el expediente y el PDF, cábala, biblioteca RAG, voz | Etapas posteriores |
+| Supabase remoto, cábala, biblioteca RAG, voz | Etapas posteriores |
 
 ## Requisitos
 
@@ -141,7 +141,7 @@ Tabla pitagórica, reglas para acentos, ñ, Y, espacios, guiones, apóstrofos, c
 
 ## Carta natal
 
-Posiciones de los planetas y del nodo lunar, casas (Placidus por defecto, con respaldo en latitudes polares), Ascendente, Medio Cielo y aspectos, con zodiaco tropical o sideral. Las efemérides son de `astronomy-engine` (MIT); se eligió en lugar de Swiss Ephemeris (AGPL) para no obligar a publicar la app bajo AGPL. Se comprobaron contra Swiss Ephemeris 2.10.03 en 13 cartas de referencia (diferencia máxima: 18″) y la conversión de hora contra Python `zoneinfo` en 21 casos. Sin hora no hay casas ni Ascendente, y cada valor se muestra con la precisión que permiten la hora y el lugar. Detalle, licencias, tolerancias y limitaciones: [docs/astrologia-motor.md](docs/astrologia-motor.md).
+Posiciones de los planetas y del nodo lunar, casas (Placidus por defecto, con respaldo en latitudes polares), Ascendente, Medio Cielo y aspectos, con zodiaco tropical o sideral. Las efemérides son de `astronomy-engine` (MIT); se eligió en lugar de Swiss Ephemeris (AGPL) para no obligar a publicar la app bajo AGPL. Se comprobaron contra Swiss Ephemeris 2.10.03 en 13 cartas de referencia (diferencia máxima: 18″) y la conversión de hora contra Python `zoneinfo` en 21 casos. Sin hora no hay casas ni Ascendente, y cada valor se muestra con la precisión que permiten la hora y el lugar. En un expediente, la carta se guarda en el historial recalculada en el servidor (con consentimiento, versiones, ajustes y huella) y genera su PDF con rueda y tablas. Detalle, licencias, tolerancias y limitaciones: [docs/astrologia-motor.md](docs/astrologia-motor.md).
 
 Atribución: datos de lugares de [GeoNames](https://www.geonames.org/), licencia CC BY 4.0.
 

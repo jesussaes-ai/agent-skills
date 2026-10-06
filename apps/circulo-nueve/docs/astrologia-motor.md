@@ -141,4 +141,25 @@ Requiere `python3` con `zoneinfo` y la tzdb del sistema.
 - La versión de la tzdb depende del navegador. Si el navegador es antiguo, puede no conocer cambios recientes (como la abolición de 2022 en México). Por eso se muestra el desfase usado, para poder comprobarlo.
 - La tzdb unifica algunas zonas antes de 1970. Para fechas antiguas fuera de las grandes ciudades conviene contrastar con una fuente local.
 - El catálogo no incluye localidades de menos de 15 000 habitantes fuera de México; para ellas hay que escribir las coordenadas.
-- Las cartas no se guardan todavía en el expediente. Eso depende de la etapa de expedientes y de Supabase.
+
+## 8. Carta guardada en el expediente y PDF
+
+**Guardar** (`src/modulos/expedientes/acciones-carta.ts`, sección «Carta natal» del expediente):
+
+1. Requiere sesión activa, permiso `modificar` y el consentimiento `guardar_historial`. Este último lo exige la base con un disparador (error `CN001`).
+2. La fecha, la hora, la precisión y la zona horaria se leen de `birth_profiles` en la base, no del navegador.
+3. El lugar se resuelve en el servidor:
+   - con un id de GeoNames, se busca en la copia del catálogo del servidor (`public/datos`, incluida en las trazas de Next); un id inventado se rechaza;
+   - con coordenadas manuales, se validan los rangos y que la zona exista en la base IANA.
+4. Los ajustes llegan como JSON y se validan con Zod (`esquemas-carta.ts`).
+5. La carta se **recalcula en el servidor** y se guarda en `readings` con `sistema = carta_natal`. Se guardan `motor`, `motor_version`, `reglas_version`, el resultado completo y una huella SHA-256 (`entradas_hash`). El resultado incluye ajustes, efemérides, entradas, lugar con su fuente, zona, desfase, UT y versión de la tzdb de Node. La huella (`huella-carta.ts`) cubre las entradas, la zona, la ocurrencia, los ajustes y las versiones de motor, reglas, efemérides y tzdb, así que dos cartas con la misma huella son reproducibles entre sí.
+
+**PDF**: «Generar PDF» en una carta guardada usa `reporteDeCartaNatal` (`src/reportes/adaptadores/carta-natal.ts`), con el diseño, la portada, los pensamientos y el aviso de privacidad del módulo de reportes. El reporte incluye:
+
+- **Datos autorizados**: fecha, hora y precisión, lugar con coordenadas y fuente, zona y desfase, y UT.
+- **Conversión de la hora**, paso a paso.
+- **Rueda** vectorial.
+- **Tablas** de posiciones, cúspides y aspectos.
+- **Límites**: exactitud del motor, tzdb y todos los avisos de precisión de la carta.
+
+Las interpretaciones siguen vacías hasta que haya fuentes. La muestra ficticia está en `src/reportes/demo/muestra-carta-natal.ts`.
