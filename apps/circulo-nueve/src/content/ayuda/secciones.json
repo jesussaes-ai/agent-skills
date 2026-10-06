@@ -5,7 +5,7 @@
       "id": "proyecto",
       "titulo": "Sobre Círculo Nueve",
       "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
-      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado.",
       "datosQueUsa": [
         "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
         "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
@@ -104,7 +104,6 @@
         "lugar",
         "zona horaria",
         "nacimiento",
-        "datos",
         "ficticia",
         "demo",
         "reglas"
@@ -416,7 +415,204 @@
         "revocar",
         "reactivar",
         "administración",
-        "panel"
+        "panel",
+        "recuperación de emergencia"
+      ]
+    },
+    {
+      "id": "expedientes",
+      "titulo": "Expedientes",
+      "resumen": "Cada persona atendida tiene su expediente separado.",
+      "deQueTrata": "Un expediente reúne el perfil de nacimiento, los consentimientos, las lecturas y los documentos de una persona, separados de los de cualquier otra. Ves solo los expedientes que creaste, los que te asignó la administración o el tuyo si eres cliente. Los permisos (ver, abrir y descargar, cargar, modificar, borrar, compartir) se comprueban en el servidor y en la base de datos en cada operación.",
+      "datosQueUsa": [
+        "Nombre del expediente y quién lo creó.",
+        "Tus permisos sobre él."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Expedientes» en la barra superior.",
+        "Crea uno con «Crear expediente» y ábrelo para completarlo.",
+        "Marca «datos ficticios» si es una demostración: se indica en los PDF."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "expediente",
+        "expedientes",
+        "cliente",
+        "clientes",
+        "persona",
+        "alta",
+        "crear",
+        "permisos"
+      ]
+    },
+    {
+      "id": "expediente-consentimientos",
+      "titulo": "Consentimientos del expediente",
+      "resumen": "Permisos de la persona, uno por uno, con su historial.",
+      "deQueTrata": "Cada consentimiento se otorga o se retira por separado: usar lo que comparte en la conversación, guardar el perfil, guardar el historial de lecturas y reportes. Los envíos a servicios externos y el entrenamiento de modelos están desactivados. La base de datos impide guardar el perfil o una lectura si el consentimiento correspondiente no está vigente; cada cambio queda registrado con su fecha.",
+      "datosQueUsa": [
+        "Tipo de consentimiento, si se otorgó y cuándo."
+      ],
+      "comoSeUsa": [
+        "Marca o desmarca cada casilla y pulsa «Guardar consentimientos».",
+        "Retirar un consentimiento impide guardar más datos de ese tipo; lo ya guardado se puede borrar desde su sección."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "consentimiento",
+        "consentimientos",
+        "permiso",
+        "retirar",
+        "revocar",
+        "guardar perfil",
+        "historial",
+        "privacidad"
+      ]
+    },
+    {
+      "id": "expediente-perfil",
+      "titulo": "Perfil de nacimiento del expediente",
+      "resumen": "Los datos de nacimiento de la persona, separados del nombre del expediente.",
+      "deQueTrata": "Guarda nombre de nacimiento, nombre preferido, fecha, hora con su precisión, lugar y zona horaria. Nada se completa ni se adivina. Requiere el consentimiento «Guardar el perfil» y permiso de modificar.",
+      "datosQueUsa": [
+        "Nombre de nacimiento y preferido, fecha, hora, precisión, lugar y zona horaria."
+      ],
+      "comoSeUsa": [
+        "Activa el consentimiento, completa los campos y pulsa «Guardar perfil»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "perfil",
+        "nacimiento",
+        "fecha",
+        "hora",
+        "lugar",
+        "zona horaria",
+        "nombre preferido",
+        "editar"
+      ]
+    },
+    {
+      "id": "expediente-lecturas",
+      "titulo": "Lecturas e historial",
+      "resumen": "Calcular sin guardar (efímero) o guardar en el historial.",
+      "deQueTrata": "«Calcular sin guardar» es el modo efímero: el cálculo ocurre en tu navegador y no se guarda en ninguna parte. «Guardar lectura» vuelve a calcular en el servidor y la añade al historial con el motor, la versión y las reglas usadas, para que sea reproducible. Requiere el consentimiento «Guardar el historial». Desde cada lectura guardada puedes generar su PDF o borrarla.",
+      "datosQueUsa": [
+        "Nombre y fecha para el cálculo, y las reglas elegidas."
+      ],
+      "comoSeUsa": [
+        "Ajusta las reglas y pulsa «Calcular sin guardar» para probar.",
+        "Pulsa «Guardar lectura» para conservarla.",
+        "En el historial, «Ver pasos», «Generar PDF» o «Borrar lectura»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "lectura",
+        "lecturas",
+        "historial",
+        "efímero",
+        "efimero",
+        "sin guardar",
+        "guardar",
+        "numerología",
+        "calcular",
+        "borrar"
+      ]
+    },
+    {
+      "id": "expediente-documentos",
+      "titulo": "Documentos y descargas",
+      "resumen": "Reportes PDF guardados de forma privada, con descarga verificada.",
+      "deQueTrata": "Los PDF se generan en el servidor y se guardan en almacenamiento privado, en una carpeta del expediente. Al pulsar «Descargar», el servidor comprueba tu permiso, registra la descarga en la auditoría y te envía a un enlace temporal que caduca en segundos. Cada documento se conserva hasta la fecha indicada (retención configurable) y después se purga. La administración puede dar acceso a un solo archivo sin abrir el resto del expediente.",
+      "datosQueUsa": [
+        "El archivo PDF, su tamaño, su huella SHA-256 y su fecha de retención."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Descargar» junto al documento.",
+        "Pulsa «Borrar» para eliminar el documento y su archivo."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "pdf",
+        "documento",
+        "documentos",
+        "descargar",
+        "descarga",
+        "reporte",
+        "enlace",
+        "firmado",
+        "retención",
+        "archivo"
+      ]
+    },
+    {
+      "id": "expediente-permisos",
+      "titulo": "Permisos por expediente y actividad",
+      "resumen": "Quién más puede ver o modificar este expediente, y qué se hizo.",
+      "deQueTrata": "La administración asigna a otras personas permisos concretos sobre un expediente, con vencimiento opcional, y puede retirarlos. También puede vincular la cuenta de la persona cliente (podrá ver y descargar su expediente). La actividad registrada muestra quién creó, modificó, descargó, exportó o compartió algo y cuándo, sin copiar datos personales.",
+      "datosQueUsa": [
+        "Personas con acceso, sus permisos y vencimientos.",
+        "Registro de auditoría del expediente."
+      ],
+      "comoSeUsa": [
+        "Elige persona, permisos y días de vigencia, y pulsa «Asignar permisos».",
+        "Pulsa «Retirar» para quitarlos."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "asignar",
+        "asignación",
+        "compartir",
+        "vencimiento",
+        "auditoría",
+        "actividad",
+        "registro",
+        "vincular cliente"
+      ]
+    },
+    {
+      "id": "expediente-exportar-borrar",
+      "titulo": "Exportar o borrar un expediente",
+      "resumen": "Llevarte tus datos o eliminarlos.",
+      "deQueTrata": "«Exportar» descarga en JSON el perfil, los consentimientos, las lecturas y la lista de documentos (los PDF se descargan aparte), y queda registrado. «Borrar expediente» elimina definitivamente todo, incluidos los archivos del almacenamiento; pide escribir BORRAR para confirmar.",
+      "datosQueUsa": [
+        "Todo lo guardado en el expediente."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Exportar expediente (JSON)».",
+        "Para borrar, escribe BORRAR y pulsa «Borrar expediente»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "exportar",
+        "exportación",
+        "json",
+        "borrar",
+        "eliminar",
+        "derecho",
+        "portabilidad"
+      ]
+    },
+    {
+      "id": "ajustes",
+      "titulo": "Ajustes de retención y aviso de privacidad",
+      "resumen": "Cuánto tiempo se guardan los documentos y qué dice el aviso de los PDF.",
+      "deQueTrata": "La administración define cuántos días se conservan los documentos (los generados desde ese momento usan el valor nuevo) y cuántos segundos vive cada enlace de descarga. También completa el aviso de privacidad que se imprime en los PDF; los campos vacíos se muestran como pendientes, nunca se inventan. La purga de documentos vencidos se ejecuta con «npm run retencion:purgar» en el servidor.",
+      "datosQueUsa": [
+        "Días de retención, segundos de vigencia y los textos del aviso."
+      ],
+      "comoSeUsa": [
+        "Abre «Ajustes» en la barra superior (solo administración)."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "ajustes",
+        "retención",
+        "conservación",
+        "purga",
+        "vigencia",
+        "aviso de privacidad",
+        "responsable"
       ]
     },
     {

@@ -19,10 +19,18 @@ export async function SesionCabecera() {
       <EnlaceBoton href="/cuenta" descripcion="Tu cuenta: datos, contraseña y verificación en dos pasos.">
         {sesion.acceso.nombre ?? "Mi cuenta"}
       </EnlaceBoton>
+      <EnlaceBoton href="/expedientes" descripcion="Expedientes a los que tienes acceso: perfiles, consentimientos, lecturas y documentos.">
+        Expedientes
+      </EnlaceBoton>
       {esAdmin(sesion) && (
-        <EnlaceBoton href="/admin/usuarios" descripcion="Administra cuentas, roles y permisos.">
-          Usuarios
-        </EnlaceBoton>
+        <>
+          <EnlaceBoton href="/admin/usuarios" descripcion="Administra cuentas, roles y permisos.">
+            Usuarios
+          </EnlaceBoton>
+          <EnlaceBoton href="/admin/ajustes" descripcion="Retención de documentos, vigencia de los enlaces de descarga y aviso de privacidad.">
+            Ajustes
+          </EnlaceBoton>
+        </>
       )}
       <form action={accionSalir}>
         <BotonEnviar variante="sutil" descripcion="Cierra tu sesión en este navegador.">
