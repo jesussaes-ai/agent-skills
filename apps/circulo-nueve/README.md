@@ -4,7 +4,7 @@ Aplicación web en español, para teléfono y computadora, que ayuda a explorar 
 
 Uso personal, no comercial y gratuito.
 
-> **Estado: etapa 1 (demostración) + esquema de base de datos local.** La app funciona sin cuentas, sin base de datos y sin claves: usa datos ficticios y nada se guarda ni se envía fuera del navegador. El esquema Supabase (migraciones, RLS y pruebas) ya está listo para ejecutarse en local, pero la app aún no se conecta a él. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+> **Estado: demo + base de datos + cuentas, probado con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas por invitación, el alta de administración, la verificación en dos pasos y el panel de usuarios. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
 
 ## Qué incluye
 
@@ -18,7 +18,9 @@ Uso personal, no comercial y gratuito.
 | Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA; capa LLM preparada |
 | Logotipo en la cabecera, emblema como favicon, icono PWA e icono de navegación | Disponible |
 | Esquema Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector, auditoría | Migraciones y pruebas locales ([detalle](docs/base-de-datos.md)) |
-| Conexión de la app a Supabase, cuentas, biblioteca RAG, voz, PDF | Etapas posteriores |
+| Cuentas: alta inicial `/setup` (clave con hash argon2id, un solo uso, 410 después), entrar, recuperar, MFA TOTP, invitaciones, panel de usuarios, roles y permisos | Funciona con Supabase local ([detalle](docs/cuentas-y-acceso.md)) |
+| CI (tipos, pruebas, compilación, pgTAP, e2e) | Workflow `.github/workflows/circulo-nueve-ci.yml` en la raíz del repo; copia en `.github/workflows/ci.yml` para cuando la app tenga repo propio |
+| Supabase remoto, expedientes en la interfaz, biblioteca RAG, voz, PDF | Etapas posteriores |
 
 ## Requisitos
 
@@ -44,7 +46,9 @@ npm run dev        # http://localhost:3000
 | `npm start` | Sirve la compilación (`npm run build` antes) |
 | `npm run db:start` / `db:stop` | Levanta o detiene Supabase local (Docker) |
 | `npm run db:reset` | Aplica todas las migraciones desde cero |
-| `npm run test:db` | Pruebas pgTAP de RLS y aislamiento entre expedientes |
+| `npm run test:db` | Reinicia la base local y ejecuta las pruebas pgTAP |
+| `npm run test:e2e` | Pruebas de extremo a extremo con Auth local (Playwright) |
+| `npm run setup:hash` | Genera el hash argon2id de la clave de alta |
 
 No hace falta ninguna variable de entorno en la etapa 1. Para etapas futuras, copia `.env.example` a `.env.local` en tu máquina; nunca subas `.env.local` ni pegues claves en chats o documentos.
 
@@ -83,17 +87,23 @@ src/
     componentes/          Explicacion (tooltip), Boton, EnlaceBoton, Seccion, AyudaContextual
     demo/                 Pasos del flujo de demostración
     asistente/            Interfaz del asistente de la app
+    auth/                 Formularios de cuentas, MFA y panel de usuarios
   content/ayuda/          Contenido del Centro de ayuda (secciones.json) y su cargador
   modulos/
+    auth/                 Sesión, acciones de servidor, clave de alta, límites de intentos, validación
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
     conversacion/         Asistente de la app (modo demo y capa LLM)
     proveedores/          Interfaces LLM / TTS / embeddings y lectura de configuración
     fuentes/              Tipos y estados de la futura biblioteca RAG de libros
   assets/marca/           Logotipo horizontal y emblema optimizados
 supabase/
-  migrations/             Esquema SQL (tablas, RLS, buckets, pgvector, auditoría)
+  migrations/             Esquema SQL (tablas, RLS, buckets, pgvector, auditoría, MFA para admin)
+  templates/              Correos de invitación y recuperación
   tests/database/         Pruebas pgTAP
 public/iconos/            Iconos PWA del emblema
+e2e/                      Pruebas Playwright
+scripts/                  e2e.sh y generar-hash-clave.mts
+.github/workflows/ci.yml  CI para cuando la app tenga repo propio
 docs/                     Línea del tiempo, reglas de cálculo y base de datos
 ```
 
@@ -123,6 +133,19 @@ Tabla pitagórica, reglas para acentos, ñ, Y, espacios, guiones, apóstrofos, c
 - Paleta: azul marino `#0f1b33` y dorado `#d4a94f` (`src/app/globals.css`). El dorado es decorativo; los textos usan combinaciones con contraste AA o superior.
 - Falta la versión SVG del logotipo; cuando exista, sustituirá al PNG.
 
+## Cuentas y Supabase local
+
+1. `npm run db:start` (requiere Docker).
+2. Copia `API_URL`, `ANON_KEY` y `SERVICE_ROLE_KEY` de `npx supabase status -o env` a `.env.local` como `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`, y añade `NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000`.
+3. `npm run setup:hash -- --generar` y copia el hash a `ADMIN_SETUP_KEY_HASH`.
+4. `npm run dev` y abre <http://127.0.0.1:3000/setup>. Los correos de prueba se ven en Mailpit (<http://127.0.0.1:54324>).
+
+Flujo completo, garantías de seguridad y rotación de la clave: [docs/cuentas-y-acceso.md](docs/cuentas-y-acceso.md).
+
+## CI
+
+GitHub solo lee los workflows de la raíz del repositorio. Mientras la app viva en `agent-skills`, el CI es `.github/workflows/circulo-nueve-ci.yml` (en la raíz de ese repo y filtrado a `apps/circulo-nueve/**`). Para que no se pierda al extraer la app, hay una copia equivalente en `apps/circulo-nueve/.github/workflows/ci.yml`, que se activa sola en el repo propio. Hay que mantener ambas iguales salvo las rutas. Tienen tres trabajos: calidad (tipos, pruebas y compilación), base de datos (pgTAP) y e2e (Playwright con Supabase local).
+
 ## Base de datos
 
 Esquema, modelo de permisos y pruebas: [docs/base-de-datos.md](docs/base-de-datos.md). No hay proyecto remoto creado; todo se prueba con Supabase local.
@@ -140,7 +163,7 @@ git subtree split --prefix=apps/circulo-nueve -b circulo-nueve-solo
 git push https://github.com/jesussaes-ai/circulo-nueve.git circulo-nueve-solo:main
 ```
 
-El repositorio destino debe existir y estar vacío.
+El repositorio destino debe existir y estar vacío. El workflow de la raíz (`.github/workflows/circulo-nueve-ci.yml`) no viaja con el split; en el repo nuevo se usa `.github/workflows/ci.yml`.
 
 ## Despliegue
 

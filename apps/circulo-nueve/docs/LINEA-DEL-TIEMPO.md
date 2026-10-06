@@ -28,9 +28,16 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
 - **04:50** — Etapa 2 (base de datos, sin cuentas externas):
   - 5 migraciones Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector con HNSW, búsqueda híbrida, auditoría de solo inserción y alta única del administrador.
   - Probado con Supabase CLI en Docker local: 49 pruebas pgTAP de estructura, aislamiento entre expedientes y auditoría pasan.
+- **05:20** — Etapa 3 (cuentas, con Supabase local):
+  - Alta inicial `/setup`: clave con hash argon2id validada solo en el servidor, un solo uso (410 después) y rotación del hash.
+  - Entrar, recuperar la contraseña por enlace de un solo uso, MFA TOTP obligatoria para administrar (también exigida en la base de datos con `aal2`).
+  - Invitaciones por correo y panel de usuarios, roles y permisos con suspender, revocar y reactivar.
+  - Ayuda y tooltips en todo lo nuevo.
+  - CI en la raíz filtrado a la carpeta, con copia dentro de la app para el repo propio.
+  - Verificado: 70 pruebas unitarias, 53 pgTAP, 11 e2e con Playwright y Auth local, y `npm run build`.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
-- Proyecto Supabase remoto (requiere la cuenta del propietario) y conexión de la app: Auth por invitación, `/setup`, MFA; aviso de privacidad del responsable.
+- Proyecto Supabase remoto (requiere la cuenta del propietario); aviso de privacidad del responsable; recuperación de emergencia de la administración.
 - Carta natal (motor de efemérides y zona horaria histórica), cábala (tradición y tabla), biblioteca RAG, voz, PDF.
 - Proveedor LLM real para el asistente.
