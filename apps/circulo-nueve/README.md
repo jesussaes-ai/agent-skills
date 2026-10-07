@@ -4,7 +4,7 @@ Aplicación web en español, para teléfono y computadora, que ayuda a explorar 
 
 Uso personal, no comercial y gratuito.
 
-> **Estado: demo, cuentas, expedientes y PDF, probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas por invitación, el alta de administración, la verificación en dos pasos, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+> **Estado: demo, cuentas, expedientes y PDF, probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas con usuario y contraseña (las crea la administración; sin correo), el alta de administración, la verificación en dos pasos opcional, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
 
 ## Qué incluye
 
@@ -21,7 +21,7 @@ Uso personal, no comercial y gratuito.
 | Voz del asistente (Web Speech API es-MX/es-ES) y dictado con permiso de micrófono | Disponible ([detalle](docs/proveedores-ia-y-voz.md#voz)) |
 | Logotipo en la cabecera, emblema como favicon, icono PWA e icono de navegación | Disponible |
 | Esquema Supabase: tablas, RLS que deniega por defecto, buckets privados, pgvector, auditoría | Migraciones y pruebas locales ([detalle](docs/base-de-datos.md)) |
-| Cuentas: alta inicial `/setup` (clave con hash argon2id, un solo uso, 410 después), entrar, recuperar, MFA TOTP, invitaciones, panel de usuarios, roles y permisos | Funciona con Supabase local ([detalle](docs/cuentas-y-acceso.md)) |
+| Cuentas: alta inicial `/setup` con usuario y contraseña (clave con hash argon2id, un solo uso, 410 después), entrar con usuario, MFA TOTP opcional, cuentas creadas por la administración (contraseña inicial y cambio obligatorio), restablecer, suspender, permisos por asistente, cliente de solo lectura | Funciona con Supabase local ([detalle](docs/cuentas-y-acceso.md)) |
 | CI (tipos, pruebas, compilación, pgTAP, e2e) | Workflow `.github/workflows/circulo-nueve-ci.yml` en la raíz del repo; copia en `.github/workflows/ci.yml` para cuando la app tenga repo propio |
 | Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
@@ -119,8 +119,8 @@ src/
     fuentes/              Tipos y estados de la futura biblioteca RAG de libros
   assets/marca/           Logotipo horizontal y emblema optimizados
 supabase/
-  migrations/             Esquema SQL (tablas, RLS, buckets, pgvector, auditoría, MFA para admin)
-  templates/              Correos de invitación y recuperación
+  migrations/             Esquema SQL (tablas, RLS, buckets, pgvector, auditoría, cuentas por usuario)
+  templates/              Plantillas de Auth (la app no envía correos)
   tests/database/         Pruebas pgTAP
 public/iconos/            Iconos PWA del emblema
 public/datos/             Catálogo de lugares GeoNames (CC BY 4.0) para la carta natal
@@ -167,7 +167,7 @@ Atribución: datos de lugares de [GeoNames](https://www.geonames.org/), licencia
 1. `npm run db:start` (requiere Docker).
 2. Copia `API_URL`, `ANON_KEY` y `SERVICE_ROLE_KEY` de `npx supabase status -o env` a `.env.local` como `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`, y añade `NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000`.
 3. `npm run setup:hash -- --generar` y copia el hash a `ADMIN_SETUP_KEY_HASH`.
-4. `npm run dev` y abre <http://127.0.0.1:3000/setup>. Los correos de prueba se ven en Mailpit (<http://127.0.0.1:54324>).
+4. `npm run dev` y abre <http://127.0.0.1:3000/setup>.
 
 Flujo completo, garantías de seguridad y rotación de la clave: [docs/cuentas-y-acceso.md](docs/cuentas-y-acceso.md).
 

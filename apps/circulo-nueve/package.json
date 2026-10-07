@@ -24,6 +24,7 @@
     "admin:emergencia": "tsx scripts/admin-emergencia.mts",
     "retencion:purgar": "tsx scripts/purgar-retencion.mts",
     "ingesta:worker": "tsx scripts/worker-ingesta.mts",
+    "biblioteca:demo": "tsx scripts/cargar-biblioteca-demo.mts",
     "respaldo": "bash scripts/respaldo.sh"
   },
   "dependencies": {

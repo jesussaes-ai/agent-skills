@@ -2,9 +2,9 @@ import { expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { Secret, TOTP } from "otpauth";
 
-const MAILPIT = process.env.E2E_MAILPIT_URL ?? "http://127.0.0.1:54324";
+import { correoInterno } from "../src/modulos/auth/usuarios";
 
-export const ADMIN = { correo: "admin@demo.invalid", nombre: "Admin Demo", contrasena: "AdminDemo2026" };
+export const ADMIN = { usuario: "admin.demo", contrasena: "AdminDemo2026" };
 /** Estado compartido entre archivos de prueba (mismo proceso, ejecución en orden). */
 export const estado = { secretoAdmin: "" };
 
@@ -14,20 +14,26 @@ export function supabaseServicio() {
   });
 }
 
-/** Crea una cuenta activa con rol directamente (sin invitación), para preparar escenarios. */
-export async function crearCuenta(correo: string, nombre: string, rol: string, contrasena: string): Promise<string> {
+const PERMISOS_ASISTENTE = ["listar", "abrir_descargar", "cargar", "modificar", "borrar", "compartir"];
+
+/**
+ * Crea una cuenta activa directamente con el servicio, para preparar escenarios.
+ * Los asistentes reciben el paquete «sus propios expedientes» (y compartirlos).
+ */
+export async function crearCuenta(usuario: string, nombre: string, rol: string, contrasena: string): Promise<string> {
   const admin = supabaseServicio();
-  const { data, error } = await admin.auth.admin.createUser({ email: correo, password: contrasena, email_confirm: true });
-  if (error || !data.user) throw new Error(`No se pudo crear ${correo}: ${error?.message}`);
-  await admin.from("user_profiles").insert({ user_id: data.user.id, display_name: nombre });
+  const { data, error } = await admin.auth.admin.createUser({ email: correoInterno(usuario), password: contrasena, email_confirm: true });
+  if (error || !data.user) throw new Error(`No se pudo crear ${usuario}: ${error?.message}`);
+  await admin.from("user_profiles").insert({ user_id: data.user.id, display_name: nombre, username: usuario });
   await admin.from("user_roles").insert({ user_id: data.user.id, role_id: rol });
+  if (rol === "consultor") {
+    await admin.from("user_permissions").insert(PERMISOS_ASISTENTE.map((permission_id) => ({ user_id: data.user.id, permission_id, alcance: "propio" })));
+  }
   return data.user.id;
 }
 
-/** Consultora creada en 02-expedientes.spec.ts (activa durante el resto de la suite). */
-export const ANA = { correo: "ana@demo.invalid", nombre: "Ana Consultora", contrasena: "AnaDemo20261" };
-
-export const CONSULTORA = { correo: "consultora@demo.invalid", nombre: "Consultora Demo", contrasena: "Consultora2026" };
+/** Asistente creada en 02-expedientes.spec.ts (activa durante el resto de la suite). */
+export const ANA = { usuario: "ana", nombre: "Ana Asistente", contrasena: "AnaDemo20261" };
 
 let ultimoCodigo = "";
 
@@ -43,29 +49,13 @@ export async function codigoTotp(secreto: string): Promise<string> {
   return codigo;
 }
 
-/** Espera el último correo para `destinatario` en Mailpit y devuelve el enlace de la app. */
-export async function enlaceDeCorreo(destinatario: string, desde: Date): Promise<string> {
-  for (let i = 0; i < 40; i++) {
-    const r = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${destinatario}`)}`);
-    const { messages = [] } = (await r.json()) as { messages?: { ID: string; Created: string }[] };
-    const reciente = messages.find((m) => new Date(m.Created) >= desde);
-    if (reciente) {
-      const detalle = (await (await fetch(`${MAILPIT}/api/v1/message/${reciente.ID}`)).json()) as { HTML: string };
-      const enlace = /href="([^"]*\/auth\/confirmar[^"]*)"/.exec(detalle.HTML)?.[1];
-      if (enlace) return enlace.replaceAll("&amp;", "&");
-    }
-    await new Promise((res) => setTimeout(res, 500));
-  }
-  throw new Error(`No llegó correo para ${destinatario}`);
-}
-
 /** Inicia sesión. Por defecto espera a salir de /entrar; con `esperaError` espera el aviso de credenciales. */
-export async function entrar(page: Page, correo: string, contrasena: string, { esperaError = false } = {}) {
+export async function entrar(page: Page, usuario: string, contrasena: string, { esperaError = false } = {}) {
   await page.goto("/entrar");
-  await page.getByLabel("Correo", { exact: true }).fill(correo);
+  await page.getByLabel("Usuario", { exact: true }).fill(usuario);
   await page.getByLabel("Contraseña", { exact: true }).fill(contrasena);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  if (esperaError) await expect(page.getByText("Correo o contraseña incorrectos")).toBeVisible();
+  if (esperaError) await expect(page.getByText("Usuario o contraseña incorrectos")).toBeVisible();
   else await expect(page).not.toHaveURL(/\/entrar(\?|$)/);
 }
 

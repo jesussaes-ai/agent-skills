@@ -12,7 +12,7 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
 | App web (Next.js) | **Vercel Hobby** (funciones en `iad1`, Washington D. C.) | Páginas, cuentas, expedientes, PDF, bot |
 | Base de datos, Auth y archivos | **Supabase Free**, región **East US (North Virginia) `us-east-1`** | Postgres + RLS, Auth con MFA, Storage privado |
 | Worker de ingesta, ping anti-pausa y purga | **GitHub Actions** (workflow `circulo-nueve-tareas`) | OCR, transcripción, figuras y embeddings; mantener activo Supabase; borrar documentos vencidos |
-| Correo (invitaciones y recuperación) | Opcional: SMTP gratuito con dominio propio (p. ej. Brevo, 300/día) | Sin SMTP: enlaces de un solo uso que la administración comparte |
+| Correo | **No hace falta** | Las cuentas usan usuario y contraseña; la administración las crea y entrega |
 | IA para redactar respuestas (opcional) | Proveedor en `/admin/proveedores` | Sin proveedor, el bot responde con citas literales |
 
 **Por qué `us-east-1`:** Supabase no tiene región en México. Las más cercanas son `us-east-1` (Virginia), `us-east-2` (Ohio) y `us-west-1` (California). `us-east-1` coincide con la región por defecto de las funciones de Vercel (`iad1`), así que cada consulta de la app a la base viaja dentro de la misma zona. Esa latencia pesa más que la del navegador, porque cada página hace varias consultas. Si en tus pruebas `us-west-1` responde notablemente mejor desde tu ciudad, puedes elegirla, pero entonces cambia también la región de funciones de Vercel a `sfo1`.
@@ -59,10 +59,10 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
      - **Redirect URLs**: `https://<tu-app>.vercel.app/**`.
    - *Sign In / Providers*:
      - Desactiva **Allow new users to sign up**: no hay registro público.
-     - Deja **Email** activado, con confirmación de correo.
+     - Deja **Email** activado (es el proveedor de contraseña; cada cuenta usa un correo interno `@usuarios.circulo-nueve.invalid` que nunca se entrega). Desactiva **Confirm email**: las cuentas las crea la administración ya confirmadas.
      - Contraseña mínima: **10** caracteres, con **letras y números**.
-   - *Multi-Factor*: activa **TOTP**. Es obligatoria para administrar.
-   - *Emails → Templates*: sustituye **Invite user** y **Reset password** por el contenido de `supabase/templates/invitacion.html` y `recuperacion.html`. Usan `token_hash` y llevan a `/auth/confirmar`.
+   - *Multi-Factor*: activa **TOTP**. Es opcional para cada cuenta y recomendada para la administración; si alguien la activa, la base la exige siempre.
+   - *Emails → Templates* y *SMTP*: no hace falta tocarlos, la app no envía correos. El «Enlace de recuperación» del panel se genera en el servidor y lo entrega la administración.
    - Alternativa por CLI: `npx supabase config diff` y luego `npx supabase config push`. Antes, revisa que `site_url` y `additional_redirect_urls` de `supabase/config.toml` apunten a producción y no a `127.0.0.1`.
 4. **Storage:** las migraciones ya crean los buckets privados. En *Storage → Settings* deja el límite global en **50 MB**.
 5. **Llaves** (*Project Settings → API*). Apunta:
@@ -70,19 +70,9 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
    - la llave pública (**anon / publishable**);
    - la **service_role / secret**. Esta es secreta: solo va en Vercel y en los secretos de GitHub.
 
-## 2. Correo (opcional)
+## 2. Correo
 
-Sin SMTP propio, Supabase **solo envía correos a las direcciones del equipo de la organización del proyecto** (cambio anunciado en su [changelog](https://supabase.com/changelog/29370-supabase-auth-changes-to-default-email-provider)). Hay dos opciones:
-
-- **Sin correo, gratis y sin dominio:**
-  - En `/admin/usuarios`, marca «No enviar correo: mostrar el enlace para compartirlo yo».
-  - El panel muestra un enlace de invitación de un solo uso, que caduca en 1 h. Compártelo por un canal privado.
-  - Para recuperar la contraseña de alguien, usa «Enlace de recuperación» en su fila.
-  - Ambos quedan en la auditoría.
-- **Con correo:** hace falta un **dominio propio**, porque los servicios gratuitos exigen autenticar el dominio remitente (SPF/DKIM). Con [Brevo](https://www.brevo.com/free-smtp-server/), cuyo plan gratuito da 300 correos al día:
-  1. Autentica el dominio.
-  2. Crea una llave SMTP.
-  3. En Supabase, *Authentication → Emails → SMTP Settings*: host `smtp-relay.brevo.com`, puerto `587`, usuario y llave SMTP, y remitente `no-reply@<tu-dominio>`.
+No hace falta configurar SMTP ni tener dominio. Nadie recibe correos: la administración crea cada cuenta con usuario y contraseña inicial desde `/admin/usuarios`, la entrega en persona o por un canal privado y, si quiere, obliga a cambiarla en el primer acceso. Si alguien olvida su contraseña, la administración la restablece desde el mismo panel.
 
 ## 3. Clave de alta de la administración
 
@@ -119,12 +109,12 @@ npm run setup:hash -- --generar
 ## 5. Alta inicial y comprobaciones
 
 1. **Alta:**
-   - Abre `/setup`, escribe la clave de alta, tu nombre, correo y contraseña.
-   - Configura la verificación en dos pasos (QR o clave secreta en tu aplicación de autenticación).
+   - Abre `/setup`, escribe la clave de alta y elige tu **usuario** y tu contraseña.
+   - En «Mi cuenta», activa la verificación en dos pasos (recomendado: QR o clave secreta en tu aplicación de autenticación).
 2. **Comprueba que `/setup` responde 410.**
 3. **Revisa la configuración:**
    - En `/admin/ajustes`: retención de documentos, vigencia de los enlaces de descarga y **texto del aviso de privacidad** (lo redacta el responsable).
-   - Invita a una cuenta de prueba (con enlace si no hay SMTP), entra con ella y comprueba que no ve la administración.
+   - En `/admin/usuarios`, crea una cuenta de asistente de prueba (marca «Pedirle que elija su propia contraseña»), entra con ella en otra ventana privada y comprueba que te pide cambiar la contraseña y que no ve la administración.
 4. **Opcional, IA:** en `/admin/proveedores`, da de alta un proveedor con el nombre de su secreto `LLM_KEY_…` y pulsa «Probar conexión». Los modelos gratuitos solo sirven para demo, sin datos personales.
 
 ## 6. Worker de ingesta, ping anti-pausa y purga (GitHub Actions)
@@ -196,7 +186,7 @@ npm run respaldo        # pide la frase de cifrado (o define RESPALDO_CLAVE)
 
 - [ ] Proyecto Supabase en `us-east-1`, migraciones aplicadas y Auth configurado (sin registro público, TOTP, plantillas).
 - [ ] Vercel con las 5 variables, región `iad1` y despliegue verde.
-- [ ] `/setup` completado y luego 410; MFA de la administración activa.
+- [ ] `/setup` completado (usuario y contraseña) y luego 410; verificación en dos pasos de la administración activada (recomendado).
 - [ ] Aviso de privacidad completado en `/admin/ajustes`.
 - [ ] Secretos y variables de Actions; primera ejecución manual del workflow en verde.
 - [ ] Primer respaldo cifrado guardado en dos lugares.

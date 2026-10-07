@@ -76,7 +76,7 @@ const VOCES_FALSAS = `
 
 test("la administración da de alta un proveedor local y prueba la conexión", async ({ page }) => {
   test.skip(!estado.secretoAdmin || !LLAVE, "Requiere la administración de cuentas.spec.ts y LLM_KEY_E2E");
-  await entrar(page, ADMIN.correo, ADMIN.contrasena);
+  await entrar(page, ADMIN.usuario, ADMIN.contrasena);
   await verificarCodigo(page, estado.secretoAdmin);
   await page.goto("/admin/proveedores");
   await expect(page.getByText("Aún no hay proveedores.")).toBeVisible();
@@ -172,7 +172,7 @@ test("el consumo queda registrado sin la pregunta", async ({ page }) => {
   ]);
   expect(JSON.stringify(data)).not.toMatch(/cuenta la ñ|1990/);
 
-  await entrar(page, ADMIN.correo, ADMIN.contrasena);
+  await entrar(page, ADMIN.usuario, ADMIN.contrasena);
   await verificarCodigo(page, estado.secretoAdmin);
   await page.goto("/admin/proveedores");
   const consumo = page.locator("section", { hasText: "Consumo del mes" });

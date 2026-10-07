@@ -7,18 +7,18 @@ const captura = async (page: Page, nombre: string) => {
   if (MEDIA) await page.screenshot({ path: `${MEDIA}/${nombre}.png`, fullPage: true });
 };
 
-const CARLA = { correo: "carla@demo.invalid", nombre: "Carla Consultora", contrasena: "CarlaDemo20261" };
+const CARLA = { usuario: "carla", nombre: "Carla Asistente", contrasena: "CarlaDemo20261" };
 
 test.describe.configure({ mode: "serial" });
 
 let expedienteId = "";
 
 test.beforeAll(async () => {
-  await crearCuenta(CARLA.correo, CARLA.nombre, "consultor", CARLA.contrasena);
+  await crearCuenta(CARLA.usuario, CARLA.nombre, "consultor", CARLA.contrasena);
 });
 
 test("sin consentimiento de historial la carta se calcula pero no se guarda", async ({ page }) => {
-  await entrar(page, CARLA.correo, CARLA.contrasena);
+  await entrar(page, CARLA.usuario, CARLA.contrasena);
   await page.goto("/expedientes");
   await page.getByLabel("Nombre del expediente", { exact: true }).fill("Carta Demo");
   await page.getByLabel("Contiene datos ficticios de demostración (se marcará en los PDF)", { exact: true }).check();
@@ -49,7 +49,7 @@ test("sin consentimiento de historial la carta se calcula pero no se guarda", as
 });
 
 test("con consentimiento se guarda recalculada en el servidor, con versiones, ajustes y huella", async ({ page }) => {
-  await entrar(page, CARLA.correo, CARLA.contrasena);
+  await entrar(page, CARLA.usuario, CARLA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await page.getByLabel("Guardar las lecturas y reportes en el historial del expediente.", { exact: true }).check();
   await page.getByRole("button", { name: "Guardar consentimientos", exact: true }).click();
@@ -88,7 +88,7 @@ test("con consentimiento se guarda recalculada en el servidor, con versiones, aj
 });
 
 test("el servidor no acepta un lugar inventado ni guarda sin permiso de modificar", async ({ page }) => {
-  await entrar(page, CARLA.correo, CARLA.contrasena);
+  await entrar(page, CARLA.usuario, CARLA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   const carta = page.locator("section").filter({ has: page.getByRole("heading", { name: "Carta natal", exact: true }) });
   await expect(carta.getByText("GeoNames, id")).toBeVisible();
@@ -100,7 +100,7 @@ test("el servidor no acepta un lugar inventado ni guarda sin permiso de modifica
 });
 
 test("la carta guardada genera su PDF privado en Documentos", async ({ page }) => {
-  await entrar(page, CARLA.correo, CARLA.contrasena);
+  await entrar(page, CARLA.usuario, CARLA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await page.getByTestId("lectura-guardada").getByRole("button", { name: "Generar PDF", exact: true }).click();
   await expect(page.getByText(/Reporte CN-\d{8}-[0-9A-F]{8}\.pdf guardado/)).toBeVisible();

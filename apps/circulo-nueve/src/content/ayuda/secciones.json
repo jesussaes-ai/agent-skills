@@ -291,15 +291,16 @@
     {
       "id": "acceso",
       "titulo": "Entrar y recuperar la contraseña",
-      "resumen": "Inicio de sesión con las cuentas que crea la administración.",
-      "deQueTrata": "No hay registro público: solo entran las personas que la administración invita. Se entra con correo y contraseña; si la cuenta tiene verificación en dos pasos, después se pide el código de 6 dígitos. Si olvidas la contraseña, puedes pedir un enlace de un solo uso por correo. Por seguridad, el mensaje es el mismo exista o no la cuenta, y hay un límite de intentos.",
+      "resumen": "Inicio de sesión con el usuario y la contraseña que te da la administración.",
+      "deQueTrata": "No hay registro público ni se usa correo: la administración crea cada cuenta con un nombre de usuario y una contraseña inicial que te entrega en persona o por un canal privado. Se entra con usuario y contraseña; si activaste la verificación en dos pasos, después se pide el código de 6 dígitos. Si la administración lo indicó, la primera vez tendrás que elegir tu propia contraseña antes de seguir. Si olvidas la contraseña, pide a la administración que la restablezca. Por seguridad, el mensaje de error es el mismo si el usuario no existe o la contraseña es incorrecta, y hay un límite de intentos.",
       "datosQueUsa": [
-        "Tu correo y tu contraseña, que se comprueban en el servidor de autenticación.",
+        "Tu usuario y tu contraseña, que se comprueban en el servidor de autenticación.",
         "Una cookie de sesión segura en este navegador."
       ],
       "comoSeUsa": [
-        "Pulsa «Entrar» en la barra superior.",
-        "Si olvidaste la contraseña, pulsa «¿Olvidaste tu contraseña?» y abre el enlace que llega a tu correo.",
+        "Pulsa «Entrar» en la barra superior y escribe tu usuario y tu contraseña.",
+        "Si te lo pide, elige una contraseña nueva distinta de la provisional.",
+        "Si olvidaste la contraseña, pide a la administración que la restablezca.",
         "Pulsa «Salir» para cerrar la sesión."
       ],
       "estado": "disponible",
@@ -307,10 +308,14 @@
         "entrar",
         "iniciar sesión",
         "login",
+        "usuario",
+        "nombre de usuario",
         "contraseña",
         "olvidé",
         "recuperar",
         "restablecer",
+        "provisional",
+        "primera vez",
         "salir",
         "cerrar sesión",
         "cuenta"
@@ -320,15 +325,15 @@
       "id": "alta-inicial",
       "titulo": "Alta inicial de la administración",
       "resumen": "Puesta en marcha única con una clave de configuración.",
-      "deQueTrata": "La primera vez, la página /setup crea la cuenta de administración. La clave de alta solo se compara en el servidor contra un hash argon2id guardado como secreto; nunca se guarda en texto plano ni llega al navegador. Funciona una sola vez: cuando ya existe la administración, /setup responde 410 (ya no disponible). Mientras no se use, la clave se puede rotar cambiando el hash.",
+      "deQueTrata": "La primera vez, la página /setup crea la cuenta de administración: eliges un usuario y una contraseña. La clave de alta solo se compara en el servidor contra un hash argon2id guardado como secreto; nunca se guarda en texto plano ni llega al navegador. Funciona una sola vez: cuando ya existe la administración, /setup responde 410 (ya no disponible). Mientras no se use, la clave se puede rotar cambiando el hash. No hace falta configurar correo.",
       "datosQueUsa": [
         "La clave de alta (solo para compararla).",
-        "Nombre, correo y contraseña de la cuenta de administración."
+        "Usuario y contraseña de la cuenta de administración."
       ],
       "comoSeUsa": [
         "El responsable genera el hash con «npm run setup:hash» y lo carga como secreto ADMIN_SETUP_KEY_HASH.",
-        "Abre /setup, escribe la clave y los datos de la cuenta.",
-        "Después configura la verificación en dos pasos, obligatoria para administrar."
+        "Abre /setup, escribe la clave, tu usuario y tu contraseña.",
+        "Después, en «Mi cuenta», activa la verificación en dos pasos (recomendado) y crea las cuentas de tu equipo en «Usuarios»."
       ],
       "estado": "disponible",
       "palabrasClave": [
@@ -339,6 +344,7 @@
         "admin",
         "primera vez",
         "puesta en marcha",
+        "usuario",
         "rotar",
         "rotación",
         "hash",
@@ -348,15 +354,16 @@
     {
       "id": "verificacion-dos-pasos",
       "titulo": "Verificación en dos pasos",
-      "resumen": "Un código de tu aplicación de autenticación además de la contraseña.",
-      "deQueTrata": "La verificación en dos pasos (TOTP) añade un código de 6 dígitos que cambia cada 30 segundos. Es obligatoria para administrar: sin ella, la base de datos no concede permisos de administración aunque la contraseña sea correcta. Para los demás roles es opcional y recomendable.",
+      "resumen": "Un código de tu aplicación de autenticación además de la contraseña. Opcional y recomendada.",
+      "deQueTrata": "La verificación en dos pasos (TOTP) añade un código de 6 dígitos que cambia cada 30 segundos. Es opcional para todas las cuentas y muy recomendable para la administración. Una vez activada, se exige siempre: la base de datos no concede acceso a una sesión que no haya pasado el código, aunque la contraseña sea correcta. Para desactivarla tienes que haber entrado con el código. Si pierdes el teléfono, la administración (o, para la propia administración, la recuperación de emergencia) puede quitarla.",
       "datosQueUsa": [
         "Una clave secreta compartida con tu aplicación de autenticación (se muestra solo al configurarla)."
       ],
       "comoSeUsa": [
-        "En «Mi cuenta», pulsa «Configurar verificación en dos pasos».",
+        "En «Mi cuenta», pulsa «Activar verificación en dos pasos» y después «Configurar verificación en dos pasos».",
         "Escanea el código QR o escribe la clave secreta en tu aplicación.",
-        "Escribe el código de 6 dígitos para activarla. Al entrar, se te pedirá cada vez."
+        "Escribe el código de 6 dígitos para activarla. Al entrar, se te pedirá cada vez.",
+        "Para quitarla, pulsa «Desactivar verificación en dos pasos» en «Mi cuenta»."
       ],
       "estado": "disponible",
       "palabrasClave": [
@@ -368,49 +375,59 @@
         "autenticador",
         "código",
         "qr",
-        "verificación"
+        "verificación",
+        "activar",
+        "desactivar",
+        "opcional"
       ]
     },
     {
       "id": "cuenta",
       "titulo": "Mi cuenta",
-      "resumen": "Tus datos de acceso, roles y seguridad.",
-      "deQueTrata": "Muestra tu nombre, correo, estado de la cuenta, roles y si tienes la verificación en dos pasos activada. Desde aquí cambias tu contraseña. No puedes cambiar tus propios roles ni tu estado: lo decide la administración.",
+      "resumen": "Tus datos de acceso, tipo de cuenta y seguridad.",
+      "deQueTrata": "Muestra tu nombre, tu usuario, el estado de la cuenta, tu tipo de cuenta y si tienes la verificación en dos pasos activada. Desde aquí cambias tu contraseña y activas o desactivas la verificación en dos pasos. No puedes cambiar tu tipo de cuenta, tus permisos ni tu estado: lo decide la administración.",
       "datosQueUsa": [
         "Tu perfil de usuario y tus roles."
       ],
       "comoSeUsa": [
         "Pulsa tu nombre en la barra superior.",
-        "Usa «Cambiar contraseña» o «Configurar verificación en dos pasos»."
+        "Usa «Cambiar contraseña» o «Activar verificación en dos pasos»."
       ],
       "estado": "disponible",
       "palabrasClave": [
         "mi cuenta",
         "perfil",
+        "usuario",
         "roles",
         "estado",
-        "cambiar contraseña"
+        "cambiar contraseña",
+        "dos pasos"
       ]
     },
     {
       "id": "administracion-usuarios",
-      "titulo": "Usuarios, roles y permisos",
-      "resumen": "Panel de administración de cuentas.",
-      "deQueTrata": "La administración invita cuentas por correo, asigna roles (administración, consultor/a, cliente) y puede suspender, revocar o reactivar el acceso. Nadie puede cambiar sus propios roles ni su estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría. La tabla de permisos muestra qué concede cada rol y su alcance: «global» (todos los expedientes) o «propio» (solo los creados por la persona o asignados). Si no hay correo configurado (SMTP), marca «No enviar correo» al invitar: el panel muestra un enlace de un solo uso que caduca en 1 hora para compartirlo por un canal privado. «Enlace de recuperación» hace lo mismo para que alguien elija una contraseña nueva. Ambos quedan en la auditoría.",
+      "titulo": "Usuarios, tipos de cuenta y permisos",
+      "resumen": "Panel donde la administración crea y controla todas las cuentas.",
+      "deQueTrata": "La administración crea cada cuenta directamente con nombre, usuario y contraseña inicial (la escribe o la genera la app y se muestra una sola vez para entregarla en persona). Puede pedir que la persona elija su propia contraseña al entrar por primera vez. Tipos de cuenta: «Administración» (control total), «Asistente» (solo lo que la administración le marque: crear y gestionar sus propios expedientes, compartirlos, ver todos en lectura o administrar la biblioteca; sus expedientes quedan separados de los de los demás) y «Cliente» (solo ve, en lectura, el expediente vinculado a su cuenta: lecturas y PDF). Desde el panel también se restablece una contraseña, se suspende, revoca o reactiva el acceso y, como alternativa, se genera un enlace de un solo uso para que alguien elija su contraseña. Nadie puede cambiar sus propios roles, permisos ni estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría.",
       "datosQueUsa": [
-        "Nombre, correo, estado y roles de cada cuenta."
+        "Nombre, usuario, estado, tipo de cuenta y permisos de cada cuenta."
       ],
       "comoSeUsa": [
-        "Escribe nombre, correo y rol y pulsa «Enviar invitación».",
-        "Pulsa un rol para asignarlo o retirarlo; pulsa «Suspender», «Revocar» o «Reactivar» para cambiar el acceso."
+        "En «Crear una cuenta», escribe nombre y usuario, elige el tipo y, si es asistente, marca qué puede hacer; pulsa «Crear cuenta» y entrega el usuario y la contraseña.",
+        "En cada cuenta: pulsa un tipo para asignarlo o retirarlo, «Guardar permisos» para cambiar lo que puede hacer una asistente, «Restablecer contraseña» si la olvidó y «Suspender», «Revocar» o «Reactivar» para cambiar el acceso.",
+        "Para que un cliente vea su expediente, ábrelo y elige su cuenta en «Cuenta cliente vinculada»."
       ],
       "estado": "disponible",
       "palabrasClave": [
         "usuarios",
+        "crear cuenta",
+        "asistente",
+        "cliente",
         "roles",
         "permisos",
-        "invitar",
-        "invitación",
+        "contraseña inicial",
+        "restablecer",
+        "cambio obligatorio",
         "suspender",
         "revocar",
         "reactivar",
@@ -419,8 +436,6 @@
         "recuperación de emergencia",
         "enlace",
         "sin correo",
-        "smtp",
-        "compartir enlace",
         "recuperación"
       ]
     },
@@ -428,7 +443,7 @@
       "id": "expedientes",
       "titulo": "Expedientes",
       "resumen": "Cada persona atendida tiene su expediente separado.",
-      "deQueTrata": "Un expediente reúne el perfil de nacimiento, los consentimientos, las lecturas y los documentos de una persona, separados de los de cualquier otra. Ves solo los expedientes que creaste, los que te asignó la administración o el tuyo si eres cliente. Los permisos (ver, abrir y descargar, cargar, modificar, borrar, compartir) se comprueban en el servidor y en la base de datos en cada operación.",
+      "deQueTrata": "Un expediente reúne el perfil de nacimiento, los consentimientos, las lecturas y los documentos de una persona, separados de los de cualquier otra. La administración ve todos. Una asistente ve solo los que creó o le asignaron, y solo si la administración le dio ese permiso. Un cliente ve únicamente el suyo, en lectura (lecturas y PDF). Los permisos (ver, abrir y descargar, cargar, modificar, borrar, compartir) se comprueban en el servidor y en la base de datos en cada operación.",
       "datosQueUsa": [
         "Nombre del expediente y quién lo creó.",
         "Tus permisos sobre él."

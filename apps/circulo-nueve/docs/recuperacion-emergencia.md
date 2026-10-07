@@ -1,6 +1,6 @@
 # Recuperación de emergencia de la administración
 
-Úsala solo si nadie puede entrar como administración: se perdió la contraseña y el correo, el dispositivo con la verificación en dos pasos, o la cuenta quedó suspendida o revocada. Si no, basta con «¿Olvidaste tu contraseña?».
+Úsala solo si nadie puede entrar como administración: se perdió la contraseña, el dispositivo con la verificación en dos pasos, o la cuenta quedó suspendida o revocada. Si hay otra cuenta de administración activa, basta con «Restablecer contraseña» en `/admin/usuarios`.
 
 ## Quién y dónde
 
@@ -16,21 +16,21 @@ export NEXT_PUBLIC_SUPABASE_URL="https://<proyecto>.supabase.co"
 export SUPABASE_SERVICE_ROLE_KEY="<llave de servicio>"      # solo en esta terminal
 export NEXT_PUBLIC_SITE_URL="https://<dominio de la app>"
 
-npm run admin:emergencia -- --correo admin@dominio --motivo "Pérdida del dispositivo de verificación" --quitar-mfa
-# Si la cuenta ya no existe:      añade --crear (envía una invitación)
+npm run admin:emergencia -- --usuario admin --motivo "Pérdida del dispositivo de verificación" --quitar-mfa
+# Si la cuenta ya no existe:      añade --crear
 
 unset SUPABASE_SERVICE_ROLE_KEY
 ```
 
 El script:
 
-1. Busca la cuenta por correo; con `--crear`, si no existe, la invita.
-2. La desbloquea en Auth.
+1. Busca la cuenta por usuario; con `--crear`, si no existe, la crea.
+2. La desbloquea en Auth y le pone una **contraseña provisional** generada.
 3. Con `--quitar-mfa`, elimina sus factores de verificación en dos pasos.
 4. Llama a `recuperacion_emergencia_admin` (solo service role): deja la cuenta activa, le asigna `admin` y lo registra en la auditoría con el motivo.
-5. Envía un correo para elegir contraseña nueva (salvo que acabe de invitarla).
+5. Exige el cambio de contraseña en el siguiente acceso y muestra la provisional **una sola vez** en la terminal (no se guarda en ningún archivo).
 
-Después, la persona entra, configura otra vez la verificación en dos pasos (obligatoria para administrar) y revisa en la auditoría y en `/admin/usuarios` que todo esté en orden.
+Después, la persona entra con la provisional, elige su contraseña, vuelve a activar la verificación en dos pasos (recomendado) y revisa en la auditoría y en `/admin/usuarios` que todo esté en orden.
 
 ## Por qué no se usa la clave de alta
 
@@ -39,4 +39,4 @@ Después, la persona entra, configura otra vez la verificación en dos pasos (ob
 ## Pruebas
 
 - pgTAP (`04_expedientes_documentos.test.sql`): la función exige un motivo y queda auditada; ningún usuario puede invocarla.
-- e2e (`02-expedientes.spec.ts`): el script asigna `admin` a una cuenta y registra el motivo.
+- e2e (`02-expedientes.spec.ts`): el script asigna `admin` a una cuenta por su usuario y registra el motivo.

@@ -83,13 +83,22 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Figuras de PDF con leyenda, OCR y descripción automática etiquetada (visión solo con proveedor configurado); corrección por la administración y «Ver figura» en el bot.
   - XLSX, ODS y CSV con hoja y celdas; PPTX por diapositiva; audio y video con Whisper local y marcas de tiempo.
   - Carga directa a Storage con URL firmada (hasta 50 MB); ClamAV opcional u obligatorio; el formulario se conserva tras un error.
-  - Invitaciones y recuperación con enlace de un solo uso, sin SMTP.
+  - Invitaciones y recuperación con enlace de un solo uso, sin SMTP (el 7 oct las invitaciones se sustituyen por cuentas creadas por la administración).
   - `docs/despliegue.md`: Supabase Free `us-east-1`, Vercel Hobby `iad1`, worker y ping en GitHub Actions, respaldos cifrados y restauración.
+
+## 7 oct 2026
+- **15:45** — Cuentas v2, por corrección de Jesús ([detalle](cuentas-y-acceso.md)):
+  - `/setup` simple: la administración elige **usuario y contraseña**. La clave de alta sigue solo en el servidor y de un solo uso.
+  - Se entra con **usuario y contraseña**, sin correo. Cada cuenta usa por dentro un correo no entregable (`@usuarios.circulo-nueve.invalid`) que no aparece en la interfaz. No hace falta SMTP.
+  - Verificación en dos pasos **opcional y recomendada**, activable y desactivable desde «Mi cuenta». Si una cuenta la activa, la base la exige siempre (sin `aal2` no hay permisos).
+  - La administración crea cada cuenta (asistente o cliente) con usuario y contraseña inicial (escrita o generada, mostrada una vez), con opción de **cambio obligatorio** en el primer acceso (la base no concede acceso hasta que el hash de la contraseña cambie). También restablece contraseñas, suspende, revoca y reactiva; el enlace de un solo uso queda como alternativa.
+  - **Asistentes:** sin permisos por rol; solo los paquetes que marque la administración (sus propios expedientes, compartirlos, ver todos en lectura, biblioteca). Sus expedientes quedan separados.
+  - **Clientes:** solo su expediente vinculado, en lectura (perfil, lecturas y PDF); no generan PDF ni consultan la biblioteca.
+  - Migración `20261007000100_cuentas_por_usuario.sql`, pgTAP nuevo `08_cuentas_usuario`, e2e de cuentas reescrito, ayuda y documentación actualizadas. Recuperación de emergencia ahora por `--usuario`, con contraseña provisional.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
 - Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
 - Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
-- Biblioteca: figuras y diagramas, audio, video y hojas de cálculo; antivirus en el worker de producción; carga directa a Storage para archivos grandes en Vercel.
 - Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.

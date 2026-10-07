@@ -8,19 +8,19 @@ const captura = async (page: Page, nombre: string) => {
   if (MEDIA) await page.screenshot({ path: `${MEDIA}/${nombre}.png`, fullPage: true });
 };
 
-const BETO = { correo: "beto@demo.invalid", nombre: "Beto Consultor", contrasena: "BetoDemo20261" };
+const BETO = { usuario: "beto", nombre: "Beto Asistente", contrasena: "BetoDemo20261" };
 
 test.describe.configure({ mode: "serial" });
 
 let expedienteId = "";
 
 test.beforeAll(async () => {
-  await crearCuenta(ANA.correo, ANA.nombre, "consultor", ANA.contrasena);
-  await crearCuenta(BETO.correo, BETO.nombre, "consultor", BETO.contrasena);
+  await crearCuenta(ANA.usuario, ANA.nombre, "consultor", ANA.contrasena);
+  await crearCuenta(BETO.usuario, BETO.nombre, "consultor", BETO.contrasena);
 });
 
-test("la consultora crea un expediente; sin consentimiento no se guarda nada", async ({ page }) => {
-  await entrar(page, ANA.correo, ANA.contrasena);
+test("la asistente crea un expediente; sin consentimiento no se guarda nada", async ({ page }) => {
+  await entrar(page, ANA.usuario, ANA.contrasena);
   await page.goto("/expedientes");
   await page.getByLabel("Nombre del expediente", { exact: true }).fill("Cliente Demo");
   await page.getByLabel("Contiene datos ficticios de demostración (se marcará en los PDF)", { exact: true }).check();
@@ -33,7 +33,7 @@ test("la consultora crea un expediente; sin consentimiento no se guarda nada", a
 });
 
 test("consentimientos, perfil y lectura efímera frente a guardada", async ({ page }) => {
-  await entrar(page, ANA.correo, ANA.contrasena);
+  await entrar(page, ANA.usuario, ANA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await page.getByLabel("Guardar el perfil de nacimiento en este expediente.", { exact: true }).check();
   await page.getByLabel("Guardar las lecturas y reportes en el historial del expediente.", { exact: true }).check();
@@ -59,13 +59,13 @@ test("consentimientos, perfil y lectura efímera frente a guardada", async ({ pa
 });
 
 test("PDF privado: se genera, se descarga con enlace firmado y queda auditado", async ({ page }) => {
-  await entrar(page, ANA.correo, ANA.contrasena);
+  await entrar(page, ANA.usuario, ANA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await page.getByRole("button", { name: "Generar PDF", exact: true }).click();
   await expect(page.getByText(/Reporte CN-\d{8}-[0-9A-F]{8}\.pdf guardado/)).toBeVisible();
   await page.reload();
   await expect(page.getByTestId("documento")).toHaveCount(1);
-  await captura(page, "01-expediente-consultora");
+  await captura(page, "01-expediente-asistente");
 
   const enlace = (await page.getByTestId("documento").getByRole("link", { name: "Descargar", exact: true }).getAttribute("href")) ?? "";
   const respuesta = await page.request.get(enlace, { maxRedirects: 0 });
@@ -90,7 +90,7 @@ test("PDF privado: se genera, se descarga con enlace firmado y queda auditado", 
 });
 
 test("otro consultor no ve, no descarga ni exporta el expediente ajeno", async ({ page }) => {
-  await entrar(page, BETO.correo, BETO.contrasena);
+  await entrar(page, BETO.usuario, BETO.contrasena);
   await page.goto("/expedientes");
   await expect(page.getByText("No tienes expedientes todavía.")).toBeVisible();
   const detalle = await page.request.get(`/expedientes/${expedienteId}`);
@@ -103,7 +103,7 @@ test("otro consultor no ve, no descarga ni exporta el expediente ajeno", async (
 
 test("administración asigna lectura a otro consultor y ve la actividad", async ({ page }) => {
   test.skip(!estado.secretoAdmin, "Requiere la administración creada en 01-cuentas.spec.ts");
-  await entrar(page, ADMIN.correo, ADMIN.contrasena);
+  await entrar(page, ADMIN.usuario, ADMIN.contrasena);
   await verificarCodigo(page, estado.secretoAdmin);
   await page.goto(`/expedientes/${expedienteId}`);
   const permisos = page.locator("section", { hasText: "Permisos del expediente" });
@@ -114,7 +114,7 @@ test("administración asigna lectura a otro consultor y ve la actividad", async 
   await captura(page, "02-expediente-administracion");
   await salir(page);
 
-  await entrar(page, BETO.correo, BETO.contrasena);
+  await entrar(page, BETO.usuario, BETO.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await expect(page.getByTestId("mis-permisos")).toHaveText("Ver y listar, Abrir y descargar");
   await expect(page.getByRole("button", { name: "Guardar perfil", exact: true })).toHaveCount(0);
@@ -138,8 +138,8 @@ test("la purga por retención borra archivo y registro vencidos", async () => {
   expect(objetos ?? []).toHaveLength(0);
 });
 
-test("la consultora borra el expediente y sus archivos", async ({ page }) => {
-  await entrar(page, ANA.correo, ANA.contrasena);
+test("la asistente borra el expediente y sus archivos", async ({ page }) => {
+  await entrar(page, ANA.usuario, ANA.contrasena);
   await page.goto(`/expedientes/${expedienteId}`);
   await page.getByRole("button", { name: "Generar PDF", exact: true }).click();
   await expect(page.getByText(/guardado en «Documentos»/)).toBeVisible();
@@ -154,7 +154,7 @@ test("la consultora borra el expediente y sus archivos", async ({ page }) => {
 test("recuperación de emergencia de la administración (script de servidor)", async () => {
   const salida = execFileSync(
     "npx",
-    ["tsx", "scripts/admin-emergencia.mts", "--correo", BETO.correo, "--motivo", "Prueba e2e de recuperación de emergencia", "--quitar-mfa"],
+    ["tsx", "scripts/admin-emergencia.mts", "--usuario", BETO.usuario, "--motivo", "Prueba e2e de recuperación de emergencia", "--quitar-mfa"],
     { env: process.env, stdio: "pipe" },
   ).toString();
   const { usuarioId } = JSON.parse(salida.trim().split("\n").pop() ?? "{}");

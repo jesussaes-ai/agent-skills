@@ -64,7 +64,7 @@ test.afterAll(async () => {
 
 test("bot con proveedor LLM: consentimiento, solo fragmentos, citas validadas y consumo registrado", async ({ page }) => {
   test.skip(!LLAVE, "Requiere LLM_KEY_E2E (scripts/e2e.sh)");
-  await entrar(page, ANA.correo, ANA.contrasena);
+  await entrar(page, ANA.usuario, ANA.contrasena);
   await page.goto("/biblioteca/preguntar");
   await page.getByLabel("Tu pregunta", { exact: true }).fill("¿Qué son los números maestros?");
   await page.getByLabel("Redacción de la respuesta", { exact: true }).selectOption(ID);

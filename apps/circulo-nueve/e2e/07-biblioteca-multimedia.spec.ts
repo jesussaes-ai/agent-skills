@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test, type BrowserContext, type Locator, type Page } from "@playwright/test";
 import { EICAR, audioDemo, pdfConFiguraDemo, pptxDemo, xlsxDemo } from "../src/modulos/biblioteca/pruebas/documentos-demo";
-import { ADMIN, entrar, estado, supabaseServicio, verificarCodigo } from "./utilidades";
+import { ADMIN, crearCuenta, entrar, estado, supabaseServicio, verificarCodigo } from "./utilidades";
 
 const MEDIA = process.env.E2E_CAPTURAS;
 const carpeta = mkdtempSync(join(tmpdir(), "cn-multimedia-"));
@@ -33,7 +33,7 @@ test.beforeAll(async ({ browser }) => {
   contexto = await browser.newContext();
   page = await contexto.newPage();
   if (estado.secretoAdmin) {
-    await entrar(page, ADMIN.correo, ADMIN.contrasena);
+    await entrar(page, ADMIN.usuario, ADMIN.contrasena);
     await verificarCodigo(page, estado.secretoAdmin);
   }
 });
@@ -159,30 +159,29 @@ test("el antivirus rechaza el archivo de prueba EICAR", async () => {
   if (MEDIA) await page.screenshot({ path: `${MEDIA}/04-antivirus.png`, fullPage: true });
 });
 
-test("invitación sin correo: la administración comparte un enlace de un solo uso", async ({ browser }) => {
+test("enlace de recuperación: alternativa de un solo uso para elegir contraseña", async ({ browser }) => {
   requiereAdmin();
-  const correo = "invitada-enlace@demo.invalid";
+  await crearCuenta("enlace.demo", "Cuenta por enlace", "consultor", "Provisional2026x");
   await page.goto("/admin/usuarios");
-  await page.getByLabel("Nombre", { exact: true }).fill("Invitada por enlace");
-  await page.getByLabel("Correo", { exact: true }).fill(correo);
-  await page.getByLabel(/No enviar correo: mostrar el enlace/).check();
-  await page.getByRole("button", { name: "Enviar invitación", exact: true }).click();
-  const enlace = await page.getByTestId("enlace-generado").first().inputValue();
-  expect(enlace).toMatch(/\/auth\/confirmar\?token_hash=.+&type=invite/);
-  if (MEDIA) await page.screenshot({ path: `${MEDIA}/05-invitacion-enlace.png`, fullPage: true });
+  const fila = page.getByTestId("usuario-enlace.demo");
+  await fila.getByRole("button", { name: "Enlace de recuperación", exact: true }).click();
+  const enlace = await fila.getByTestId("enlace-generado").inputValue();
+  expect(enlace).toMatch(/\/auth\/confirmar\?token_hash=.+&type=recovery/);
+  if (MEDIA) await page.screenshot({ path: `${MEDIA}/05-enlace-recuperacion.png`, fullPage: true });
 
   const otra = await browser.newContext();
-  const invitada = await otra.newPage();
-  await invitada.goto(enlace);
-  await expect(invitada).toHaveURL(/\/cuenta\/contrasena$/);
-  await invitada.getByLabel("Contraseña nueva", { exact: true }).fill("Invitada2026x");
-  await invitada.getByLabel("Repite la contraseña", { exact: true }).fill("Invitada2026x");
-  await invitada.getByRole("button", { name: "Guardar contraseña", exact: true }).click();
-  await expect(invitada.getByTestId("mis-roles")).toHaveText("Consultor/a");
-  await invitada.goto(enlace);
-  await expect(invitada).toHaveURL(/\/entrar\?error=enlace|\/cuenta/);
+  const persona = await otra.newPage();
+  await persona.goto(enlace);
+  await expect(persona).toHaveURL(/\/cuenta\/contrasena$/);
+  await persona.getByLabel("Contraseña nueva", { exact: true }).fill("PorEnlace2026x");
+  await persona.getByLabel("Repite la contraseña", { exact: true }).fill("PorEnlace2026x");
+  await persona.getByRole("button", { name: "Guardar contraseña", exact: true }).click();
+  await expect(persona.getByTestId("mis-roles")).toHaveText("Asistente");
+  await persona.context().clearCookies();
+  await persona.goto(enlace);
+  await expect(persona).toHaveURL(/\/entrar\?error=enlace/);
   await otra.close();
 
-  const { data } = await supabaseServicio().from("audit_log").select("recurso_tipo").eq("recurso_tipo", "enlace_invitacion");
+  const { data } = await supabaseServicio().from("audit_log").select("recurso_tipo").eq("recurso_tipo", "enlace_recuperacion");
   expect(data?.length).toBeGreaterThan(0);
 });

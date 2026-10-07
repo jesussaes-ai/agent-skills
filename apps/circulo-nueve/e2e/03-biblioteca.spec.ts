@@ -34,7 +34,7 @@ test.beforeAll(async ({ browser }) => {
   contexto = await browser.newContext();
   page = await contexto.newPage();
   if (estado.secretoAdmin) {
-    await entrar(page, ADMIN.correo, ADMIN.contrasena);
+    await entrar(page, ADMIN.usuario, ADMIN.contrasena);
     await verificarCodigo(page, estado.secretoAdmin);
   }
 });
