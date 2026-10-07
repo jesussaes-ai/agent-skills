@@ -10,18 +10,60 @@
 import { randomUUID } from "node:crypto";
 import { clienteServicio, procesarSiguiente } from "../src/modulos/biblioteca/ingesta.ts";
 import { EXTENSIONES, detectarFormato } from "../src/modulos/biblioteca/formatos.ts";
-import { CSV_DEMO, MD_DEMO, docxDemo, pdfConFiguraDemo, pptxDemo, xlsxDemo } from "../src/modulos/biblioteca/pruebas/documentos-demo.ts";
 
 const db = clienteServicio();
 const texto = (t: string) => new TextEncoder().encode(t);
 
+// Textos ficticios y propios (DEMO). No se importa pruebas/documentos-demo.ts porque
+// @react-pdf no carga fuera de Next/Vitest.
+const MANUAL = `# Manual ficticio de numerología (DEMO)
+
+## Números del 1 al 9
+
+El número 1 representa el comienzo y la iniciativa. El número 2 habla de cooperación y escucha.
+El número 3 se asocia con la expresión y la creatividad. El número 4 con la estructura y el trabajo constante.
+El número 5 con el cambio y la libertad. El número 6 con el cuidado y la responsabilidad.
+El número 7 con la reflexión y el estudio. El número 8 con la organización y los logros materiales.
+El número 9 cierra el ciclo: generosidad y finalización.
+
+## Números maestros
+
+En esta tradición ficticia, 11, 22 y 33 se llaman números maestros y no se reducen a un dígito.
+El 11 se describe como intuición; el 22 como construcción a gran escala; el 33 como servicio.
+`;
+
+const CARTA = `# Cuaderno ficticio de carta natal (DEMO)
+
+## El Sol, la Luna y el Ascendente
+
+En este cuaderno de demostración, el Sol describe la identidad central, la Luna las emociones
+y el Ascendente la manera de presentarse ante los demás.
+
+## Casas
+
+La casa I trata de la persona; la casa VII de las relaciones; la casa X de la vocación.
+Cuando la hora de nacimiento es desconocida, las casas y el Ascendente no se interpretan.
+`;
+
+const CICLOS = `# Guía ficticia de ciclos personales (DEMO)
+
+## Año personal
+
+El año personal se obtiene sumando el día y el mes de nacimiento con el año en curso y reduciendo a un dígito.
+Un año personal 1 se describe como de inicios; un año personal 9 como de cierres.
+
+## Uso responsable
+
+Estas descripciones son de entretenimiento y reflexión. No sustituyen consejo médico, legal ni financiero.
+`;
+
+const TABLA = "Número,Palabra clave,Fuente\n1,Comienzo,Tabla ficticia (DEMO)\n2,Cooperación,Tabla ficticia (DEMO)\n3,Expresión,Tabla ficticia (DEMO)\n9,Ciclo,Tabla ficticia (DEMO)\n11,Intuición,Tabla ficticia (DEMO)\n";
+
 const documentos: { titulo: string; nombre: string; bytes: Uint8Array; tradicion: string }[] = [
-  { titulo: "Manual ficticio de numerología (DEMO)", nombre: "manual-demo.md", bytes: texto(MD_DEMO), tradicion: "Numerología" },
-  { titulo: "Cuaderno ficticio con figura (DEMO)", nombre: "cuaderno-figura-demo.pdf", bytes: await pdfConFiguraDemo(), tradicion: "Numerología" },
-  { titulo: "Guía ficticia de lectura (DEMO)", nombre: "guia-demo.docx", bytes: await docxDemo(), tradicion: "Numerología" },
-  { titulo: "Tabla ficticia de números (DEMO)", nombre: "tabla-demo.csv", bytes: texto(CSV_DEMO), tradicion: "Numerología" },
-  { titulo: "Hoja ficticia de correspondencias (DEMO)", nombre: "correspondencias-demo.xlsx", bytes: await xlsxDemo(), tradicion: "Numerología" },
-  { titulo: "Presentación ficticia de ciclos (DEMO)", nombre: "ciclos-demo.pptx", bytes: await pptxDemo(), tradicion: "Numerología" },
+  { titulo: "Manual ficticio de numerología (DEMO)", nombre: "manual-demo.md", bytes: texto(MANUAL), tradicion: "Numerología" },
+  { titulo: "Cuaderno ficticio de carta natal (DEMO)", nombre: "carta-demo.md", bytes: texto(CARTA), tradicion: "Astrología" },
+  { titulo: "Guía ficticia de ciclos personales (DEMO)", nombre: "ciclos-demo.md", bytes: texto(CICLOS), tradicion: "Numerología" },
+  { titulo: "Tabla ficticia de números (DEMO)", nombre: "tabla-demo.csv", bytes: texto(TABLA), tradicion: "Numerología" },
 ];
 
 async function vaciarCola(): Promise<void> {
