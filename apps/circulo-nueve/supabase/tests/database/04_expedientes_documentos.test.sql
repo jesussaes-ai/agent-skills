@@ -18,6 +18,10 @@ insert into public.user_roles (user_id, role_id, granted_by) values
   ('00000000-0000-0000-0000-0000000000a1', 'consultor', '00000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-0000000000b1', 'consultor', '00000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-0000000000c1', 'cliente', '00000000-0000-0000-0000-00000000000a');
+insert into public.user_permissions (user_id, permission_id, alcance)
+  select ur.user_id, p, 'propio' from public.user_roles ur,
+    unnest(array['listar', 'abrir_descargar', 'cargar', 'modificar', 'borrar', 'compartir']) as p
+  where ur.role_id = 'consultor';
 insert into public.case_files (id, display_label, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Expediente A (demo)', '00000000-0000-0000-0000-0000000000a1');
 insert into public.readings (id, case_file_id, sistema, motor, motor_version, reglas_version, entradas_hash, resultado_calculado)

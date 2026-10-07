@@ -12,7 +12,7 @@ const SIN_PERMISO: EstadoFormulario = { mensaje: "Solo la administración con ve
 
 async function esAdminVerificado(): Promise<boolean> {
   const sesion = await obtenerSesion();
-  return Boolean(sesion && sesion.acceso.activo && esAdmin(sesion) && sesion.acceso.aal2);
+  return Boolean(sesion && sesion.acceso.activo && esAdmin(sesion) && sesion.acceso.permisos.includes("admin_proveedores"));
 }
 
 export async function accionGuardarProveedor(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {

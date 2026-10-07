@@ -47,7 +47,7 @@ async function sesionActiva(): Promise<Sesion | null> {
 
 async function sesionAdmin(): Promise<Sesion | null> {
   const sesion = await sesionActiva();
-  return sesion && esAdmin(sesion) && sesion.acceso.aal2 ? sesion : null;
+  return sesion && esAdmin(sesion) && sesion.acceso.permisos.includes("admin_usuarios") ? sesion : null;
 }
 
 function rutaExpediente(id: string) {
@@ -227,8 +227,11 @@ export async function accionGenerarPdf(_: EstadoFormulario, form: FormData): Pro
   const { expedienteId, lecturaId } = datos.data;
   const supabase = await clienteSupabaseServidor();
 
-  const { data: puede } = await supabase.rpc("has_case_perm", { case_id: expedienteId, p: "abrir_descargar" });
-  if (!puede) return SIN_PERMISO;
+  const [{ data: puedeLeer }, { data: puedeModificar }] = await Promise.all([
+    supabase.rpc("has_case_perm", { case_id: expedienteId, p: "abrir_descargar" }),
+    supabase.rpc("has_case_perm", { case_id: expedienteId, p: "modificar" }),
+  ]);
+  if (!puedeLeer || !puedeModificar) return SIN_PERMISO;
   const [{ data: lectura }, { data: expediente }, { data: perfil }, { data: aviso }] = await Promise.all([
     supabase.from("readings").select("id, sistema, resultado_calculado, created_at").eq("id", lecturaId).eq("case_file_id", expedienteId).maybeSingle(),
     supabase.from("case_files").select("display_label, es_demo").eq("id", expedienteId).maybeSingle(),

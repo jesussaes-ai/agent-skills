@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { datosDe, erroresDe, type EstadoFormulario } from "@/modulos/auth/esquemas";
-import { obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
+import { esSoloCliente, obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { formularioAObjeto } from "@/modulos/expedientes/esquemas";
 import { aVector, crearEmbeddingsLocales } from "./embeddings";
@@ -20,7 +20,7 @@ const SIN_PERMISO: EstadoFormulario = { mensaje: "No tienes permiso para adminis
 
 async function sesionFuentes(): Promise<Sesion | null> {
   const s = await obtenerSesion();
-  return s?.acceso.activo && s.acceso.aal2 && s.acceso.permisos.includes("admin_fuentes") ? s : null;
+  return s?.acceso.activo && s.acceso.permisos.includes("admin_fuentes") ? s : null;
 }
 
 /** Valores enviados (sin archivo ni confirmación de derechos) para rellenar el formulario tras un error. */
@@ -374,6 +374,7 @@ let embeddingsConsulta: ReturnType<typeof crearEmbeddingsLocales> | null = null;
 export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: FormData): Promise<RespuestaBiblioteca> {
   const sesion = await obtenerSesion();
   if (!sesion?.acceso.activo) return { estado: "error", mensaje: "Entra con una cuenta activa para consultar la biblioteca." };
+  if (esSoloCliente(sesion)) return { estado: "error", mensaje: "Las cuentas de cliente no consultan la biblioteca." };
   const datos = esquemaPregunta.safeParse(formularioAObjeto(form));
   if (!datos.success) return { estado: "error", errores: erroresDe(datos.error) };
   const { pregunta } = datos.data;

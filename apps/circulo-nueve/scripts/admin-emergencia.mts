@@ -1,12 +1,15 @@
 /**
  * Recuperación de emergencia de la administración (ver docs/recuperacion-emergencia.md).
  *
- *   npm run admin:emergencia -- --correo persona@dominio --motivo "Texto del motivo" [--quitar-mfa] [--crear]
+ *   npm run admin:emergencia -- --usuario nombre --motivo "Texto del motivo" [--quitar-mfa] [--crear]
  *
- * Requiere NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en el entorno de
- * quien lo ejecuta (nunca en el navegador). Deja la acción en la auditoría.
+ * Pone una contraseña provisional (se muestra una sola vez en esta terminal) que
+ * deberá cambiarse al entrar. Requiere NEXT_PUBLIC_SUPABASE_URL y
+ * SUPABASE_SERVICE_ROLE_KEY en el entorno de quien lo ejecuta (nunca en el
+ * navegador). Deja la acción en la auditoría.
  */
 import { createClient } from "@supabase/supabase-js";
+import { PATRON_USUARIO, correoInterno, generarContrasenaInicial, normalizarUsuario } from "../src/modulos/auth/usuarios";
 
 function argumento(nombre: string): string | undefined {
   const i = process.argv.indexOf(`--${nombre}`);
@@ -20,58 +23,55 @@ const fallar = (mensaje: string): never => {
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const llave = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-const sitio = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://127.0.0.1:3000").replace(/\/+$/, "");
-const correo = argumento("correo")?.trim().toLowerCase();
+const nombreUsuario = normalizarUsuario(argumento("usuario") ?? "");
 const motivo = argumento("motivo")?.trim();
 
 if (!url || !llave) fallar("faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY.");
-if (!correo) fallar("indica --correo.");
+if (!PATRON_USUARIO.test(nombreUsuario)) fallar("indica --usuario (3 a 32 caracteres: letra inicial; letras, números, punto, guion o guion bajo).");
 if (!motivo || motivo.length < 10) fallar('indica --motivo "…" (mínimo 10 caracteres).');
 
 const admin = createClient(url!, llave!, { auth: { persistSession: false, autoRefreshToken: false } });
-
-async function buscarUsuario(email: string) {
-  for (let page = 1; page < 50; page++) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
-    if (error) fallar(`no se pudo listar cuentas (${error.message}).`);
-    const u = data.users.find((x) => x.email?.toLowerCase() === email);
-    if (u) return u;
-    if (data.users.length < 200) return null;
-  }
-  return null;
-}
-
-let usuario = await buscarUsuario(correo!);
+const contrasena = generarContrasenaInicial();
 const pasos: string[] = [];
 
-if (!usuario) {
-  if (!bandera("crear")) fallar("no existe una cuenta con ese correo. Usa --crear para invitarla.");
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(correo!, { redirectTo: `${sitio}/cuenta/contrasena` });
-  if (error || !data.user) fallar(`no se pudo invitar (${error?.message}).`);
-  usuario = data.user;
-  pasos.push("invitación enviada");
+const { data: correo } = await admin.rpc("correo_de_usuario", { p_username: nombreUsuario });
+let usuarioId: string;
+if (correo) {
+  const { data } = await admin.from("user_profiles").select("user_id").eq("username", nombreUsuario).single();
+  usuarioId = data!.user_id;
+  const { error } = await admin.auth.admin.updateUserById(usuarioId, { password: contrasena, ban_duration: "none" });
+  if (error) fallar(`no se pudo restablecer la cuenta (${error.message}).`);
+  pasos.push("cuenta desbloqueada y contraseña provisional puesta");
+} else {
+  if (!bandera("crear")) fallar("no existe una cuenta con ese usuario. Usa --crear para crearla.");
+  const { data, error } = await admin.auth.admin.createUser({
+    email: correoInterno(nombreUsuario),
+    password: contrasena,
+    email_confirm: true,
+    user_metadata: { usuario: nombreUsuario },
+  });
+  if (error || !data.user) fallar(`no se pudo crear la cuenta (${error?.message}).`);
+  usuarioId = data.user!.id;
+  pasos.push("cuenta creada con contraseña provisional");
 }
 
-const { error: errorBan } = await admin.auth.admin.updateUserById(usuario!.id, { ban_duration: "none" });
-if (errorBan) fallar(`no se pudo desbloquear la cuenta (${errorBan.message}).`);
-pasos.push("cuenta desbloqueada en Auth");
-
 if (bandera("quitar-mfa")) {
-  const { data: factores } = await admin.auth.admin.mfa.listFactors({ userId: usuario!.id });
+  const { data: factores } = await admin.auth.admin.mfa.listFactors({ userId: usuarioId });
   for (const f of factores?.factors ?? []) {
-    await admin.auth.admin.mfa.deleteFactor({ userId: usuario!.id, id: f.id });
+    await admin.auth.admin.mfa.deleteFactor({ userId: usuarioId, id: f.id });
   }
   pasos.push(`factores de verificación eliminados: ${factores?.factors?.length ?? 0}`);
 }
 
-const { error: errorRpc } = await admin.rpc("recuperacion_emergencia_admin", { p_user_id: usuario!.id, p_motivo: motivo });
+const { error: errorRpc } = await admin.rpc("recuperacion_emergencia_admin", { p_user_id: usuarioId, p_motivo: motivo });
 if (errorRpc) fallar(`no se pudo asignar la administración (${errorRpc.message}).`);
-pasos.push("rol admin asignado, cuenta activa y acción auditada");
+await admin.from("user_profiles").update({ username: nombreUsuario }).eq("user_id", usuarioId).is("username", null);
+const { error: errorCambio } = await admin.rpc("exigir_cambio_contrasena", { p_user_id: usuarioId });
+if (errorCambio) fallar(`no se pudo exigir el cambio de contraseña (${errorCambio.message}).`);
+pasos.push("rol admin asignado, cuenta activa, cambio de contraseña exigido y acción auditada");
 
-if (pasos[0] !== "invitación enviada") {
-  const { error } = await admin.auth.resetPasswordForEmail(correo!, { redirectTo: `${sitio}/cuenta/contrasena` });
-  pasos.push(error ? `no se pudo enviar el correo de recuperación (${error.message})` : "correo de recuperación enviado");
-}
-
-process.stderr.write(`Recuperación de emergencia completada para ${correo}:\n- ${pasos.join("\n- ")}\n`);
-process.stdout.write(`${JSON.stringify({ ok: true, usuarioId: usuario!.id, pasos })}\n`);
+process.stderr.write(
+  `Recuperación de emergencia completada para «${nombreUsuario}»:\n- ${pasos.join("\n- ")}\n\n` +
+    `Contraseña provisional (se muestra solo ahora; entrégala en persona): ${contrasena}\n`,
+);
+process.stdout.write(`${JSON.stringify({ ok: true, usuarioId, pasos })}\n`);

@@ -11,6 +11,10 @@ insert into auth.users (id, email, aud, role) values
 select public.completar_alta_admin('00000000-0000-0000-0000-00000000000a', 'Admin demo');
 insert into public.user_profiles (user_id, display_name) values ('00000000-0000-0000-0000-0000000000b1', 'Consultor demo');
 insert into public.user_roles (user_id, role_id) values ('00000000-0000-0000-0000-0000000000b1', 'consultor');
+insert into public.user_permissions (user_id, permission_id, alcance)
+  select ur.user_id, p, 'propio' from public.user_roles ur,
+    unnest(array['listar', 'abrir_descargar', 'cargar', 'modificar', 'borrar', 'compartir']) as p
+  where ur.role_id = 'consultor';
 
 select hasnt_column('public', 'ai_usage', 'prompt', 'el consumo no tiene columna para el prompt');
 select hasnt_column('public', 'ai_usage', 'respuesta', 'el consumo no tiene columna para la respuesta');
@@ -48,11 +52,15 @@ select throws_ok(
   '42501', null, 'quien no administra proveedores no puede crearlos'
 );
 
--- Admin sin MFA: tampoco.
+-- Admin con MFA activada pero sesión aal1: tampoco.
+reset role;
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+  select gen_random_uuid(), '00000000-0000-0000-0000-00000000000a', 'demo', 'totp', 'verified', now(), now();
+set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal1"}', true);
 select throws_ok(
   $$insert into public.ai_providers (id, nombre, endpoint, modelo) values ('sin-mfa', 'X', 'https://x.invalid/v1', 'm')$$,
-  '42501', null, 'la administración sin verificación en dos pasos no puede crearlos'
+  '42501', null, 'la administración con verificación activada y sesión aal1 no puede crearlos'
 );
 
 -- Admin con MFA: sí, y queda auditado.

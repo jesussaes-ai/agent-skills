@@ -124,13 +124,13 @@ export function NuevaLectura({ id, nombre, fecha, puedeGuardar, consentido }: Pr
   );
 }
 
-function AccionesLectura({ id, lecturaId, puedeBorrar, puedeDescargar }: { id: string; lecturaId: string; puedeBorrar: boolean; puedeDescargar: boolean }) {
+function AccionesLectura({ id, lecturaId, puedeBorrar, puedeGenerarPdf }: { id: string; lecturaId: string; puedeBorrar: boolean; puedeGenerarPdf: boolean }) {
   const [estadoPdf, generar] = useActionState(accionGenerarPdf, ESTADO_INICIAL);
   const [estadoBorrar, borrar] = useActionState(accionBorrarLectura, ESTADO_INICIAL);
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        {puedeDescargar && (
+        {puedeGenerarPdf && (
           <form action={generar}>
             <input type="hidden" name="expedienteId" value={id} />
             <input type="hidden" name="lecturaId" value={lecturaId} />
@@ -155,7 +155,7 @@ function AccionesLectura({ id, lecturaId, puedeBorrar, puedeDescargar }: { id: s
   );
 }
 
-export function HistorialLecturas({ id, lecturas, puedeBorrar, puedeDescargar }: { id: string; lecturas: Lectura[]; puedeBorrar: boolean; puedeDescargar: boolean }) {
+export function HistorialLecturas({ id, lecturas, puedeBorrar, puedeGenerarPdf }: { id: string; lecturas: Lectura[]; puedeBorrar: boolean; puedeGenerarPdf: boolean }) {
   if (!lecturas.length) return <p className="text-slate-600">Todavía no hay lecturas guardadas.</p>;
   return (
     <ol className="space-y-4">
@@ -171,7 +171,7 @@ export function HistorialLecturas({ id, lecturas, puedeBorrar, puedeDescargar }:
             <Indicadores resultado={l.resultado as ResultadoNumerologia} />
           )}
           <div className="mt-3">
-            <AccionesLectura id={id} lecturaId={l.id} puedeBorrar={puedeBorrar} puedeDescargar={puedeDescargar} />
+            <AccionesLectura id={id} lecturaId={l.id} puedeBorrar={puedeBorrar} puedeGenerarPdf={puedeGenerarPdf} />
           </div>
         </li>
       ))}

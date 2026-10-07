@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { exigirAdmin } from "@/modulos/auth/sesion";
+import { exigirPermiso } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { formatearLocalizador } from "@/modulos/biblioteca/respuesta";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
@@ -15,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export default async function PaginaFuente({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const sesion = await exigirAdmin(`/biblioteca/fuentes/${id}`);
+  const sesion = await exigirPermiso(`/biblioteca/fuentes/${id}`, "admin_fuentes");
   if (!UUID.test(id) || !sesion.acceso.permisos.includes("admin_fuentes")) notFound();
   const supabase = await clienteSupabaseServidor();
   const { data: f } = await supabase.from("sources").select("*").eq("id", id).maybeSingle();

@@ -16,11 +16,10 @@ export default async function PaginaVerificacion({ searchParams }: { searchParam
   return (
     <div className="mx-auto max-w-md">
       <Seccion titulo="Configura la verificación en dos pasos" ayuda="verificacion-dos-pasos">
-        {params.obligatoria && (
-          <p role="note" className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-950">
-            Para administrar es obligatoria: sin ella no se conceden permisos de administración.
-          </p>
-        )}
+        <p role="note" className="mb-4 rounded-lg bg-sky-50 p-3 text-sm text-sky-950">
+          Es opcional y muy recomendable, sobre todo para la administración: aunque alguien adivine tu contraseña, no
+          podrá entrar sin el código de tu teléfono. Una vez activada, se pedirá siempre al entrar.
+        </p>
         <InscripcionMfa siguiente={siguiente} />
       </Seccion>
     </div>

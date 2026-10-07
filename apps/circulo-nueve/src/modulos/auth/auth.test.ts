@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { generarHashClaveAlta, verificarClaveAlta } from "./clave-alta";
 import { leerConfigSupabase, origenPublico, rutaInternaSegura } from "./config";
-import { esquemaAlta, esquemaInvitar, esquemaNuevaContrasena } from "./esquemas";
+import { esquemaAlta, esquemaCrearCuenta, esquemaEntrar, esquemaNuevaContrasena } from "./esquemas";
+import { correoInterno, esCorreoInterno, generarContrasenaInicial, normalizarUsuario } from "./usuarios";
 import { crearLimiteIntentos } from "./limite-intentos";
 
 const CLAVE = "clave-de-prueba-larga-0123456789";
@@ -71,13 +72,45 @@ describe("validación de formularios", () => {
   });
 
   it("detecta confirmaciones distintas", () => {
-    const r = esquemaAlta.safeParse({ clave: "x", correo: "a@b.mx", nombre: "A", contrasena: "Valida12345", confirmacion: "Otra12345678" });
+    const r = esquemaAlta.safeParse({ clave: "x", usuario: "admin", contrasena: "Valida12345", confirmacion: "Otra12345678" });
     expect(r.success).toBe(false);
   });
 
-  it("normaliza el correo y limita los roles", () => {
-    expect(esquemaInvitar.parse({ correo: " Ana@Demo.MX ", nombre: "Ana", rol: "consultor" }).correo).toBe("ana@demo.mx");
-    expect(esquemaInvitar.safeParse({ correo: "a@b.mx", nombre: "A", rol: "superadmin" }).success).toBe(false);
+  it("normaliza el usuario y limita los roles", () => {
+    const ok = esquemaCrearCuenta.parse({ usuario: " Ana.Lopez ", nombre: "Ana", rol: "consultor", contrasena: "", paquetes: ["expedientes_propios"] });
+    expect(ok.usuario).toBe("ana.lopez");
+    expect(ok.contrasena).toBeNull();
+    expect(esquemaCrearCuenta.safeParse({ usuario: "ana", nombre: "A", rol: "superadmin" }).success).toBe(false);
+    expect(esquemaCrearCuenta.safeParse({ usuario: "ana", nombre: "A", rol: "cliente", paquetes: ["todo"] }).success).toBe(false);
+    expect(esquemaCrearCuenta.safeParse({ usuario: "ana", nombre: "A", rol: "cliente", contrasena: "corta" }).success).toBe(false);
+  });
+
+  it.each(["ab", "1ana", "ana lopez", "josé", "ana@demo.mx", "a".repeat(33)])("rechaza el usuario «%s»", (u) => {
+    expect(esquemaAlta.safeParse({ clave: "x", usuario: u, contrasena: "Valida12345", confirmacion: "Valida12345" }).success).toBe(false);
+  });
+
+  it("al entrar acepta mayúsculas y espacios en el usuario", () => {
+    expect(esquemaEntrar.parse({ usuario: "  ADMIN ", contrasena: "x" }).usuario).toBe("admin");
+  });
+});
+
+describe("cuentas por usuario", () => {
+  it("deriva un correo interno no entregable", () => {
+    expect(normalizarUsuario(" Ana ")).toBe("ana");
+    expect(correoInterno("Ana")).toBe("ana@usuarios.circulo-nueve.invalid");
+    expect(esCorreoInterno(correoInterno("ana"))).toBe(true);
+    expect(esCorreoInterno("ana@gmail.com")).toBe(false);
+  });
+
+  it("genera contraseñas iniciales válidas y distintas", () => {
+    const vistas = new Set<string>();
+    for (let i = 0; i < 50; i++) {
+      const c = generarContrasenaInicial();
+      expect(c).toMatch(/^([a-z]{3}\d-){3}[a-z]{3}\d$/);
+      expect(esquemaNuevaContrasena.safeParse({ contrasena: c, confirmacion: c }).success).toBe(true);
+      vistas.add(c);
+    }
+    expect(vistas.size).toBe(50);
   });
 });
 

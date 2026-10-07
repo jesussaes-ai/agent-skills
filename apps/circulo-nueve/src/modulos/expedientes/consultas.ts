@@ -187,7 +187,7 @@ export async function obtenerExpediente(sesion: Sesion, id: string): Promise<Det
     administracion: null,
   };
 
-  if (esAdmin(sesion) && sesion.acceso.aal2) detalle.administracion = await datosAdministracion(id);
+  if (esAdmin(sesion) && sesion.acceso.permisos.includes("admin_usuarios")) detalle.administracion = await datosAdministracion(id);
   return detalle;
 }
 

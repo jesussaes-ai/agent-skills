@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { exigirAdmin } from "@/modulos/auth/sesion";
+import { exigirPermiso } from "@/modulos/auth/sesion";
 import { clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Biblioteca · Círculo Nueve" };
 
 export default async function PaginaBiblioteca({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const sesion = await exigirAdmin("/biblioteca");
+  const sesion = await exigirPermiso("/biblioteca", "admin_fuentes");
   if (!sesion.acceso.permisos.includes("admin_fuentes")) return null;
   const supabase = await clienteSupabaseServidor();
   const [{ data: fuentes }, { count: pendientes }] = await Promise.all([

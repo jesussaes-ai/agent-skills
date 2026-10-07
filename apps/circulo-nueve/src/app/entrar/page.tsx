@@ -28,7 +28,7 @@ export default async function PaginaEntrar({ searchParams }: { searchParams: Pro
               </p>
             )}
             <FormularioEntrar siguiente={siguiente} />
-            <EnlaceBoton href="/recuperar" className="px-0" descripcion="Pide un enlace por correo para elegir una contraseña nueva.">
+            <EnlaceBoton href="/recuperar" className="px-0" descripcion="Qué hacer si no recuerdas tu contraseña: la restablece la administración.">
               ¿Olvidaste tu contraseña?
             </EnlaceBoton>
           </div>

@@ -2,7 +2,7 @@
 -- Todos los datos son ficticios.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(41);
+select plan(42);
 
 -- Usuarios ficticios
 insert into auth.users (id, email, aud, role) values
@@ -35,6 +35,10 @@ insert into public.user_roles (user_id, role_id, granted_by) values
   ('00000000-0000-0000-0000-0000000000b1', 'consultor', '00000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-0000000000c1', 'cliente', '00000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-0000000000d1', 'consultor', '00000000-0000-0000-0000-00000000000a');
+insert into public.user_permissions (user_id, permission_id, alcance)
+  select ur.user_id, p, 'propio' from public.user_roles ur,
+    unnest(array['listar', 'abrir_descargar', 'cargar', 'modificar', 'borrar', 'compartir']) as p
+  where ur.role_id = 'consultor';
 
 insert into public.case_files (id, display_label, created_by, client_user_id) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Expediente A (demo)', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000c1'),
@@ -153,8 +157,16 @@ select is((select count(*) from storage.objects where bucket_id = 'expedientes')
 
 -- ---------------------------------------------------------------- administración
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal1"}', true);
-select is((select count(*) from public.case_files), 0::bigint, 'administración sin verificación en dos pasos no ve expedientes');
-select is((select count(*) from public.user_profiles), 1::bigint, 'administración sin verificación en dos pasos solo ve su propio perfil');
+select is((select count(*) from public.case_files), 3::bigint, 'verificación en dos pasos opcional: sin factor, una sesión aal1 basta');
+
+-- Con un factor verificado, la cuenta queda obligada a usar aal2.
+reset role;
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+  values ('0000000f-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a', 'demo', 'totp', 'verified', now(), now());
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal1"}', true);
+select is((select count(*) from public.case_files), 0::bigint, 'con verificación activada, una sesión aal1 no ve expedientes');
+select is((select count(*) from public.user_profiles), 1::bigint, 'con verificación activada y aal1 solo ve su propio perfil');
 select is((public.mi_acceso() ->> 'aal2')::boolean, false, 'mi_acceso informa que falta la verificación en dos pasos');
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated","aal":"aal2"}', true);

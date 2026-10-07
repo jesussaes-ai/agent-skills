@@ -10,6 +10,10 @@ insert into auth.users (id, email, aud, role) values
 select public.completar_alta_admin('00000000-0000-0000-0000-00000000000a', 'Admin demo');
 insert into public.user_profiles (user_id, display_name) values ('00000000-0000-0000-0000-0000000000a1', 'Consultora');
 insert into public.user_roles (user_id, role_id) values ('00000000-0000-0000-0000-0000000000a1', 'consultor');
+insert into public.user_permissions (user_id, permission_id, alcance)
+  select ur.user_id, p, 'propio' from public.user_roles ur,
+    unnest(array['listar', 'abrir_descargar', 'cargar', 'modificar', 'borrar', 'compartir']) as p
+  where ur.role_id = 'consultor';
 
 insert into public.sources (id, titulo, referencia, grupo, licencia, nivel_acceso, estado, es_demo) values
   ('5a000000-0000-0000-0000-000000000001', 'Manual ficticio (DEMO)', 'demo', 'aportada', 'propia', 'consultores', 'indexado', true);
