@@ -129,6 +129,7 @@ test("la administración crea una asistente con contraseña generada y un client
   await expect(fila).toContainText("Asistente");
   await expect(fila).toContainText("Pendiente de elegir su contraseña");
   await expect(page.getByTestId(`usuario-${CLIENTE.usuario}`)).toContainText("Cliente");
+  await expect(page.getByTestId(`usuario-${ADMIN.usuario}`)).toContainText("Dos pasos: activada");
 
   // Un usuario repetido se rechaza y el formulario conserva lo escrito.
   await formulario.getByLabel("Nombre", { exact: true }).fill("Otra Lucía");

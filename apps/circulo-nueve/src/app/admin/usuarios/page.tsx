@@ -23,8 +23,14 @@ export default async function PaginaUsuarios() {
   ]);
 
   // Los factores de verificación viven en Auth; la autorización ya se comprobó con exigirAdmin.
-  const { data: auth } = await clienteSupabaseAdmin().auth.admin.listUsers({ perPage: 1000 });
-  const conMfa = new Set((auth?.users ?? []).filter((u) => (u.factors ?? []).some((f) => f.status === "verified")).map((u) => u.id));
+  const servicio = clienteSupabaseAdmin();
+  const factores = await Promise.all(
+    (perfiles ?? []).map(async (p) => {
+      const { data } = await servicio.auth.admin.mfa.listFactors({ userId: p.user_id });
+      return (data?.factors ?? []).some((f) => f.status === "verified") ? p.user_id : null;
+    }),
+  );
+  const conMfa = new Set(factores.filter(Boolean));
 
   const filas: FilaUsuario[] = (perfiles ?? []).map((p) => {
     const propios = (permisosUsuario ?? []).filter((x) => x.user_id === p.user_id);
