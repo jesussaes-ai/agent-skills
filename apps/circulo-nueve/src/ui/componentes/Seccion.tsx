@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AyudaContextual } from "./AyudaContextual";
+import { DibujoMotivo, motivoDeSeccion, type Motivo } from "./Motivos";
 
 interface Props {
   titulo: string;
@@ -7,17 +8,23 @@ interface Props {
   ayuda: string;
   children: ReactNode;
   etiqueta?: ReactNode;
+  /** Motivo decorativo; por defecto se elige según la sección de ayuda. */
+  motivo?: Motivo;
 }
 
-export function Seccion({ titulo, ayuda, children, etiqueta }: Props) {
+export function Seccion({ titulo, ayuda, children, etiqueta, motivo }: Props) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+    <section className="tarjeta-cristal relative overflow-hidden p-5 sm:p-6">
+      <DibujoMotivo
+        motivo={motivo ?? motivoDeSeccion(ayuda)}
+        className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-oro-500 opacity-[0.13] sm:h-52 sm:w-52"
+      />
+      <div className="relative mb-4 flex flex-wrap items-center gap-3">
         <h2 className="text-xl font-semibold text-slate-900">{titulo}</h2>
         {etiqueta}
         <AyudaContextual seccion={ayuda} />
       </div>
-      {children}
+      <div className="relative">{children}</div>
     </section>
   );
 }

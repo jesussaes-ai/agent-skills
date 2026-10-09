@@ -16,7 +16,7 @@ export default function CentroDeAyuda() {
         </p>
       </div>
 
-      <nav aria-label="Secciones de ayuda" className="rounded-2xl bg-white p-4 shadow-sm">
+      <nav aria-label="Secciones de ayuda" className="tarjeta-cristal p-4">
         <ul className="flex flex-wrap gap-x-2 gap-y-1">
           {SECCIONES_AYUDA.map((s) => (
             <li key={s.id}>
@@ -31,7 +31,7 @@ export default function CentroDeAyuda() {
       <AsistenteAyuda />
 
       {SECCIONES_AYUDA.map((s) => (
-        <article key={s.id} id={s.id} className="scroll-mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <article key={s.id} id={s.id} className="tarjeta-cristal scroll-mt-6 p-5 sm:p-6">
           <div className="mb-3 flex flex-wrap items-center gap-3">
             <h2 className="text-xl font-semibold text-slate-900">{s.titulo}</h2>
             <Etiqueta tono={s.estado === "pendiente" ? "gris" : s.estado === "demo" ? "ambar" : "violeta"}>
