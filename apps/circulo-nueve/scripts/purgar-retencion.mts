@@ -1,7 +1,9 @@
 /**
- * Borra los documentos cuya fecha de retención ya pasó: primero el archivo del
- * almacenamiento privado y después su registro. Pensado para ejecutarse a diario
- * (cron del hosting o tarea programada) con la llave de servicio.
+ * Borra los documentos cuya fecha de retención ya pasó (primero el archivo del
+ * almacenamiento privado y después su registro) y, según los plazos de
+ * /admin/ajustes, los enlaces compartidos vencidos o revocados, la auditoría
+ * antigua y los contadores de límites de frecuencia. Pensado para ejecutarse a
+ * diario (tarea programada) con la llave de servicio.
  *
  *   npm run retencion:purgar            # borra
  *   npm run retencion:purgar -- --simular   # solo lista lo que borraría
@@ -42,5 +44,16 @@ for (let ronda = 0; ronda < 100; ronda++) {
   borrados += ids.length;
 }
 
+let registros: Record<string, number> = {};
+if (!simular) {
+  const { data, error } = await admin.rpc("purgar_registros_vencidos");
+  if (error) {
+    process.stderr.write(`Error al purgar registros: ${error.message}\n`);
+    process.exit(1);
+  }
+  registros = (data ?? {}) as Record<string, number>;
+}
+
 process.stderr.write(`${simular ? "Se borrarían" : "Documentos purgados"}: ${borrados}\n`);
-process.stdout.write(`${JSON.stringify({ ok: true, simulado: simular, documentos: borrados })}\n`);
+if (!simular) process.stderr.write(`Enlaces: ${registros.enlaces ?? 0} · auditoría: ${registros.auditoria ?? 0} · límites: ${registros.limites ?? 0}\n`);
+process.stdout.write(`${JSON.stringify({ ok: true, simulado: simular, documentos: borrados, ...registros })}\n`);

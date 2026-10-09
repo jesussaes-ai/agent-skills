@@ -14,8 +14,14 @@ export default async function PaginaAjustes() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-slate-900">Ajustes</h1>
-      <Seccion titulo="Retención y descargas" ayuda="ajustes">
-        <FormularioAjustes retencionDias={ajustes.retencionDias} vigenciaSegundos={ajustes.vigenciaSegundos} />
+      <Seccion titulo="Retención, descargas y enlaces" ayuda="ajustes">
+        <FormularioAjustes
+          retencionDias={ajustes.retencionDias}
+          vigenciaSegundos={ajustes.vigenciaSegundos}
+          enlaceVigenciaMaxDias={ajustes.enlaceVigenciaMaxDias}
+          retencionEnlacesDias={ajustes.retencionEnlacesDias}
+          retencionAuditoriaDias={ajustes.retencionAuditoriaDias}
+        />
       </Seccion>
       <Seccion titulo="Aviso de privacidad de los PDF" ayuda="ajustes">
         <FormularioAviso

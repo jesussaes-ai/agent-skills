@@ -238,12 +238,18 @@ async function datosAdministracion(id: string): Promise<NonNullable<DetalleExped
 export async function leerAjustes() {
   const supabase = await clienteSupabaseServidor();
   const [{ data: ajustes }, { data: aviso }] = await Promise.all([
-    supabase.from("app_settings").select("retencion_documentos_dias, vigencia_url_firmada_segundos").single(),
+    supabase
+      .from("app_settings")
+      .select("retencion_documentos_dias, vigencia_url_firmada_segundos, enlace_vigencia_max_dias, retencion_enlaces_dias, retencion_auditoria_dias")
+      .single(),
     supabase.from("privacy_notice_settings").select("responsable, finalidades, datos_tratados, conservacion, derechos, contacto").single(),
   ]);
   return {
     retencionDias: ajustes?.retencion_documentos_dias ?? 365,
     vigenciaSegundos: ajustes?.vigencia_url_firmada_segundos ?? 60,
+    enlaceVigenciaMaxDias: ajustes?.enlace_vigencia_max_dias ?? 7,
+    retencionEnlacesDias: ajustes?.retencion_enlaces_dias ?? 90,
+    retencionAuditoriaDias: ajustes?.retencion_auditoria_dias ?? 730,
     aviso: aviso ?? {},
   };
 }

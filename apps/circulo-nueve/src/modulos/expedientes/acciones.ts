@@ -9,6 +9,7 @@ import { esAdmin, obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
 import { generarReportePdf, reporteDeCartaNatal, reporteDeNumerologia } from "@/reportes";
+import { consumirLimite, mensajeEspera } from "@/modulos/seguridad/limite-frecuencia";
 import { borrarArchivosDeExpediente } from "./consultas";
 import {
   CONSENTIMIENTOS,
@@ -225,6 +226,8 @@ export async function accionGenerarPdf(_: EstadoFormulario, form: FormData): Pro
   const datos = esquemaIdLectura.safeParse(formularioAObjeto(form));
   if (!datos.success) return ERROR_GENERICO;
   const { expedienteId, lecturaId } = datos.data;
+  const limite = await consumirLimite("generarPdf", sesion.usuarioId);
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos) };
   const supabase = await clienteSupabaseServidor();
 
   const [{ data: puedeLeer }, { data: puedeModificar }] = await Promise.all([
@@ -368,12 +371,18 @@ export async function accionGuardarAjustes(_: EstadoFormulario, form: FormData):
   const supabase = await clienteSupabaseServidor();
   const { data, error } = await supabase
     .from("app_settings")
-    .update({ retencion_documentos_dias: datos.data.retencionDias, vigencia_url_firmada_segundos: datos.data.vigenciaSegundos })
+    .update({
+      retencion_documentos_dias: datos.data.retencionDias,
+      vigencia_url_firmada_segundos: datos.data.vigenciaSegundos,
+      enlace_vigencia_max_dias: datos.data.enlaceVigenciaMaxDias,
+      retencion_enlaces_dias: datos.data.retencionEnlacesDias,
+      retencion_auditoria_dias: datos.data.retencionAuditoriaDias,
+    })
     .eq("id", true)
     .select("id");
   if (error || !data?.length) return error ? mensajeDeError(error) : SIN_PERMISO;
   revalidatePath("/admin/ajustes");
-  return { ok: true, mensaje: "Ajustes guardados. La retención nueva se aplica a los documentos que se generen desde ahora." };
+  return { ok: true, mensaje: "Ajustes guardados. La retención de documentos nueva se aplica a los que se generen desde ahora; la de enlaces y auditoría, en la próxima purga." };
 }
 
 export async function accionGuardarAviso(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {

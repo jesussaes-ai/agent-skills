@@ -103,6 +103,9 @@ export const esquemaRetirarPermiso = z.object({ expedienteId: uuid, usuarioId: u
 export const esquemaAjustes = z.object({
   retencionDias: z.coerce.number().int().min(1, "Mínimo 1 día.").max(3650, "Máximo 3650 días."),
   vigenciaSegundos: z.coerce.number().int().min(10, "Mínimo 10 segundos.").max(600, "Máximo 600 segundos."),
+  enlaceVigenciaMaxDias: z.coerce.number().int().min(1, "Mínimo 1 día.").max(30, "Máximo 30 días."),
+  retencionEnlacesDias: z.coerce.number().int().min(1, "Mínimo 1 día.").max(3650, "Máximo 3650 días."),
+  retencionAuditoriaDias: z.coerce.number().int().min(365, "Mínimo 365 días.").max(3650, "Máximo 3650 días."),
 });
 
 export const esquemaAviso = z.object({

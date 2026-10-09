@@ -4,7 +4,15 @@ import { useActionState } from "react";
 import { accionGuardarAjustes, accionGuardarAviso } from "@/modulos/expedientes/acciones";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
 
-export function FormularioAjustes({ retencionDias, vigenciaSegundos }: { retencionDias: number; vigenciaSegundos: number }) {
+interface PropsAjustes {
+  retencionDias: number;
+  vigenciaSegundos: number;
+  enlaceVigenciaMaxDias: number;
+  retencionEnlacesDias: number;
+  retencionAuditoriaDias: number;
+}
+
+export function FormularioAjustes({ retencionDias, vigenciaSegundos, enlaceVigenciaMaxDias, retencionEnlacesDias, retencionAuditoriaDias }: PropsAjustes) {
   const [estado, accion] = useActionState(accionGuardarAjustes, ESTADO_INICIAL);
   return (
     <form action={accion} className="grid gap-4 sm:grid-cols-2" noValidate>
@@ -28,9 +36,39 @@ export function FormularioAjustes({ retencionDias, vigenciaSegundos }: { retenci
         error={estado.errores?.vigenciaSegundos}
         nota="Cada descarga crea un enlace temporal que caduca en este tiempo."
       />
+      <Campo
+        etiqueta="Vigencia máxima de los enlaces para compartir (días)"
+        name="enlaceVigenciaMaxDias"
+        type="number"
+        min={1}
+        max={30}
+        defaultValue={String(enlaceVigenciaMaxDias)}
+        error={estado.errores?.enlaceVigenciaMaxDias}
+        nota="Nadie puede crear un enlace que dure más. La base de datos también lo exige."
+      />
+      <Campo
+        etiqueta="Conservar el registro de enlaces vencidos o revocados (días)"
+        name="retencionEnlacesDias"
+        type="number"
+        min={1}
+        max={3650}
+        defaultValue={String(retencionEnlacesDias)}
+        error={estado.errores?.retencionEnlacesDias}
+        nota="Pasado este plazo, la purga borra el enlace; su historial queda en la auditoría."
+      />
+      <Campo
+        etiqueta="Conservar la auditoría (días)"
+        name="retencionAuditoriaDias"
+        type="number"
+        min={365}
+        max={3650}
+        defaultValue={String(retencionAuditoriaDias)}
+        error={estado.errores?.retencionAuditoriaDias}
+        nota="Mínimo un año. La purga borra solo los registros más antiguos que este plazo."
+      />
       <div className="space-y-3 sm:col-span-2">
         <MensajeFormulario estado={estado} />
-        <BotonEnviar descripcion="Guarda la retención y la vigencia de los enlaces. La retención nueva aplica a los documentos que se generen desde ahora.">
+        <BotonEnviar descripcion="Guarda la retención de documentos, enlaces y auditoría y la vigencia de los enlaces. La retención de documentos nueva aplica a los que se generen desde ahora.">
           Guardar ajustes
         </BotonEnviar>
       </div>

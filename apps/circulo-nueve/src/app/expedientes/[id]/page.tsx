@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { exigirSesion } from "@/modulos/auth/sesion";
-import { obtenerExpediente } from "@/modulos/expedientes/consultas";
+import { listarEnlaces } from "@/modulos/compartir/consultas";
+import { leerAjustes, obtenerExpediente } from "@/modulos/expedientes/consultas";
 import {
   NOMBRE_PERMISO,
   PERMISOS_EXPEDIENTE,
 } from "@/modulos/expedientes/esquemas";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
+import { EnlacesCompartidos } from "@/ui/expedientes/Compartir";
 import { ListaDocumentos } from "@/ui/expedientes/Documentos";
 import {
   FormularioBorrarExpediente,
@@ -47,6 +49,9 @@ export default async function PaginaExpediente({
     administracion,
   } = detalle;
   const puedeModificar = permisos.modificar;
+  const [enlaces, ajustes] = permisos.compartir
+    ? await Promise.all([listarEnlaces(id), leerAjustes()])
+    : [[], null];
   const consentidoPerfil = consentimientos.guardar_perfil?.otorgado === true;
   const consentidoHistorial =
     consentimientos.guardar_historial?.otorgado === true;
@@ -180,6 +185,17 @@ export default async function PaginaExpediente({
           }
         />
       </Seccion>
+
+      {permisos.compartir && (
+        <Seccion titulo="Enlaces para compartir" ayuda="expediente-compartir">
+          <EnlacesCompartidos
+            id={id}
+            documentos={documentos}
+            enlaces={enlaces}
+            maxDias={ajustes?.enlaceVigenciaMaxDias ?? 7}
+          />
+        </Seccion>
+      )}
 
       {administracion && (
         <Seccion titulo="Permisos del expediente" ayuda="expediente-permisos">
