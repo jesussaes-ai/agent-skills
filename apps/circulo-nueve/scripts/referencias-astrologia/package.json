@@ -1,0 +1,12 @@
+{
+  "name": "circulo-nueve-referencias-astrologia",
+  "private": true,
+  "description": "Herramienta de desarrollo, no se distribuye con la app: genera casos de referencia con Swiss Ephemeris (sweph, AGPL-3.0) y Python zoneinfo.",
+  "type": "module",
+  "scripts": {
+    "generar": "node generar.mjs"
+  },
+  "dependencies": {
+    "sweph": "2.10.3-8"
+  }
+}

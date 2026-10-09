@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* Paleta de marca. Contraste (WCAG): blanco sobre marino-800 ≈ 16:1;
+   marino-800 sobre blanco ≈ 16:1; oro-800 sobre oro-100 ≈ 7:1.
+   El dorado de marca (oro-400) es decorativo: no se usa para texto sobre blanco. */
+@theme {
+  --color-marino-50: #f2f4f8;
+  --color-marino-100: #e1e6ef;
+  --color-marino-200: #c3cddf;
+  --color-marino-300: #9aa9c6;
+  --color-marino-600: #22345a;
+  --color-marino-700: #17264a;
+  --color-marino-800: #0f1b33;
+  --color-marino-900: #0a1324;
+  --color-oro-50: #fbf6e9;
+  --color-oro-100: #f5e9c8;
+  --color-oro-300: #e2c27a;
+  --color-oro-400: #d4a94f;
+  --color-oro-500: #b98d33;
+  --color-oro-700: #7a5a12;
+  --color-oro-800: #5e450d;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f7f5ef;
+  background-image:
+    radial-gradient(60rem 40rem at -10% -10%, rgb(212 169 79 / 0.16), transparent 60%),
+    radial-gradient(50rem 36rem at 110% 20%, rgb(15 27 51 / 0.07), transparent 65%),
+    radial-gradient(40rem 30rem at 50% 120%, rgb(212 169 79 / 0.12), transparent 60%);
+  background-attachment: fixed;
+  color: #0f172a;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Tarjetas translúcidas. El blanco al 82 % mantiene el contraste AA del texto
+   aunque detrás haya motivos decorativos. */
+.tarjeta-cristal {
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.7);
+  background: rgb(255 255 255 / 0.82);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.8) inset,
+    0 0 0 1px rgb(212 169 79 / 0.18),
+    0 10px 30px -12px rgb(15 27 51 / 0.18);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+@keyframes giro-lento {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.giro-lento {
+  animation: giro-lento 240s linear infinite;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+  }
+  .giro-lento {
+    animation: none;
+  }
+}

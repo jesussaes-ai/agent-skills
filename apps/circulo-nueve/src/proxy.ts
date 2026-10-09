@@ -1,0 +1,50 @@
+import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
+import { NextResponse, type NextRequest } from "next/server";
+import { leerConfigSupabase, origenPublico } from "@/modulos/auth/config";
+
+const PROTEGIDAS = ["/cuenta", "/admin", "/expedientes", "/biblioteca"];
+
+async function altaCompletada(url: string): Promise<boolean> {
+  const llave = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!llave) return false;
+  const admin = createClient(url, llave, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data } = await admin.from("app_setup").select("completed_at").single();
+  return Boolean(data?.completed_at);
+}
+
+/** Refresca la sesión de Supabase en cada petición y cierra /setup tras el alta. */
+export async function proxy(request: NextRequest) {
+  const config = leerConfigSupabase();
+  if (!config.configurado) return NextResponse.next({ request });
+
+  const { pathname } = request.nextUrl;
+  if (pathname === "/setup" && (await altaCompletada(config.url))) {
+    return new NextResponse("El alta inicial ya se completó. Esta página ya no está disponible.", {
+      status: 410,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+    });
+  }
+
+  let respuesta = NextResponse.next({ request });
+  const supabase = createServerClient(config.url, config.clavePublica, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll: (porGuardar) => {
+        for (const { name, value } of porGuardar) request.cookies.set(name, value);
+        respuesta = NextResponse.next({ request });
+        for (const { name, value, options } of porGuardar) respuesta.cookies.set(name, value, options);
+      },
+    },
+  });
+  const { data } = await supabase.auth.getUser();
+
+  if (!data.user && PROTEGIDAS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.redirect(new URL(`/entrar?next=${encodeURIComponent(pathname)}`, origenPublico(request.headers)));
+  }
+  return respuesta;
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|manifest.webmanifest|iconos/|datos/).*)"],
+};

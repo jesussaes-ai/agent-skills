@@ -1,0 +1,1147 @@
+{
+  "version": "2026-10-09.1",
+  "secciones": [
+    {
+      "id": "proyecto",
+      "titulo": "Sobre Círculo Nueve",
+      "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado. La etapa 5 añade la biblioteca de fuentes: centro de carga, ingesta web, revisión, búsqueda híbrida y bot con citas. Las etapas 9 y 10 añaden enlaces para compartir PDF que vencen y se revocan, retención configurable de enlaces y auditoría, límites de frecuencia, revisión de accesibilidad (WCAG 2.2 AA) y una lista de seguridad. La cábala sigue pendiente de los libros de referencia.",
+      "datosQueUsa": [
+        "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
+        "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
+      ],
+      "comoSeUsa": [
+        "Recorre el flujo de la página de inicio: bienvenida, consentimiento, perfil y resultados.",
+        "Usa el botón «?» de cada sección para ver su ayuda, o abre el Centro de ayuda.",
+        "Consulta la línea del tiempo del proyecto (docs/LINEA-DEL-TIEMPO.md) para ver hitos y pendientes."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "etapa",
+        "etapas",
+        "proyecto",
+        "base de datos",
+        "supabase",
+        "pendiente",
+        "pendientes",
+        "falta",
+        "versión",
+        "qué es",
+        "objetivo",
+        "hitos",
+        "cronología",
+        "línea del tiempo"
+      ]
+    },
+    {
+      "id": "bienvenida",
+      "titulo": "Te damos la bienvenida",
+      "resumen": "Presentación breve de la aplicación y de sus límites.",
+      "deQueTrata": "Explica en pocas líneas qué puedes hacer en la aplicación y aclara que las lecturas son interpretaciones simbólicas, no consejos médicos, psicológicos, legales ni financieros.",
+      "datosQueUsa": [
+        "Ninguno."
+      ],
+      "comoSeUsa": [
+        "Lee el texto y pulsa «Comenzar» para ir al consentimiento."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "aviso",
+        "bienvenida",
+        "bienvenidos",
+        "comenzar",
+        "empezar",
+        "inicio",
+        "límites",
+        "presentación"
+      ]
+    },
+    {
+      "id": "consentimiento",
+      "titulo": "Aviso de privacidad y consentimiento",
+      "resumen": "Decides por separado qué permites hacer con tus datos.",
+      "deQueTrata": "Cada permiso se pide por separado: usar lo que escribes en la conversación, guardar el perfil, guardar el historial y enviar datos a un servicio externo. En la etapa 1 solo está disponible el uso en la sesión actual; los demás permisos aparecen desactivados porque todavía no existe almacenamiento ni proveedores externos. El texto del aviso de privacidad lo completará la persona responsable; mientras tanto se muestra como pendiente y no se inventa.",
+      "datosQueUsa": [
+        "Tus elecciones de consentimiento, solo en la memoria de la pestaña."
+      ],
+      "comoSeUsa": [
+        "Marca que leíste el aviso para continuar.",
+        "Activa o deja desactivado el uso de tus datos en esta sesión.",
+        "Puedes volver y cambiar tus elecciones en cualquier momento."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "privacidad",
+        "consentimiento",
+        "permiso",
+        "permisos",
+        "datos personales",
+        "guardar",
+        "borrar",
+        "aviso",
+        "externo",
+        "proveedor"
+      ]
+    },
+    {
+      "id": "perfil",
+      "titulo": "Perfil de nacimiento",
+      "resumen": "Formulario opcional con los datos que usan los cálculos.",
+      "deQueTrata": "Pide solo lo que hace falta: nombre completo de nacimiento, nombre preferido (opcional), fecha, hora local con su precisión (exacta, aproximada o desconocida), lugar y zona horaria si la conoces. Nada se completa ni se adivina: si falta un dato, el cálculo que lo necesita no se hace y se explica por qué. También eliges las reglas de numerología (números maestros, tratamiento de la Y y la ñ, métodos).",
+      "datosQueUsa": [
+        "Nombre de nacimiento: expresión, alma y personalidad.",
+        "Fecha de nacimiento: camino de vida.",
+        "Hora, lugar y zona horaria: se capturan para la carta natal, que todavía está pendiente."
+      ],
+      "comoSeUsa": [
+        "Escribe los datos o pulsa «Cargar persona ficticia» para probar con datos de demostración.",
+        "En «Zona horaria», escribe una ciudad, un país o un desfase (por ejemplo «Mérida», «Madrid» o «-06») para buscar entre todas las zonas del mundo, agrupadas por región y con México primero; cada una muestra su desfase UTC de hoy. Usa las flechas y Enter, o el ratón. «Automática» toma la zona del lugar elegido en la carta natal.",
+        "Revisa las reglas de cálculo y pulsa «Calcular»."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "demo",
+        "desfase",
+        "fecha",
+        "ficticia",
+        "formulario",
+        "hora",
+        "huso horario",
+        "iana",
+        "lugar",
+        "nacimiento",
+        "nombre",
+        "reglas",
+        "utc",
+        "zona horaria"
+      ]
+    },
+    {
+      "id": "resultados",
+      "titulo": "Panel de resultados",
+      "resumen": "Resultados separados por sistema: numerología, carta natal y cábala.",
+      "deQueTrata": "Cada sistema tiene su propia sección para no mezclar tradiciones. Los datos calculados se muestran aparte de cualquier interpretación. En la etapa 1 solo la numerología está calculada; la carta natal y la cábala aparecen como pendientes.",
+      "datosQueUsa": [
+        "Los datos del perfil de esta sesión."
+      ],
+      "comoSeUsa": [
+        "Abre «Ver pasos» en cada indicador para revisar las operaciones.",
+        "Pulsa «Editar perfil» para corregir datos o «Borrar datos de la sesión» para empezar de cero."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "resultados",
+        "panel",
+        "lectura",
+        "secciones",
+        "borrar",
+        "editar"
+      ]
+    },
+    {
+      "id": "numerologia",
+      "titulo": "Numerología pitagórica",
+      "resumen": "Cálculo reproducible con pasos visibles y reglas configurables.",
+      "deQueTrata": "Usa la tabla pitagórica (A=1 … I=9, J=1 … R=9, S=1 … Z=8). Calcula camino de vida (fecha), expresión (todas las letras), alma (vocales) y personalidad (consonantes). Los acentos y diéresis se quitan; la ñ cuenta como N salvo que elijas rechazarla; espacios y guiones separan palabras; apóstrofos y puntos se ignoran; los caracteres no latinos, dígitos y símbolos se rechazan con un aviso. Los números maestros 11, 22 y 33 se conservan si la opción está activa. Cada resultado indica el motor, la versión y las reglas usadas.",
+      "datosQueUsa": [
+        "Nombre completo de nacimiento.",
+        "Fecha de nacimiento."
+      ],
+      "comoSeUsa": [
+        "Calcula desde el perfil.",
+        "Cambia las reglas (maestros, Y, ñ, métodos) y vuelve a calcular para comparar.",
+        "Consulta docs/numerologia-reglas.md para las reglas completas y los casos de referencia."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "numerología",
+        "pitagórica",
+        "camino de vida",
+        "expresión",
+        "destino",
+        "alma",
+        "vocales",
+        "personalidad",
+        "consonantes",
+        "maestro",
+        "maestros",
+        "11",
+        "22",
+        "33",
+        "acentos",
+        "ñ",
+        "y",
+        "guion",
+        "apóstrofo",
+        "reducción",
+        "pasos",
+        "tabla"
+      ]
+    },
+    {
+      "id": "carta-natal",
+      "titulo": "Carta natal",
+      "resumen": "Posiciones de planetas, casas y aspectos calculadas con efemérides identificables y la zona horaria histórica.",
+      "deQueTrata": "Calcula la posición del Sol, la Luna, los planetas hasta Plutón y el nodo lunar en el zodiaco, el Ascendente, el Medio Cielo, las doce casas y los aspectos entre ellos. Usa la librería astronomy-engine (licencia MIT) y se comprobó contra Swiss Ephemeris en casos de referencia (diferencia máxima medida: 18″). La hora local se convierte a tiempo universal con la base de zonas horarias IANA, incluidos los cambios históricos de México. Cada valor se muestra con la precisión que permiten los datos: al minuto, al grado o como rango. Solo son datos calculados; las interpretaciones llegarán con los libros de la persona propietaria y con citas.",
+      "datosQueUsa": [
+        "Fecha de nacimiento (obligatoria).",
+        "Hora local y su precisión: exacta (±1 min), aproximada (margen configurable) o desconocida.",
+        "Lugar de nacimiento: coordenadas y zona horaria del catálogo GeoNames o escritas a mano.",
+        "Zona horaria del perfil, si la indicaste: tiene prioridad sobre la del lugar y se avisa si no coinciden."
+      ],
+      "comoSeUsa": [
+        "Elige el lugar en «Lugar y zona horaria»: busca la ciudad o escribe las coordenadas.",
+        "Revisa qué zona horaria y qué desfase se usaron en el resumen sobre la rueda.",
+        "Si la hora es desconocida, la carta sale sin casas, Ascendente ni Medio Cielo, y la Luna se muestra con el rango de todo el día.",
+        "Lee los avisos: indican qué datos podrían cambiar de signo o de casa dentro de los márgenes.",
+        "Abre «Ver datos del cálculo» para ver el motor, el tiempo universal, el día juliano y cada paso."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "carta natal",
+        "astrología",
+        "signo",
+        "ascendente",
+        "medio cielo",
+        "casas",
+        "planetas",
+        "efemérides",
+        "hora",
+        "zodiaco",
+        "aspectos",
+        "retrógrado",
+        "rueda"
+      ]
+    },
+    {
+      "id": "carta-natal-lugar",
+      "titulo": "Lugar y zona horaria de la carta",
+      "resumen": "De dónde salen las coordenadas y cómo se convierte la hora local a tiempo universal.",
+      "deQueTrata": "Las coordenadas y la zona horaria salen del catálogo GeoNames (licencia CC BY 4.0): ciudades del mundo con 15 000 habitantes o más y de México con 1 000 o más. La búsqueda se hace en tu navegador; lo que escribes no se envía a ningún servicio. Como una ciudad se representa con un solo punto, se asume una incertidumbre de ±0,03° a ±0,15° según su tamaño, y esa incertidumbre se refleja en el Ascendente y las casas. La hora local se convierte con la base IANA de zonas horarias del navegador, que incluye los horarios de verano y los cambios oficiales históricos. Si la hora se repitió (fin del horario de verano) se pide elegir; si no existió (inicio), se explica y no se corrige sola.",
+      "datosQueUsa": [
+        "Nombre de la ciudad y, opcionalmente, región o país tras una coma.",
+        "O bien latitud, longitud y zona IANA escritas a mano."
+      ],
+      "comoSeUsa": [
+        "Escribe la ciudad (por ejemplo «Guadalajara, Jalisco») y pulsa «Buscar lugar».",
+        "Elige el resultado correcto: verás coordenadas, zona horaria y el enlace a la ficha de GeoNames.",
+        "Si el lugar no aparece, usa «Escribir coordenadas a mano»; la zona horaria es obligatoria porque no se adivina.",
+        "Para fechas anteriores a 1970, compara el desfase mostrado con una fuente local si la tienes.",
+        "Si escribes las coordenadas a mano, elige la zona en el buscador de zonas horarias: no se adivina."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "GeoNames",
+        "IANA",
+        "UTC",
+        "ciudad",
+        "coordenadas",
+        "desfase",
+        "horario de verano",
+        "huso horario",
+        "iana",
+        "latitud",
+        "longitud",
+        "lugar",
+        "tzdb",
+        "utc",
+        "zona horaria"
+      ]
+    },
+    {
+      "id": "carta-natal-ajustes",
+      "titulo": "Ajustes de la carta natal",
+      "resumen": "Zodiaco, ayanamsa, sistema de casas, nodo lunar y orbes de los aspectos.",
+      "deQueTrata": "Por defecto se usa el zodiaco tropical, casas Placidus, nodo verdadero y los aspectos mayores con orbes de 8° (conjunción y oposición), 7° (trígono y cuadratura) y 5° (sextil). El zodiaco sideral resta una ayanamsa (Lahiri, Fagan-Bradley, Raman o Krishnamurti) con los valores de Swiss Ephemeris. Placidus, Koch, Regiomontano y Campano no se usan dentro de los círculos polares (más allá de unos 66,5° de latitud) y se sustituyen por el sistema de respaldo que elijas, con aviso. Un aspecto se marca como «incierto» si, dentro de los márgenes de hora o lugar, podría quedar fuera del orbe.",
+      "datosQueUsa": [
+        "Solo tus elecciones de cálculo; no usa datos personales adicionales."
+      ],
+      "comoSeUsa": [
+        "Abre «Ajustes de cálculo» bajo el lugar.",
+        "Cambia el zodiaco, el sistema de casas o los orbes; la carta se recalcula al instante.",
+        "Activa los aspectos menores si tu tradición los usa.",
+        "Pulsa «Restablecer ajustes» para volver a los valores por defecto."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "tropical",
+        "sideral",
+        "ayanamsa",
+        "Lahiri",
+        "Placidus",
+        "Koch",
+        "Regiomontano",
+        "Campano",
+        "Porfirio",
+        "signos enteros",
+        "orbe",
+        "aspectos",
+        "nodo"
+      ]
+    },
+    {
+      "id": "cabala",
+      "titulo": "Cábala (pendiente)",
+      "resumen": "Se implementará cuando se confirme la tradición y la tabla.",
+      "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte la persona propietaria. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
+      "datosQueUsa": [
+        "Ninguno todavía."
+      ],
+      "comoSeUsa": [
+        "Todavía no está disponible."
+      ],
+      "estado": "pendiente",
+      "palabrasClave": [
+        "cábala",
+        "kabbalah",
+        "gematría",
+        "hebreo",
+        "transliteración",
+        "tradición"
+      ]
+    },
+    {
+      "id": "acceso",
+      "titulo": "Entrar y recuperar la contraseña",
+      "resumen": "Inicio de sesión con el usuario y la contraseña que te da la administración.",
+      "deQueTrata": "No hay registro público ni se usa correo: la administración crea cada cuenta con un nombre de usuario y una contraseña inicial que te entrega en persona o por un canal privado. Se entra con usuario y contraseña; si activaste la verificación en dos pasos, después se pide el código de 6 dígitos. Si la administración lo indicó, la primera vez tendrás que elegir tu propia contraseña antes de seguir. Si olvidas la contraseña, pide a la administración que la restablezca. Por seguridad, el mensaje de error es el mismo si el usuario no existe o la contraseña es incorrecta, y hay un límite de intentos.",
+      "datosQueUsa": [
+        "Tu usuario y tu contraseña, que se comprueban en el servidor de autenticación.",
+        "Una cookie de sesión segura en este navegador."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Entrar» en la barra superior y escribe tu usuario y tu contraseña.",
+        "El botón del ojo junto a cada contraseña la muestra u oculta para comprobar lo que escribiste. Úsalo solo si nadie está mirando tu pantalla.",
+        "Si te lo pide, elige una contraseña nueva distinta de la provisional.",
+        "Si olvidaste la contraseña, pide a la administración que la restablezca.",
+        "Pulsa «Salir» para cerrar la sesión."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "cerrar sesión",
+        "contraseña",
+        "cuenta",
+        "entrar",
+        "iniciar sesión",
+        "login",
+        "mostrar contraseña",
+        "nombre de usuario",
+        "ocultar contraseña",
+        "ojito",
+        "ojo",
+        "olvidé",
+        "primera vez",
+        "provisional",
+        "recuperar",
+        "restablecer",
+        "salir",
+        "usuario"
+      ]
+    },
+    {
+      "id": "alta-inicial",
+      "titulo": "Alta inicial de la administración",
+      "resumen": "Puesta en marcha única con una clave de configuración.",
+      "deQueTrata": "La primera vez, la página /setup crea la cuenta de administración: eliges un usuario y una contraseña. La clave de alta solo se compara en el servidor contra un hash argon2id guardado como secreto; nunca se guarda en texto plano ni llega al navegador. Funciona una sola vez: cuando ya existe la administración, /setup responde 410 (ya no disponible). Mientras no se use, la clave se puede rotar cambiando el hash. No hace falta configurar correo.",
+      "datosQueUsa": [
+        "La clave de alta (solo para compararla).",
+        "Usuario y contraseña de la cuenta de administración."
+      ],
+      "comoSeUsa": [
+        "La persona responsable del proyecto genera el hash con «npm run setup:hash» y lo carga como secreto ADMIN_SETUP_KEY_HASH.",
+        "Abre /setup, escribe la clave, tu usuario y tu contraseña.",
+        "Después, en «Mi cuenta», activa la verificación en dos pasos (recomendado) y crea las cuentas de tu equipo en «Usuarios»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "admin",
+        "administrador",
+        "administradora",
+        "alta",
+        "argon2",
+        "clave de alta",
+        "hash",
+        "primera vez",
+        "puesta en marcha",
+        "rotación",
+        "rotar",
+        "setup",
+        "usuario"
+      ]
+    },
+    {
+      "id": "verificacion-dos-pasos",
+      "titulo": "Verificación en dos pasos",
+      "resumen": "Un código de tu aplicación de autenticación además de la contraseña. Opcional y recomendada.",
+      "deQueTrata": "La verificación en dos pasos (TOTP) añade un código de 6 dígitos que cambia cada 30 segundos. Es opcional para todas las cuentas y muy recomendable para la administración. Una vez activada, se exige siempre: la base de datos no concede acceso a una sesión que no haya pasado el código, aunque la contraseña sea correcta. Para desactivarla tienes que haber entrado con el código. Si pierdes el teléfono, la administración (o, para la propia administración, la recuperación de emergencia) puede quitarla.",
+      "datosQueUsa": [
+        "Una clave secreta compartida con tu aplicación de autenticación (se muestra solo al configurarla)."
+      ],
+      "comoSeUsa": [
+        "En «Mi cuenta», pulsa «Activar verificación en dos pasos» y después «Configurar verificación en dos pasos».",
+        "Escanea el código QR o escribe la clave secreta en tu aplicación.",
+        "Escribe el código de 6 dígitos para activarla. Al entrar, se te pedirá cada vez.",
+        "Para quitarla, pulsa «Desactivar verificación en dos pasos» en «Mi cuenta»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "mfa",
+        "2fa",
+        "dos pasos",
+        "doble factor",
+        "totp",
+        "autenticador",
+        "código",
+        "qr",
+        "verificación",
+        "activar",
+        "desactivar",
+        "opcional"
+      ]
+    },
+    {
+      "id": "cuenta",
+      "titulo": "Mi cuenta",
+      "resumen": "Tus datos de acceso, tipo de cuenta y seguridad.",
+      "deQueTrata": "Muestra tu nombre, tu usuario, el estado de la cuenta, tu tipo de cuenta y si tienes la verificación en dos pasos activada. Desde aquí cambias tu contraseña y activas o desactivas la verificación en dos pasos. No puedes cambiar tu tipo de cuenta, tus permisos ni tu estado: lo decide la administración.",
+      "datosQueUsa": [
+        "Tu perfil de usuario y tus roles."
+      ],
+      "comoSeUsa": [
+        "Pulsa tu nombre en la barra superior.",
+        "Usa «Cambiar contraseña» o «Activar verificación en dos pasos»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "mi cuenta",
+        "perfil",
+        "usuario",
+        "roles",
+        "estado",
+        "cambiar contraseña",
+        "dos pasos"
+      ]
+    },
+    {
+      "id": "administracion-usuarios",
+      "titulo": "Usuarios, tipos de cuenta y permisos",
+      "resumen": "Panel donde la administración crea y controla todas las cuentas.",
+      "deQueTrata": "La administración crea cada cuenta directamente con nombre, usuario y contraseña inicial (la escribe o la genera la app y se muestra una sola vez para entregarla en persona). Puede pedir que la persona elija su propia contraseña al entrar por primera vez. Tipos de cuenta: «Administración» (control total), «Asistente» (solo lo que la administración le marque: crear y gestionar sus propios expedientes, compartirlos, ver todos en lectura o administrar la biblioteca; sus expedientes quedan separados de los de los demás) y «Cliente» (solo ve, en lectura, el expediente vinculado a su cuenta: lecturas y PDF). Desde el panel también se restablece una contraseña, se suspende, revoca o reactiva el acceso y, como alternativa, se genera un enlace de un solo uso para que alguien elija su contraseña. Nadie puede cambiar sus propios roles, permisos ni estado. Los permisos se comprueban en el servidor y en la base de datos en cada operación, y los cambios quedan en la auditoría.",
+      "datosQueUsa": [
+        "Nombre, usuario, estado, tipo de cuenta y permisos de cada cuenta."
+      ],
+      "comoSeUsa": [
+        "En «Crear una cuenta», escribe nombre y usuario, elige el tipo y, si es asistente, marca qué puede hacer; pulsa «Crear cuenta» y entrega el usuario y la contraseña.",
+        "En cada cuenta: pulsa un tipo para asignarlo o retirarlo, «Guardar permisos» para cambiar lo que puede hacer una asistente, «Restablecer contraseña» si la olvidó y «Suspender», «Revocar» o «Reactivar» para cambiar el acceso.",
+        "Para que un cliente vea su expediente, ábrelo y elige su cuenta en «Cuenta cliente vinculada»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "usuarios",
+        "crear cuenta",
+        "asistente",
+        "cliente",
+        "roles",
+        "permisos",
+        "contraseña inicial",
+        "restablecer",
+        "cambio obligatorio",
+        "suspender",
+        "revocar",
+        "reactivar",
+        "administración",
+        "panel",
+        "recuperación de emergencia",
+        "enlace",
+        "sin correo",
+        "recuperación"
+      ]
+    },
+    {
+      "id": "expedientes",
+      "titulo": "Expedientes",
+      "resumen": "Cada persona atendida tiene su expediente separado.",
+      "deQueTrata": "Un expediente reúne el perfil de nacimiento, los consentimientos, las lecturas y los documentos de una persona, separados de los de cualquier otra. La administración ve todos. Una asistente ve solo los que creó o le asignaron, y solo si la administración le dio ese permiso. Un cliente ve únicamente el suyo, en lectura (lecturas y PDF). Los permisos (ver, abrir y descargar, cargar, modificar, borrar, compartir) se comprueban en el servidor y en la base de datos en cada operación.",
+      "datosQueUsa": [
+        "Nombre del expediente y quién lo creó.",
+        "Tus permisos sobre él."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Expedientes» en la barra superior.",
+        "Crea uno con «Crear expediente» y ábrelo para completarlo.",
+        "Marca «datos ficticios» si es una demostración: se indica en los PDF."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "expediente",
+        "expedientes",
+        "cliente",
+        "clientes",
+        "persona",
+        "alta",
+        "crear",
+        "permisos"
+      ]
+    },
+    {
+      "id": "expediente-consentimientos",
+      "titulo": "Consentimientos del expediente",
+      "resumen": "Permisos de la persona, uno por uno, con su historial.",
+      "deQueTrata": "Cada consentimiento se otorga o se retira por separado: usar lo que comparte en la conversación, guardar el perfil, guardar el historial de lecturas y reportes. Los envíos a servicios externos y el entrenamiento de modelos están desactivados. La base de datos impide guardar el perfil o una lectura si el consentimiento correspondiente no está vigente; cada cambio queda registrado con su fecha.",
+      "datosQueUsa": [
+        "Tipo de consentimiento, si se otorgó y cuándo."
+      ],
+      "comoSeUsa": [
+        "Marca o desmarca cada casilla y pulsa «Guardar consentimientos».",
+        "Retirar un consentimiento impide guardar más datos de ese tipo; lo ya guardado se puede borrar desde su sección."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "consentimiento",
+        "consentimientos",
+        "permiso",
+        "retirar",
+        "revocar",
+        "guardar perfil",
+        "historial",
+        "privacidad"
+      ]
+    },
+    {
+      "id": "expediente-perfil",
+      "titulo": "Perfil de nacimiento del expediente",
+      "resumen": "Los datos de nacimiento de la persona, separados del nombre del expediente.",
+      "deQueTrata": "Guarda nombre de nacimiento, nombre preferido, fecha, hora con su precisión, lugar y zona horaria. Nada se completa ni se adivina. Requiere el consentimiento «Guardar el perfil» y permiso de modificar.",
+      "datosQueUsa": [
+        "Nombre de nacimiento y preferido, fecha, hora, precisión, lugar y zona horaria."
+      ],
+      "comoSeUsa": [
+        "Activa el consentimiento, completa los campos y pulsa «Guardar perfil».",
+        "En «Zona horaria», escribe una ciudad, un país o un desfase (por ejemplo «Mérida», «Madrid» o «-06») para buscar entre todas las zonas del mundo, agrupadas por región y con México primero; cada una muestra su desfase UTC de hoy. Usa las flechas y Enter, o el ratón. «Automática» toma la zona del lugar elegido en la carta natal."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "desfase",
+        "editar",
+        "fecha",
+        "hora",
+        "huso horario",
+        "iana",
+        "lugar",
+        "nacimiento",
+        "nombre preferido",
+        "perfil",
+        "utc",
+        "zona horaria"
+      ]
+    },
+    {
+      "id": "expediente-lecturas",
+      "titulo": "Lecturas e historial",
+      "resumen": "Calcular sin guardar (efímero) o guardar en el historial.",
+      "deQueTrata": "«Calcular sin guardar» es el modo efímero: el cálculo ocurre en tu navegador y no se guarda en ninguna parte. «Guardar lectura» vuelve a calcular en el servidor y la añade al historial con el motor, la versión y las reglas usadas, para que sea reproducible. Requiere el consentimiento «Guardar el historial». Desde cada lectura guardada puedes generar su PDF o borrarla.",
+      "datosQueUsa": [
+        "Nombre y fecha para el cálculo, y las reglas elegidas."
+      ],
+      "comoSeUsa": [
+        "Ajusta las reglas y pulsa «Calcular sin guardar» para probar.",
+        "Pulsa «Guardar lectura» para conservarla.",
+        "En el historial, «Ver pasos», «Generar PDF» o «Borrar lectura»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "lectura",
+        "lecturas",
+        "historial",
+        "efímero",
+        "efimero",
+        "sin guardar",
+        "guardar",
+        "numerología",
+        "calcular",
+        "borrar"
+      ]
+    },
+    {
+      "id": "expediente-carta-natal",
+      "titulo": "Carta natal del expediente",
+      "resumen": "Calcular la carta con los datos del perfil y guardarla en el historial, recalculada en el servidor.",
+      "deQueTrata": "Usa la fecha, la hora, su precisión y la zona horaria que constan en el perfil del expediente. Primero eliges el lugar (catálogo GeoNames o coordenadas a mano) y los ajustes; la carta se calcula al momento en tu navegador, sin guardarse. «Guardar carta natal» vuelve a calcularla en el servidor: el servidor lee el perfil de la base, busca el lugar en su propia copia del catálogo y guarda la carta en el historial con el motor, la versión de las reglas, las efemérides, la versión de la base de zonas horarias, los ajustes y una huella SHA-256 de todo ello. Requiere el consentimiento «Guardar el historial» y el permiso de modificar. Desde la carta guardada se genera su PDF.",
+      "datosQueUsa": [
+        "Fecha, hora, precisión de la hora y zona horaria que constan en el perfil del expediente.",
+        "El lugar elegido y los ajustes de cálculo (zodiaco, casas, nodo, orbes)."
+      ],
+      "comoSeUsa": [
+        "Guarda el perfil con la fecha (y la hora si la conoces).",
+        "Elige el lugar y revisa la carta y sus avisos.",
+        "Pulsa «Guardar carta natal»; aparecerá en «Historial de lecturas».",
+        "En el historial, pulsa «Ver carta completa» o «Generar PDF»."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "carta natal",
+        "expediente",
+        "guardar carta",
+        "historial",
+        "PDF",
+        "consentimiento",
+        "astrología"
+      ]
+    },
+    {
+      "id": "expediente-documentos",
+      "titulo": "Documentos y descargas",
+      "resumen": "Reportes PDF guardados de forma privada, con descarga verificada.",
+      "deQueTrata": "Los PDF se generan en el servidor y se guardan en almacenamiento privado, en una carpeta del expediente. Al pulsar «Descargar», el servidor comprueba tu permiso, registra la descarga en la auditoría y te envía a un enlace temporal que caduca en segundos. Cada documento se conserva hasta la fecha indicada (retención configurable) y después se purga. La administración puede dar acceso a un solo archivo sin abrir el resto del expediente.",
+      "datosQueUsa": [
+        "El archivo PDF, su tamaño, su huella SHA-256 y su fecha de retención."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Descargar» junto al documento.",
+        "Pulsa «Borrar» para eliminar el documento y su archivo.",
+        "Para enviarlo a otra persona sin darle una cuenta, usa «Enlaces para compartir»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "pdf",
+        "documento",
+        "documentos",
+        "descargar",
+        "descarga",
+        "reporte",
+        "enlace",
+        "firmado",
+        "retención",
+        "archivo"
+      ]
+    },
+    {
+      "id": "expediente-compartir",
+      "titulo": "Enlaces para compartir",
+      "resumen": "Enviar un PDF o los PDF del expediente con un enlace que vence y se puede revocar.",
+      "deQueTrata": "Crea un enlace para que alguien sin cuenta descargue un PDF del expediente, o todos sus PDF. Solo pueden hacerlo la administración y las asistentes con el permiso «Compartir». El enlace vence en el plazo que elijas (nunca más que la vigencia máxima de «Ajustes»), puede limitarse a cierto número de descargas y se revoca al instante con «Revocar». Se muestra una sola vez: en la base de datos solo queda una huella cifrada, así que nadie puede recuperarlo después. Cada apertura, descarga e intento con un enlace vencido o revocado queda en la auditoría. Quien lo recibe solo ve los nombres de los PDF y su fecha: nunca el perfil ni los datos del expediente.",
+      "datosQueUsa": [
+        "El PDF elegido (o la lista de PDF del expediente), la fecha de vencimiento, el máximo de descargas y una nota opcional.",
+        "Huella SHA-256 del enlace, número de descargas y fecha de la última."
+      ],
+      "comoSeUsa": [
+        "Elige qué compartir, en cuánto vence y, si quieres, un máximo de descargas.",
+        "Pulsa «Crear enlace» y después «Copiar enlace»; envíalo por un canal privado.",
+        "Pulsa «Revocar» para desactivarlo antes de que venza. No se puede deshacer: crea uno nuevo si hace falta."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "compartir",
+        "enlace",
+        "enlaces",
+        "vence",
+        "vencimiento",
+        "revocar",
+        "link",
+        "enviar pdf",
+        "descargas"
+      ]
+    },
+    {
+      "id": "compartido",
+      "titulo": "Documento compartido contigo",
+      "resumen": "Qué es la página que abres con un enlace compartido.",
+      "deQueTrata": "Alguien del equipo de Círculo Nueve te envió un enlace para descargar uno o varios reportes en PDF, sin necesidad de cuenta. La página muestra hasta cuándo está disponible y, si aplica, cuántas descargas quedan. Cada descarga usa un enlace temporal que caduca en segundos y queda registrada. Si el enlace venció, se revocó o se agotaron sus descargas, verás un aviso y tendrás que pedir uno nuevo.",
+      "datosQueUsa": [
+        "El enlace que recibiste. De tu conexión solo se registra una versión recortada de la dirección IP, sin datos personales."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Descargar PDF» junto al reporte.",
+        "No reenvíes el enlace: quien lo tenga podrá descargar el PDF mientras siga vigente."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "compartido",
+        "enlace",
+        "descargar",
+        "vencido",
+        "revocado",
+        "pdf"
+      ]
+    },
+    {
+      "id": "expediente-permisos",
+      "titulo": "Permisos por expediente y actividad",
+      "resumen": "Quién más puede ver o modificar este expediente, y qué se hizo.",
+      "deQueTrata": "La administración asigna a otras personas permisos concretos sobre un expediente, con vencimiento opcional, y puede retirarlos. También puede vincular la cuenta de la persona cliente (podrá ver y descargar su expediente). La actividad registrada muestra quién creó, modificó, descargó, exportó o compartió algo y cuándo, sin copiar datos personales.",
+      "datosQueUsa": [
+        "Personas con acceso, sus permisos y vencimientos.",
+        "Registro de auditoría del expediente."
+      ],
+      "comoSeUsa": [
+        "Elige persona, permisos y días de vigencia, y pulsa «Asignar permisos».",
+        "Pulsa «Retirar» para quitarlos."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "asignar",
+        "asignación",
+        "compartir",
+        "vencimiento",
+        "auditoría",
+        "actividad",
+        "registro",
+        "vincular cliente"
+      ]
+    },
+    {
+      "id": "expediente-exportar-borrar",
+      "titulo": "Exportar o borrar un expediente",
+      "resumen": "Llevarte tus datos o eliminarlos.",
+      "deQueTrata": "«Exportar» descarga en JSON el perfil, los consentimientos, las lecturas y la lista de documentos (los PDF se descargan aparte), y queda registrado. «Borrar expediente» elimina definitivamente todo, incluidos los archivos del almacenamiento; pide escribir BORRAR para confirmar.",
+      "datosQueUsa": [
+        "Todo lo guardado en el expediente."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Exportar expediente (JSON)».",
+        "Para borrar, escribe BORRAR y pulsa «Borrar expediente»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "exportar",
+        "exportación",
+        "json",
+        "borrar",
+        "eliminar",
+        "derecho",
+        "portabilidad"
+      ]
+    },
+    {
+      "id": "ajustes",
+      "titulo": "Ajustes de retención, enlaces y aviso de privacidad",
+      "resumen": "Cuánto tiempo se guardan documentos, enlaces y auditoría, y qué dice el aviso de los PDF.",
+      "deQueTrata": "La administración define cuántos días se conservan los documentos (los generados desde ese momento usan el valor nuevo), cuántos segundos vive cada enlace de descarga, cuántos días puede durar como máximo un enlace para compartir, cuántos días se guarda el registro de los enlaces vencidos o revocados y cuántos días se conserva la auditoría (mínimo un año). También completa el aviso de privacidad que se imprime en los PDF; los campos vacíos se muestran como pendientes, nunca se inventan. La purga diaria («npm run retencion:purgar» en la tarea programada) borra lo que ya venció y deja constancia en la auditoría.",
+      "datosQueUsa": [
+        "Días de retención de documentos, enlaces y auditoría; segundos de vigencia de las descargas; vigencia máxima de los enlaces; textos del aviso."
+      ],
+      "comoSeUsa": [
+        "Abre «Ajustes» en la barra superior (solo administración)."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "ajustes",
+        "retención",
+        "conservación",
+        "purga",
+        "vigencia",
+        "aviso de privacidad",
+        "responsable",
+        "enlaces",
+        "auditoría",
+        "compartir"
+      ]
+    },
+    {
+      "id": "biblioteca",
+      "titulo": "Biblioteca de fuentes",
+      "resumen": "Libros y páginas autorizados que respaldan las respuestas.",
+      "deQueTrata": "La biblioteca reúne las fuentes que la persona propietaria autoriza: aportadas por esa persona (el objetivo es que sean ~80 % de lo citado) y complementarias (≤20 %). Cada fuente registra título, autor, referencia, edición, idioma, tradición, licencia o permiso, quién puede consultarla y su estado: pendiente, procesando, requiere revisión, indexado, fallido o retirado. Es una base de conocimiento distinta del Centro de ayuda: el asistente de la app explica la app; el bot de la biblioteca responde sobre las fuentes.",
+      "datosQueUsa": [
+        "Metadatos y derechos de cada fuente.",
+        "Texto extraído, fragmentos con su referencia y vectores para la búsqueda."
+      ],
+      "comoSeUsa": [
+        "Abre «Biblioteca» (solo administración).",
+        "Carga un archivo o añade una página web; procesa la cola; revisa y aprueba.",
+        "Abre una fuente para editar sus metadatos, ver versiones o retirarla."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "biblioteca",
+        "fuentes",
+        "fuente",
+        "libros",
+        "aportadas",
+        "complementarias",
+        "catálogo",
+        "estado",
+        "rag",
+        "derechos",
+        "licencia"
+      ]
+    },
+    {
+      "id": "biblioteca-carga",
+      "titulo": "Centro de carga",
+      "resumen": "Subir libros y documentos de forma segura.",
+      "deQueTrata": "Acepta documentos (PDF —con sus figuras—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Hasta 25 MB a través de la app; los archivos de más de 4 MB se suben directo a Storage con un enlace firmado (hasta 50 MB). El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. Si falta un dato, el formulario conserva lo escrito.",
+      "datosQueUsa": [
+        "El archivo y los metadatos que escribes."
+      ],
+      "comoSeUsa": [
+        "Elige el archivo, completa título, referencia, grupo, licencia y quién puede consultarla.",
+        "Marca la confirmación de derechos y pulsa «Cargar a cuarentena».",
+        "Pulsa «Procesar pendientes ahora» o deja que lo haga el worker."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "cargar",
+        "subir",
+        "archivo",
+        "pdf",
+        "epub",
+        "docx",
+        "txt",
+        "markdown",
+        "imagen",
+        "ocr",
+        "cuarentena",
+        "formato",
+        "macros",
+        "límite",
+        "xlsx",
+        "csv",
+        "ods",
+        "pptx",
+        "audio",
+        "video",
+        "antivirus",
+        "clamav",
+        "grande",
+        "carga directa"
+      ]
+    },
+    {
+      "id": "biblioteca-web",
+      "titulo": "Páginas web a Markdown",
+      "resumen": "Guardar el contenido principal de una página pública.",
+      "deQueTrata": "Se descarga la página respetando robots.txt, con límite de tamaño y sin seguir redes internas; no se superan muros de pago ni inicios de sesión. Se extrae el contenido principal sin menús ni publicidad y se convierte a Markdown, conservando URL canónica, título, autor, fecha de publicación y fecha de consulta. Si falla o está restringida, se informa el motivo y se conservan solo los metadatos y el enlace. Cada actualización crea una versión nueva con las diferencias, que también se revisa.",
+      "datosQueUsa": [
+        "La dirección web y los metadatos que escribes."
+      ],
+      "comoSeUsa": [
+        "Escribe la dirección y los metadatos, confirma los derechos y pulsa «Añadir página web».",
+        "En la ficha de la fuente, «Actualizar desde la web» crea otra versión para revisar."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "web",
+        "página",
+        "url",
+        "markdown",
+        "robots",
+        "actualizar",
+        "versión",
+        "enlace",
+        "sitio"
+      ]
+    },
+    {
+      "id": "biblioteca-multimedia",
+      "titulo": "Figuras, hojas, presentaciones, audio y video",
+      "resumen": "Cómo se cita cada tipo de recurso.",
+      "deQueTrata": "Figuras de PDF: se extraen las imágenes de cada página con su leyenda (por ejemplo «Figura 1…») y el OCR de sus rótulos; la descripción es automática y se marca como generada, con su método y fecha. Sin un proveedor de visión configurado por la administración, se compone solo con la leyenda y el OCR. La imagen original es la fuente de verdad y la administración puede corregir la descripción. Hojas de cálculo: cada fragmento indica la hoja y el rango de celdas, sin partir filas. Presentaciones: texto y notas por diapositiva. Audio y video: transcripción local y gratuita (Whisper) con marcas de tiempo por minuto; puede tener errores y se revisa antes de aprobar; no se separan hablantes ni se extraen fotogramas. Límite: 60 minutos.",
+      "datosQueUsa": [
+        "El archivo original, su texto extraído o transcrito, y las imágenes de las figuras (privadas)."
+      ],
+      "comoSeUsa": [
+        "Carga el archivo en el centro de carga y procesa la cola.",
+        "En la revisión, mira las figuras y corrige su descripción si hace falta.",
+        "En el bot, «Ver figura» abre la imagen con un enlace temporal; las citas indican página, hoja y celdas, diapositiva o minuto."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "figura",
+        "figuras",
+        "diagrama",
+        "imagen",
+        "leyenda",
+        "ocr",
+        "visión",
+        "hoja",
+        "celda",
+        "excel",
+        "xlsx",
+        "csv",
+        "ods",
+        "pptx",
+        "diapositiva",
+        "presentación",
+        "audio",
+        "video",
+        "transcripción",
+        "whisper",
+        "minuto",
+        "marca de tiempo"
+      ]
+    },
+    {
+      "id": "biblioteca-revision",
+      "titulo": "Revisión, versiones y retiro",
+      "resumen": "Nada se indexa sin aprobación.",
+      "deQueTrata": "Tras procesar, cada versión queda en «Requiere revisión»: se ven el Markdown extraído, los cambios respecto a la versión anterior y los fragmentos con su referencia (página, capítulo, sección o URL). Los fragmentos con forma de instrucción para un modelo (posible prompt injection) y el OCR de baja confianza se marcan. Puedes excluir fragmentos, aprobar (se calculan los vectores y pasa a ser la versión vigente) o rechazar. Retirar una fuente borra original, Markdown, fragmentos y vectores.",
+      "datosQueUsa": [
+        "La versión extraída, sus fragmentos y su huella SHA-256."
+      ],
+      "comoSeUsa": [
+        "Abre la fuente, revisa el Markdown y los fragmentos.",
+        "Pulsa «Excluir» en lo que no deba usarse y luego «Aprobar e indexar».",
+        "Para retirar, escribe RETIRAR y confirma."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "revisión",
+        "revisar",
+        "aprobar",
+        "rechazar",
+        "excluir",
+        "fragmentos",
+        "versión",
+        "diferencias",
+        "retirar",
+        "inyección",
+        "sospechoso"
+      ]
+    },
+    {
+      "id": "biblioteca-bot",
+      "titulo": "Bot de la biblioteca",
+      "resumen": "Respuestas con citas verificables y proporción 80/20.",
+      "deQueTrata": "Busca por texto y por significado (búsqueda híbrida con embeddings multilingües locales) solo entre las fuentes que tu cuenta puede consultar. Primero busca en las aportadas; si no hay respaldo, lo dice y pide tu autorización para incluir complementarias. Sin proveedor de IA responde con citas literales; con proveedor, el texto generado se valida: cada cita debe estar entre los fragmentos recuperados y una cita textual debe aparecer literalmente, o se rebaja a paráfrasis. Lo que no tenga respaldo se marca como interpretación general. Se muestra la proporción de afirmaciones citadas que vienen de fuentes aportadas (objetivo 80 %). El contenido de las fuentes se trata siempre como dato, nunca como instrucción.",
+      "datosQueUsa": [
+        "Tu pregunta (procesada en el servidor; solo se envía a un proveedor de IA si lo autorizas)."
+      ],
+      "comoSeUsa": [
+        "Escribe la pregunta y pulsa «Preguntar a la biblioteca».",
+        "Pulsa «Ver pasaje» para ver el texto exacto que sustenta cada parte.",
+        "Si no hay respaldo en las aportadas, pulsa «Buscar también en complementarias»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "bot",
+        "preguntar",
+        "citas",
+        "cita",
+        "pasaje",
+        "80/20",
+        "proporción",
+        "aportadas",
+        "complementarias",
+        "búsqueda",
+        "embeddings",
+        "fuentes"
+      ]
+    },
+    {
+      "id": "asistente",
+      "titulo": "Asistente de la aplicación",
+      "resumen": "Responde preguntas sobre la app y el proyecto citando este centro de ayuda.",
+      "deQueTrata": "El asistente usa como base de conocimiento solo el contenido de este centro de ayuda, separado de la biblioteca de libros. Por defecto funciona en modo demo, sin inteligencia artificial: busca en las secciones de ayuda y muestra los fragmentos que coinciden, cada uno con su cita, sin enviar nada fuera del navegador. Si la administración activó un proveedor de IA, puedes elegirlo: antes de enviar verás quién recibe tu pregunta, con qué modelos y qué política de datos tiene, y tendrás que aceptarlo. El modelo redacta solo a partir de los fragmentos recuperados y el servidor descarta cualquier cita inventada. Si el proveedor falla o se satura, se reintenta y, si no responde, se muestra la búsqueda demo. Las respuestas pueden leerse en voz alta y la pregunta puede dictarse.",
+      "datosQueUsa": [
+        "En modo demo: tu pregunta, procesada en el navegador.",
+        "Con un proveedor de IA: tu pregunta y hasta 6 fragmentos del Centro de ayuda, solo después de que aceptes el envío. Nunca expedientes ni perfiles.",
+        "Del consumo se guarda proveedor, modelo, resultado, tokens y costo estimado; nunca la pregunta ni la respuesta."
+      ],
+      "comoSeUsa": [
+        "Escribe una pregunta, por ejemplo «¿cómo se cuenta la ñ?» o «¿qué falta del proyecto?».",
+        "En «Cómo responder» deja «Demo sin IA» o elige un proveedor y acepta el aviso de envío.",
+        "Pulsa «Preguntar» y abre las citas para ir a la sección de ayuda correspondiente.",
+        "Si eliges un proveedor marcado «solo demo», no escribas datos personales: la app se niega a enviarlos."
+      ],
+      "estado": "demo",
+      "palabrasClave": [
+        "asistente",
+        "bot",
+        "chat",
+        "citas",
+        "consentimiento",
+        "conversación",
+        "enviar",
+        "ia",
+        "inteligencia artificial",
+        "llm",
+        "modelo",
+        "openrouter",
+        "pregunta",
+        "preguntar",
+        "proveedor",
+        "respaldo"
+      ]
+    },
+    {
+      "id": "proveedores-ia",
+      "titulo": "Proveedores de inteligencia artificial",
+      "resumen": "Qué modelos de IA puede usar la app, con qué límites y qué política de datos.",
+      "deQueTrata": "La administración da de alta proveedores intercambiables: OpenRouter (modelos gratuitos de NVIDIA y modelos de bajo costo de Qwen y DeepSeek), FreeLLMAPI autoalojado y cualquier endpoint compatible con OpenAI, incluso uno local como Ollama o LM Studio. Para cada uno se elige el modelo a mano, sus respaldos, los límites por minuto, por día y de gasto mensual, el costo estimado, las capacidades y la política de datos. Las llaves nunca se escriben en la app: se cargan como secretos del servidor con un nombre que empieza por LLM_KEY_ y la app solo guarda ese nombre. Los modelos gratuitos y FreeLLMAPI quedan siempre como «solo demo» porque sus endpoints registran o pueden entrenar con los textos; la base de datos lo impide aunque se intente cambiar. Un modelo de pago puede marcarse apto para datos reales solo si su política dice que no entrena ni retiene (en OpenRouter, exigiendo retención cero). Ante un 429 o un error del servidor se reintenta con espera creciente y luego se pasa al modelo de respaldo. Cada intento queda registrado sin el texto enviado.",
+      "datosQueUsa": [
+        "Configuración del proveedor: nombre, endpoint, modelo, nombre del secreto, límites, costo y política.",
+        "Registro de consumo: fecha, proveedor, modelo, resultado, intento, tiempo, tokens y costo estimado. Sin prompts ni respuestas."
+      ],
+      "comoSeUsa": [
+        "Abre «Proveedores IA» en la barra superior (solo administración con verificación en dos pasos).",
+        "Elige una plantilla y un modelo del catálogo verificado, o escribe otro id de modelo.",
+        "Carga la llave como secreto del servidor (por ejemplo LLM_KEY_OPENROUTER en Vercel) y escribe ese nombre en el formulario.",
+        "Pulsa «Probar conexión» para enviar un texto fijo y ver si responde.",
+        "Revisa la tabla de consumo del mes para ver solicitudes, errores 429, tokens y costo."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "proveedor",
+        "proveedores",
+        "openrouter",
+        "freellmapi",
+        "ollama",
+        "lm studio",
+        "modelo",
+        "llave",
+        "secreto",
+        "límite",
+        "gasto",
+        "costo",
+        "429",
+        "respaldo",
+        "nvidia",
+        "qwen",
+        "deepseek",
+        "política de datos",
+        "retención",
+        "zdr"
+      ]
+    },
+    {
+      "id": "voz",
+      "titulo": "Voz del asistente y dictado",
+      "resumen": "Escuchar las respuestas en voz alta y dictar preguntas con el micrófono.",
+      "deQueTrata": "La lectura en voz alta usa la síntesis de voz gratuita de tu navegador. Se listan las voces es-MX y es-ES instaladas en tu dispositivo, primero las de México y las que por su nombre parecen masculinas; el navegador no indica el género de forma uniforme, así que es solo una pista. Si ninguna voz coincide, se avisa y se ofrecen otras variantes del español. Algunas voces son remotas: el texto se envía al servicio del fabricante del navegador, por eso se pide permiso antes de leer una respuesta con ellas. La respuesta escrita siempre está disponible. El dictado es opcional y solo se activa tras aceptar el aviso y dar permiso al micrófono; en muchos navegadores el audio se procesa en servidores del fabricante. La voz es intercambiable: más adelante se podrá conectar un proveedor de voz de bajo costo sin cambiar la interfaz.",
+      "datosQueUsa": [
+        "La voz elegida se guarda solo en este navegador.",
+        "El texto de la respuesta, que se lee en tu dispositivo o en el servicio remoto de la voz si aceptas.",
+        "Con el dictado, el audio del micrófono mientras está activo."
+      ],
+      "comoSeUsa": [
+        "Elige una voz en «Voz» y pulsa «Probar voz».",
+        "Usa «Leer respuesta», «Pausar», «Reanudar» y «Detener».",
+        "Pulsa «Dictar pregunta», lee el aviso y acepta para activar el micrófono."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "voz",
+        "voces",
+        "escuchar",
+        "leer",
+        "hablar",
+        "tts",
+        "síntesis",
+        "dictar",
+        "dictado",
+        "micrófono",
+        "es-mx",
+        "es-es",
+        "masculina",
+        "remota"
+      ]
+    },
+    {
+      "id": "privacidad-seguridad",
+      "titulo": "Privacidad y seguridad",
+      "resumen": "Cómo se protegen tus datos y qué controles tiene la app.",
+      "deQueTrata": "Círculo Nueve guarda lo mínimo y solo con tu consentimiento. Cada tabla de la base de datos niega el acceso por defecto y solo abre lo que tu cuenta tiene permitido; los archivos viven en almacenamiento privado y se descargan con enlaces que caducan en segundos. Las llaves secretas solo existen en el servidor. La auditoría registra quién hizo qué y cuándo, sin copiar contenidos personales, tokens ni contraseñas. Hay límites de frecuencia para los intentos fallidos al entrar o al verificar códigos, y para descargar, exportar, generar PDF, compartir y preguntar al asistente: tras demasiados intentos se pide esperar unos minutos. Los documentos, los enlaces y la auditoría se borran solos al cumplir su plazo de retención. Puedes exportar o borrar un expediente en cualquier momento.",
+      "datosQueUsa": [
+        "Los consentimientos de cada expediente.",
+        "Registros de auditoría sin contenido personal y contadores de intentos guardados como huellas, sin IP ni usuario en claro."
+      ],
+      "comoSeUsa": [
+        "Revisa «Consentimientos» en cada expediente.",
+        "Activa la verificación en dos pasos en «Mi cuenta».",
+        "Si ves «Demasiados intentos», espera el tiempo indicado y vuelve a intentarlo.",
+        "El aviso de privacidad completo lo redacta la persona responsable y aparece al final de cada PDF."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "privacidad",
+        "seguridad",
+        "datos",
+        "demasiados intentos",
+        "límite",
+        "bloqueo",
+        "aviso de privacidad",
+        "rls",
+        "auditoría",
+        "retención",
+        "contraseña"
+      ]
+    },
+    {
+      "id": "instalacion-despliegue",
+      "titulo": "Instalación y despliegue",
+      "resumen": "Cómo se instala en una computadora y cómo se publica gratis.",
+      "deQueTrata": "La app se instala con Node.js 20.9 o superior: «npm install» y «npm run dev». Sin variables de Supabase funciona en modo demo con datos ficticios. Con Docker se levanta una base de datos local («npm run db:start») para probar cuentas, expedientes y biblioteca. La publicación gratuita usa Supabase Free, Vercel Hobby y tareas programadas en GitHub Actions (worker, ping para que la base no se pause y purga por retención). Los pasos completos están en el README y en docs/despliegue.md del repositorio; la lista de seguridad, en docs/seguridad.md.",
+      "datosQueUsa": [
+        "Ninguno. Las claves se cargan como secretos del hosting, nunca en el código ni en chats."
+      ],
+      "comoSeUsa": [
+        "Sigue la sección «Ejecutar» del README para probarla en tu computadora.",
+        "Sigue docs/despliegue.md para publicarla; al terminar, repasa la «Lista final» y docs/seguridad.md."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "instalar",
+        "instalación",
+        "desplegar",
+        "despliegue",
+        "publicar",
+        "vercel",
+        "supabase",
+        "docker",
+        "readme",
+        "node"
+      ]
+    },
+    {
+      "id": "errores",
+      "titulo": "Errores y páginas no encontradas",
+      "resumen": "Qué hacer si una página no existe o algo falla.",
+      "deQueTrata": "Si una dirección no existe o no tienes permiso para verla, la app muestra «Página no encontrada» (por privacidad, ambos casos se ven igual). Si ocurre un error inesperado, la app no muestra detalles técnicos: ofrece «Intentar de nuevo» y una referencia para soporte. Tus datos no se modifican cuando algo falla.",
+      "datosQueUsa": [
+        "Ninguno."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Intentar de nuevo» o vuelve al inicio.",
+        "Si el problema sigue, comparte la referencia (no tus datos) con la administración."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "error",
+        "falla",
+        "no encontrada",
+        "404",
+        "problema",
+        "referencia"
+      ]
+    },
+    {
+      "id": "centro-ayuda",
+      "titulo": "Centro de ayuda y ventanas explicativas",
+      "resumen": "Dónde encontrar la explicación de cada sección y de cada botón.",
+      "deQueTrata": "Cada sección tiene un botón «?» que muestra de qué trata, qué datos usa y cómo se usa. Todos los botones muestran una ventana explicativa al pasar el ratón, al enfocarlos con el teclado o al tocarlos en el móvil; se cierra con Escape. El Centro de ayuda reúne todas las secciones en una sola página.",
+      "datosQueUsa": [
+        "Ninguno."
+      ],
+      "comoSeUsa": [
+        "Pulsa «?» junto al título de una sección.",
+        "Pasa el ratón, enfoca con Tab o toca un botón para ver qué hace.",
+        "Abre «Ayuda» en la barra superior para ver todas las secciones.",
+        "Los dibujos de fondo (rueda zodiacal, cuadrado de números, Árbol de la Vida, constelaciones y el emblema de nueve esferas) son solo decoración: cambian según la sección y se detienen si tu sistema pide reducir el movimiento.",
+        "La app se revisa con herramientas automáticas de accesibilidad (WCAG 2.2 AA): contraste, etiquetas, orden del teclado y nombres de los botones."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "ayuda",
+        "tooltip",
+        "explicación",
+        "botón",
+        "botones",
+        "teclado",
+        "accesibilidad",
+        "móvil",
+        "escape"
+      ]
+    }
+  ]
+}
