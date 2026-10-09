@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorZonaHoraria } from "@/ui/componentes/SelectorZonaHoraria";
 import type { FormEvent, ReactNode } from "react";
 import { Boton } from "@/ui/componentes/Boton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
@@ -100,9 +101,13 @@ export function FormularioPerfil({ perfil, reglas, puedeUsarDatos, onCambiar, on
           <Campo etiqueta="Lugar de nacimiento" nota="Ciudad y país. En la carta natal se busca en el catálogo GeoNames para obtener coordenadas y zona horaria.">
             <input className={claseCampo} value={perfil.lugar} maxLength={120} onChange={(e) => set("lugar", e.target.value)} />
           </Campo>
-          <Campo etiqueta="Zona horaria (si la conoces)" nota="Ej.: America/Mexico_City. Si la dejas vacía no se adivina.">
-            <input className={claseCampo} value={perfil.zonaHoraria} maxLength={60} onChange={(e) => set("zonaHoraria", e.target.value)} />
-          </Campo>
+          <SelectorZonaHoraria
+            etiqueta="Zona horaria"
+            valor={perfil.zonaHoraria}
+            onCambiar={(zona) => set("zonaHoraria", zona)}
+            textoAutomatica={"Automática: la del lugar de nacimiento"}
+            nota="Escribe para buscar entre todas las zonas. «Automática» usa la del lugar elegido en la carta natal (catálogo GeoNames); nunca se adivina."
+          />
         </fieldset>
 
         <fieldset className="grid gap-4 sm:grid-cols-2">

@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorZonaHoraria } from "@/ui/componentes/SelectorZonaHoraria";
 import { useActionState } from "react";
 import {
   accionBorrarExpediente,
@@ -129,7 +130,13 @@ export function FormularioPerfil({ id, perfil, editable, consentido }: { id: str
           />
         </div>
         <Campo etiqueta="Lugar de nacimiento" name="lugar" defaultValue={p?.lugar} maxLength={120} />
-        <Campo etiqueta="Zona horaria (si se conoce)" name="zonaHoraria" defaultValue={p?.zonaHoraria} maxLength={60} nota="No se adivina: si se deja vacía, queda pendiente." />
+        <SelectorZonaHoraria
+          etiqueta="Zona horaria"
+          name="zonaHoraria"
+          valor={p?.zonaHoraria ?? ""}
+          textoAutomatica={"Automática: la del lugar de nacimiento"}
+          nota="Escribe para buscar entre todas las zonas. «Automática» usa la del lugar elegido al calcular la carta natal; nunca se adivina."
+        />
       </fieldset>
       <MensajeFormulario estado={estado} />
       {!bloqueado && <BotonEnviar descripcion="Guarda el perfil de nacimiento de este expediente.">Guardar perfil</BotonEnviar>}

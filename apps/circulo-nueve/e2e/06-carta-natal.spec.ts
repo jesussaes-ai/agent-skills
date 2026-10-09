@@ -35,10 +35,21 @@ test("sin consentimiento de historial la carta se calcula pero no se guarda", as
   await page.getByLabel("Precisión de la hora", { exact: true }).selectOption("exacta");
   await page.getByLabel("Hora local", { exact: true }).fill("06:40");
   await page.getByLabel("Lugar de nacimiento", { exact: true }).fill("Guadalajara, Jalisco");
+  const zona = page.getByRole("combobox", { name: "Zona horaria", exact: true });
+  await zona.click();
+  const lista = page.getByRole("listbox", { name: "Zona horaria" });
+  await expect(lista.getByRole("group").first()).toContainText("México");
+  await expect(lista.getByRole("option").nth(1)).toContainText(/Ciudad de México.*UTC−06:00/);
+  await zona.fill("ciudad de mex");
+  await zona.press("ArrowDown");
+  await zona.press("ArrowUp");
+  await zona.press("Enter");
+  await expect(zona).toHaveValue("Ciudad de México (centro) · America/Mexico_City");
   await page.getByRole("button", { name: "Guardar perfil", exact: true }).click();
   await expect(page.getByText("Perfil guardado.")).toBeVisible();
 
   await page.reload();
+  await expect(page.getByRole("combobox", { name: "Zona horaria", exact: true })).toHaveValue("Ciudad de México (centro) · America/Mexico_City");
   const carta = page.locator("section").filter({ has: page.getByRole("heading", { name: "Carta natal", exact: true }) });
   await carta.getByRole("button", { name: "Buscar lugar", exact: true }).click();
   await carta.getByRole("button", { name: /^Guadalajara, Jalisco, México/ }).click();

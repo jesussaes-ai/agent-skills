@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorZonaHoraria } from "@/ui/componentes/SelectorZonaHoraria";
 import { useId, useState, type FormEvent } from "react";
 import {
   RUTA_CATALOGO,
@@ -195,7 +196,6 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
                   ["nombre", "Nombre del lugar (opcional)", "Hospital, colonia…"],
                   ["lat", "Latitud (grados decimales, sur negativo)", "19.4285"],
                   ["lon", "Longitud (grados decimales, oeste negativo)", "-99.1277"],
-                  ["zona", "Zona horaria IANA", "America/Mexico_City"],
                 ] as const
               ).map(([clave, etiqueta, ejemplo]) => (
                 <label key={clave} className="flex flex-col gap-1 text-sm font-medium text-slate-700">
@@ -210,6 +210,7 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
                   />
                 </label>
               ))}
+              <SelectorZonaHoraria etiqueta="Zona horaria IANA" valor={m.zona} onCambiar={(zona) => setM({ ...m, zona })} />
               {errorManual && (
                 <p role="alert" className="text-sm text-red-700 sm:col-span-2">
                   {errorManual}
