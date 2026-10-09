@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { verificarClaveAlta } from "./clave-alta";
 import { leerConfigSupabase, rutaInternaSegura } from "./config";
@@ -22,16 +21,11 @@ import {
   type PaquetePermisos,
 } from "./esquemas";
 import { correoInterno, generarContrasenaInicial } from "./usuarios";
-import { LIMITES, mensajeLimite } from "./limite-intentos";
+import { consumirLimite, ipCliente, mensajeEspera } from "@/modulos/seguridad/limite-frecuencia";
 import { esAdmin, obtenerSesion } from "./sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "./supabase-servidor";
 
 const ERROR_GENERICO = "No se pudo completar la operación. Inténtalo de nuevo.";
-
-async function ipCliente(): Promise<string> {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
-}
 
 function sinConfiguracion(): EstadoFormulario | null {
   return leerConfigSupabase().configurado ? null : { mensaje: "Supabase no está configurado en este entorno." };
@@ -42,8 +36,8 @@ function sinConfiguracion(): EstadoFormulario | null {
 export async function accionAltaInicial(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {
   const falta = sinConfiguracion();
   if (falta) return falta;
-  const limite = LIMITES.alta.registrar(await ipCliente());
-  if (!limite.permitido) return { mensaje: mensajeLimite(limite.reintentarEnMs) };
+  const limite = await consumirLimite("alta", await ipCliente());
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos) };
 
   const valores = { usuario: String(form.get("usuario") ?? "") };
   const datos = esquemaAlta.safeParse(datosDe(form));
@@ -88,16 +82,21 @@ export async function accionEntrar(_: EstadoFormulario, form: FormData): Promise
   if (falta) return falta;
   const datos = esquemaEntrar.safeParse(datosDe(form));
   if (!datos.success) return { errores: erroresDe(datos.error), valores: { usuario: String(form.get("usuario") ?? "") } };
-  const limite = LIMITES.entrar.registrar(`${await ipCliente()}|${datos.data.usuario}`);
-  if (!limite.permitido) return { mensaje: mensajeLimite(limite.reintentarEnMs) };
+  // Solo cuentan los intentos fallidos: quien entra bien no se bloquea.
+  const claveLimite = `${await ipCliente()}|${datos.data.usuario.toLowerCase()}`;
+  const limite = await consumirLimite("entrar", claveLimite, { contar: false });
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos), valores: { usuario: datos.data.usuario } };
 
-  const rechazo = { mensaje: "Usuario o contraseña incorrectos, o la cuenta no está activa.", valores: { usuario: datos.data.usuario } };
+  const rechazar = async () => {
+    await consumirLimite("entrar", claveLimite);
+    return { mensaje: "Usuario o contraseña incorrectos, o la cuenta no está activa.", valores: { usuario: datos.data.usuario } };
+  };
   // El correo interno lo resuelve solo el servidor; la respuesta es la misma exista o no el usuario.
   const { data: correo } = await clienteSupabaseAdmin().rpc("correo_de_usuario", { p_username: datos.data.usuario });
-  if (!correo) return rechazo;
+  if (!correo) return rechazar();
   const supabase = await clienteSupabaseServidor();
   const { error } = await supabase.auth.signInWithPassword({ email: correo as string, password: datos.data.contrasena });
-  if (error) return rechazo;
+  if (error) return rechazar();
 
   const destino = rutaInternaSegura(String(form.get("next") ?? ""));
   const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -123,15 +122,18 @@ export async function accionVerificarMfa(_: EstadoFormulario, form: FormData): P
   const supabase = await clienteSupabaseServidor();
   const { data: usuario } = await supabase.auth.getUser();
   if (!usuario.user) redirect("/entrar");
-  const limite = LIMITES.mfa.registrar(usuario.user.id);
-  if (!limite.permitido) return { mensaje: mensajeLimite(limite.reintentarEnMs) };
+  const limite = await consumirLimite("mfa", usuario.user.id, { contar: false });
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos) };
 
   const { data: factores } = await supabase.auth.mfa.listFactors();
   const factor = (factores?.totp ?? []).find((f) => f.status === "verified");
   if (!factor) redirect("/cuenta");
 
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: datos.data.codigo });
-  if (error) return { errores: { codigo: "El código no es correcto o ya caducó." } };
+  if (error) {
+    await consumirLimite("mfa", usuario.user.id);
+    return { errores: { codigo: "El código no es correcto o ya caducó." } };
+  }
   redirect(rutaInternaSegura(String(form.get("next") ?? "")));
 }
 
@@ -165,11 +167,14 @@ export async function accionConfirmarInscripcionMfa(_: EstadoFormulario, form: F
   const supabase = await clienteSupabaseServidor();
   const { data: usuario } = await supabase.auth.getUser();
   if (!usuario.user) redirect("/entrar");
-  const limite = LIMITES.mfa.registrar(usuario.user.id);
-  if (!limite.permitido) return { mensaje: mensajeLimite(limite.reintentarEnMs) };
+  const limite = await consumirLimite("mfa", usuario.user.id, { contar: false });
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos) };
 
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: datos.data.factorId, code: datos.data.codigo });
-  if (error) return { errores: { codigo: "El código no es correcto o ya caducó." } };
+  if (error) {
+    await consumirLimite("mfa", usuario.user.id);
+    return { errores: { codigo: "El código no es correcto o ya caducó." } };
+  }
   redirect(rutaInternaSegura(String(form.get("next") ?? ""), "/cuenta"));
 }
 
@@ -181,6 +186,8 @@ export async function accionCambiarContrasena(_: EstadoFormulario, form: FormDat
   const supabase = await clienteSupabaseServidor();
   const { data: usuario } = await supabase.auth.getUser();
   if (!usuario.user) redirect("/entrar");
+  const limite = await consumirLimite("cambiarContrasena", usuario.user.id);
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos) };
   const { error } = await supabase.auth.updateUser({ password: datos.data.contrasena });
   if (error) return { mensaje: "No se pudo guardar la contraseña. Usa una distinta de la anterior." };
   // Libera el cambio obligatorio; la base solo lo acepta si el hash de la contraseña cambió.
@@ -230,6 +237,8 @@ export async function accionCrearCuenta(_: EstadoFormulario, form: FormData): Pr
   const datos = esquemaCrearCuenta.safeParse({ ...base, paquetes: form.getAll("paquetes").map(String) });
   if (!datos.success) return { errores: erroresDe(datos.error), valores };
   const d = datos.data;
+  const limite = await consumirLimite("crearCuenta", permiso.usuarioId);
+  if (!limite.permitido) return { mensaje: mensajeEspera(limite.reintentarEnSegundos), valores };
   const contrasena = d.contrasena ?? generarContrasenaInicial();
 
   const admin = clienteSupabaseAdmin();

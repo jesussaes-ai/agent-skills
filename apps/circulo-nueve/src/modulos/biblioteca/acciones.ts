@@ -7,6 +7,7 @@ import { datosDe, erroresDe, type EstadoFormulario } from "@/modulos/auth/esquem
 import { esSoloCliente, obtenerSesion, type Sesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseAdmin, clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { formularioAObjeto } from "@/modulos/expedientes/esquemas";
+import { consumirLimite, mensajeEspera } from "@/modulos/seguridad/limite-frecuencia";
 import { aVector, crearEmbeddingsLocales } from "./embeddings";
 import { esquemaEditarFuente, esquemaMetadatos, esquemaPregunta, esquemaWeb } from "./esquemas";
 import { EXTENSIONES, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
@@ -379,6 +380,8 @@ export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: Fo
   if (!datos.success) return { estado: "error", errores: erroresDe(datos.error) };
   const { pregunta } = datos.data;
   const incluir = datos.data.incluirComplementarias === "on";
+  const limite = await consumirLimite("biblioteca", sesion.usuarioId);
+  if (!limite.permitido) return { estado: "error", mensaje: mensajeEspera(limite.reintentarEnSegundos) };
 
   embeddingsConsulta ??= crearEmbeddingsLocales();
   const vector = aVector(await embeddingsConsulta.embeberConsulta(pregunta));

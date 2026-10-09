@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { leerConfigSupabase, origenPublico } from "@/modulos/auth/config";
 import { obtenerSesion } from "@/modulos/auth/sesion";
 import { clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
+import { consumirLimite, mensajeEspera } from "@/modulos/seguridad/limite-frecuencia";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!sesion) {
     const destino = `/expedientes/${id}`;
     return NextResponse.redirect(new URL(`/entrar?next=${encodeURIComponent(destino)}`, origenPublico(request.headers)));
+  }
+  const limite = await consumirLimite("descargarDocumento", sesion.usuarioId);
+  if (!limite.permitido) {
+    return new NextResponse(mensajeEspera(limite.reintentarEnSegundos), {
+      status: 429,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "retry-after": String(limite.reintentarEnSegundos) },
+    });
   }
 
   const supabase = await clienteSupabaseServidor();

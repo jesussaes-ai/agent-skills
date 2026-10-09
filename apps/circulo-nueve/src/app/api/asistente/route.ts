@@ -1,14 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SECCIONES_AYUDA } from "@/content/ayuda";
-import { crearLimiteIntentos } from "@/modulos/auth/limite-intentos";
 import { obtenerSesion } from "@/modulos/auth/sesion";
 import { esquemaPreguntaAsistente } from "@/modulos/proveedores/esquemas";
 import { dependenciasServidor } from "@/modulos/proveedores/repositorio";
 import { responderAyudaConProveedor } from "@/modulos/proveedores/servicio";
+import { consumirLimite, ipDe } from "@/modulos/seguridad/limite-frecuencia";
 
 export const dynamic = "force-dynamic";
 
-const porCliente = crearLimiteIntentos(10, 60_000);
 const SIN_CACHE = { "cache-control": "no-store" };
 
 function error(estado: number, codigo: string, mensaje: string) {
@@ -21,10 +20,9 @@ export async function POST(request: NextRequest) {
   if (origen && origen !== request.nextUrl.origin && origen !== process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "")) {
     return error(403, "origen", "Solicitud de otro sitio.");
   }
-  const cliente = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  const limite = porCliente.registrar(cliente);
+  const limite = await consumirLimite("asistente", ipDe(request.headers));
   if (!limite.permitido) {
-    return error(429, "limite_cliente", `Demasiadas preguntas seguidas. Espera ${Math.ceil(limite.reintentarEnMs / 1000)} s.`);
+    return error(429, "limite_cliente", `Demasiadas preguntas seguidas. Espera ${limite.reintentarEnSegundos} s.`);
   }
 
   let cuerpo: unknown;
