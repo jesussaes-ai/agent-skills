@@ -77,7 +77,7 @@ export interface FuenteCitada {
   grupo: GrupoFuente;
 }
 
-/** Campos del aviso de privacidad. Los llena el propietario; nunca se inventan. */
+/** Campos del aviso de privacidad. Los llena la persona propietaria; nunca se inventan. */
 export interface AvisoPrivacidad {
   responsable?: string;
   finalidades?: string;

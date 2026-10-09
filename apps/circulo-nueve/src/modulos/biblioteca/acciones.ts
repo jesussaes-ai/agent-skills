@@ -409,7 +409,7 @@ export async function accionPreguntarBiblioteca(_: RespuestaBiblioteca, form: Fo
   // Las fuentes aportadas van primero; las complementarias solo con autorización explícita.
   const aportadas = await buscar("aportada");
   if (!aportadas.length && !incluir) {
-    return { estado: "sin_aportadas", mensaje: "No encontré respaldo en las fuentes aportadas por el propietario." };
+    return { estado: "sin_aportadas", mensaje: "No encontré respaldo en las fuentes aportadas por la persona propietaria." };
   }
   const recuperados = incluir ? await buscar(null) : aportadas;
   const proveedorId = String(form.get("proveedorId") ?? "");

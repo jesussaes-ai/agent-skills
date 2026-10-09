@@ -304,7 +304,7 @@ export function DocumentoReporte({ datos }: { datos: DatosReporte }) {
             {proporcion.total ? (
               <>
                 <Text>
-                  Fuentes aportadas por el propietario: {proporcion.aportadas} de {proporcion.total} fragmentos ({pct(proporcion.proporcionAportadas!)}) · complementarias:{" "}
+                  Fuentes aportadas por la persona propietaria: {proporcion.aportadas} de {proporcion.total} fragmentos ({pct(proporcion.proporcionAportadas!)}) · complementarias:{" "}
                   {proporcion.complementarias} · objetivo editorial: {pct(proporcion.objetivo)} aportadas.
                 </Text>
                 <View style={e.barra}>
@@ -337,7 +337,7 @@ export function DocumentoReporte({ datos }: { datos: DatosReporte }) {
                     .map((s) => s!.replace(/\.$/, ""))
                     .join(". ")}
                   {f.fechaConsulta ? `. Consultado el ${formatearFecha(f.fechaConsulta)}` : ""}.{" "}
-                  <Text style={e.pequeno}>({f.grupo === "aportada" ? "aportada por el propietario" : "complementaria"})</Text>
+                  <Text style={e.pequeno}>({f.grupo === "aportada" ? "aportada por la persona propietaria" : "complementaria"})</Text>
                 </Text>
               </View>
             ))}
@@ -348,7 +348,7 @@ export function DocumentoReporte({ datos }: { datos: DatosReporte }) {
           n={++n}
           titulo="Aviso de privacidad"
           indivisible
-          intro="Contenido proporcionado por el propietario de la aplicación. Círculo Nueve no completa estos campos ni afirma cumplimiento legal alguno."
+          intro="Contenido proporcionado por la persona propietaria de la aplicación. Círculo Nueve no completa estos campos ni afirma cumplimiento legal alguno."
         >
           <View style={e.tabla}>
             {CAMPOS_AVISO.map(({ clave, etiqueta }) => {
@@ -356,7 +356,7 @@ export function DocumentoReporte({ datos }: { datos: DatosReporte }) {
               return (
                 <View key={clave} style={e.fila} wrap={false}>
                   <Text style={e.celdaEtiqueta}>{etiqueta}</Text>
-                  <Text style={[e.celdaValor, valor ? {} : e.campoVacio]}>{valor || "Pendiente: lo completa el propietario."}</Text>
+                  <Text style={[e.celdaValor, valor ? {} : e.campoVacio]}>{valor || "Pendiente: lo completa la persona propietaria."}</Text>
                 </View>
               );
             })}

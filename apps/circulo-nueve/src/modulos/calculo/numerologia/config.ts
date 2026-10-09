@@ -7,7 +7,7 @@ export const TRADICION = "Numerología pitagórica (tabla occidental A=1 … I=9
 
 /**
  * Valores por defecto mientras no se definan las tradiciones a partir de los
- * libros del propietario. Todos son configurables por lectura.
+ * libros de la persona propietaria. Todos son configurables por lectura.
  */
 export const CONFIG_POR_DEFECTO: ConfigNumerologia = Object.freeze({
   numerosMaestros: true,

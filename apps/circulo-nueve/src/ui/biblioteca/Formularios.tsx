@@ -73,7 +73,7 @@ function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { e
           required
           maxLength={500}
           error={e.referencia}
-          nota="Editorial y año, archivo del propietario o URL. Se cita tal cual."
+          nota="Editorial y año, archivo de la persona propietaria o URL. Se cita tal cual."
         />
         <Campo etiqueta="Edición" name="edicion" defaultValue={valores.edicion ?? ""} maxLength={120} />
         <Campo etiqueta="Idioma (código)" name="idioma" defaultValue={valores.idioma ?? "es"} maxLength={10} />

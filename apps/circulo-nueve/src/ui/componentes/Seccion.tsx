@@ -13,11 +13,13 @@ interface Props {
 }
 
 export function Seccion({ titulo, ayuda, children, etiqueta, motivo }: Props) {
+  // Las cifras del cuadrado mágico se atenúan más para no confundirse con resultados reales.
+  const dibujo = motivo ?? motivoDeSeccion(ayuda);
   return (
     <section className="tarjeta-cristal relative overflow-hidden p-5 sm:p-6">
       <DibujoMotivo
-        motivo={motivo ?? motivoDeSeccion(ayuda)}
-        className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-oro-500 opacity-[0.13] sm:h-52 sm:w-52"
+        motivo={dibujo}
+        className={`pointer-events-none absolute -right-12 -top-12 h-40 w-40 text-oro-500 sm:h-48 sm:w-48 ${dibujo === "numeros" ? "opacity-[0.08]" : "opacity-[0.13]"}`}
       />
       <div className="relative mb-4 flex flex-wrap items-center gap-3">
         <h2 className="text-xl font-semibold text-slate-900">{titulo}</h2>

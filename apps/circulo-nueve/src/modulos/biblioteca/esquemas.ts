@@ -14,7 +14,7 @@ export const NIVELES_ACCESO = [
 ] as const;
 
 export const GRUPOS = [
-  ["aportada", "Aportada por el propietario"],
+  ["aportada", "Aportada por la persona propietaria"],
   ["complementaria", "Complementaria"],
 ] as const;
 

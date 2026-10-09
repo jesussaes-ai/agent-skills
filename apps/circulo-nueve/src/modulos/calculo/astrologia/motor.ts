@@ -305,7 +305,7 @@ export function calcularCartaNatal(
     advertencias,
     interpretaciones: {
       estado: "pendiente",
-      motivo: "Las interpretaciones se basarán en los libros que aporte el propietario, con citas. Aquí solo hay posiciones calculadas.",
+      motivo: "Las interpretaciones se basarán en los libros que aporte la persona propietaria, con citas. Aquí solo hay posiciones calculadas.",
     },
   };
 }

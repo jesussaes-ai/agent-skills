@@ -182,7 +182,7 @@
       "id": "carta-natal",
       "titulo": "Carta natal",
       "resumen": "Posiciones de planetas, casas y aspectos calculadas con efemérides identificables y la zona horaria histórica.",
-      "deQueTrata": "Calcula la posición del Sol, la Luna, los planetas hasta Plutón y el nodo lunar en el zodiaco, el Ascendente, el Medio Cielo, las doce casas y los aspectos entre ellos. Usa la librería astronomy-engine (licencia MIT) y se comprobó contra Swiss Ephemeris en casos de referencia (diferencia máxima medida: 18″). La hora local se convierte a tiempo universal con la base de zonas horarias IANA, incluidos los cambios históricos de México. Cada valor se muestra con la precisión que permiten los datos: al minuto, al grado o como rango. Solo son datos calculados; las interpretaciones llegarán con los libros del propietario y con citas.",
+      "deQueTrata": "Calcula la posición del Sol, la Luna, los planetas hasta Plutón y el nodo lunar en el zodiaco, el Ascendente, el Medio Cielo, las doce casas y los aspectos entre ellos. Usa la librería astronomy-engine (licencia MIT) y se comprobó contra Swiss Ephemeris en casos de referencia (diferencia máxima medida: 18″). La hora local se convierte a tiempo universal con la base de zonas horarias IANA, incluidos los cambios históricos de México. Cada valor se muestra con la precisión que permiten los datos: al minuto, al grado o como rango. Solo son datos calculados; las interpretaciones llegarán con los libros de la persona propietaria y con citas.",
       "datosQueUsa": [
         "Fecha de nacimiento (obligatoria).",
         "Hora local y su precisión: exacta (±1 min), aproximada (margen configurable) o desconocida.",
@@ -283,7 +283,7 @@
       "id": "cabala",
       "titulo": "Cábala (pendiente)",
       "resumen": "Se implementará cuando se confirme la tradición y la tabla.",
-      "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte el propietario. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
+      "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte la persona propietaria. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
       "datosQueUsa": [
         "Ninguno todavía."
       ],
@@ -688,7 +688,7 @@
       "id": "biblioteca",
       "titulo": "Biblioteca de fuentes",
       "resumen": "Libros y páginas autorizados que respaldan las respuestas.",
-      "deQueTrata": "La biblioteca reúne las fuentes que el propietario autoriza: aportadas por él (el objetivo es que sean ~80 % de lo citado) y complementarias (≤20 %). Cada fuente registra título, autor, referencia, edición, idioma, tradición, licencia o permiso, quién puede consultarla y su estado: pendiente, procesando, requiere revisión, indexado, fallido o retirado. Es una base de conocimiento distinta del Centro de ayuda: el asistente de la app explica la app; el bot de la biblioteca responde sobre las fuentes.",
+      "deQueTrata": "La biblioteca reúne las fuentes que la persona propietaria autoriza: aportadas por esa persona (el objetivo es que sean ~80 % de lo citado) y complementarias (≤20 %). Cada fuente registra título, autor, referencia, edición, idioma, tradición, licencia o permiso, quién puede consultarla y su estado: pendiente, procesando, requiere revisión, indexado, fallido o retirado. Es una base de conocimiento distinta del Centro de ayuda: el asistente de la app explica la app; el bot de la biblioteca responde sobre las fuentes.",
       "datosQueUsa": [
         "Metadatos y derechos de cada fuente.",
         "Texto extraído, fragmentos con su referencia y vectores para la búsqueda."

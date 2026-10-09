@@ -139,7 +139,7 @@ export function PanelResultados({ perfil, resultado, onEditar, onBorrar }: Props
             </div>
             <p className="text-sm text-slate-600">
               <Etiqueta tono="gris">Interpretación pendiente</Etiqueta> Las interpretaciones se basarán en los libros
-              que aporte el propietario, con citas. Aquí solo se muestran datos calculados.
+              que aporte la persona propietaria, con citas. Aquí solo se muestran datos calculados.
             </p>
           </div>
         )}
@@ -149,8 +149,8 @@ export function PanelResultados({ perfil, resultado, onEditar, onBorrar }: Props
 
       <Seccion titulo="Cábala" ayuda="cabala" etiqueta={<Etiqueta tono="gris">Pendiente</Etiqueta>}>
         <p className="text-slate-700">
-          Aún no se calcula. Primero hay que confirmar la tradición y la tabla de gematría a partir de los libros del
-          propietario. Los nombres no se transliteran sin aprobación.
+          Aún no se calcula. Primero hay que confirmar la tradición y la tabla de gematría a partir de los libros de la
+          persona propietaria. Los nombres no se transliteran sin aprobación.
         </p>
       </Seccion>
     </div>
