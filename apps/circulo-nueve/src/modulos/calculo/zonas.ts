@@ -105,7 +105,7 @@ export function desfaseUtc(zona: string, fecha: Date = new Date()): string {
       .formatToParts(fecha)
       .find((p) => p.type === "timeZoneName")?.value;
     const m = /GMT([+-])(\d{2}):?(\d{2})?/.exec(parte ?? "");
-    if (!m) return "UTC±00:00";
+    if (!m || (m[2] === "00" && (m[3] ?? "00") === "00")) return "UTC±00:00";
     return `UTC${m[1] === "-" ? "−" : "+"}${m[2]}:${m[3] ?? "00"}`;
   } catch {
     return "";
