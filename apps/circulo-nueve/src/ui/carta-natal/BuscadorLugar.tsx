@@ -142,7 +142,7 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
               {estado === "cargando" ? "Cargando catálogo…" : "Buscar lugar"}
             </Boton>
           </form>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             La búsqueda ocurre en tu dispositivo: la primera vez se descarga el catálogo completo (unos 1,5 MB), sin enviar lo que escribes.
           </p>
           {estado === "error" && (
@@ -170,7 +170,7 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
                           {f[1]}
                           {f[3] && f[3] !== f[1] ? `, ${f[3]}` : ""}, {nombrePais(f[4])}
                         </span>
-                        <span className="text-xs font-normal text-slate-500">
+                        <span className="text-xs font-normal text-slate-600">
                           {formatoCoordenadas(f[5], f[6])} · {f[7]}
                         </span>
                       </Boton>

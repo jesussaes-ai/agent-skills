@@ -172,7 +172,7 @@ export function SelectorZonaHoraria({ etiqueta, name, valor = "", onCambiar, not
                         className={`flex cursor-pointer items-baseline justify-between gap-3 px-3 py-1.5 ${activo === i ? "bg-marino-50" : ""} ${seleccion === z.id ? "font-semibold" : ""}`}
                       >
                         <span>
-                          {z.ciudad} <span className="text-xs text-slate-500">{z.id}</span>
+                          {z.ciudad} <span className="text-xs text-slate-600">{z.id}</span>
                         </span>
                         <span className="shrink-0 font-mono text-xs text-slate-600">{z.desfase}</span>
                       </li>
@@ -186,7 +186,7 @@ export function SelectorZonaHoraria({ etiqueta, name, valor = "", onCambiar, not
         )}
       </div>
       {nota && (
-        <span id={idNota} className="text-xs text-slate-500">
+        <span id={idNota} className="text-xs text-slate-600">
           {nota}
         </span>
       )}

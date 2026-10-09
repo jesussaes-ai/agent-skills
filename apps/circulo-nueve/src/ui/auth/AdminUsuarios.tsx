@@ -13,6 +13,7 @@ import { NOMBRES_PAQUETES, PAQUETES_PERMISOS, ROLES_ASIGNABLES, type EstadoFormu
 import { Boton } from "@/ui/componentes/Boton";
 import { Casilla } from "@/ui/expedientes/Selector";
 import { BotonEnviar, Campo, CampoContrasena, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
+import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
 
 export interface FilaUsuario {
   id: string;
@@ -102,7 +103,7 @@ export function FormularioCrearCuenta() {
             </option>
           ))}
         </select>
-        <ul className="space-y-1 text-xs text-slate-500">
+        <ul className="space-y-1 text-xs text-slate-600">
           {ROLES_ASIGNABLES.map((r) => (
             <li key={r}>{NOTA_ROL[r]}</li>
           ))}
@@ -238,31 +239,31 @@ function ControlRoles({ fila }: { fila: FilaUsuario }) {
 }
 
 export function TablaUsuarios({ filas }: { filas: FilaUsuario[] }) {
-  if (!filas.length) return <p className="text-slate-600">Todavía no hay cuentas.</p>;
+  if (!filas.length) return <EstadoVacio titulo="Todavía no hay cuentas">Crea la primera con el formulario «Crear cuenta».</EstadoVacio>;
   return (
     <ul className="divide-y divide-slate-200">
       {filas.map((f) => (
         <li key={f.id} className="grid gap-3 py-4 lg:grid-cols-[1fr_minmax(0,28rem)]" data-testid={`usuario-${f.usuario}`}>
           <div className="space-y-1">
             <p className="font-semibold text-slate-900">
-              {f.nombre} {f.esPropia && <span className="text-sm font-normal text-slate-500">(tu cuenta)</span>}
+              {f.nombre} {f.esPropia && <span className="text-sm font-normal text-slate-600">(tu cuenta)</span>}
             </p>
             <p className="font-mono text-sm text-slate-600">{f.usuario}</p>
             <p className="text-sm">
               Estado: <strong data-testid="estado-cuenta">{f.estado}</strong> · Tipo: {f.roles.map((r) => NOMBRE_ROL[r] ?? r).join(", ") || "ninguno"}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Dos pasos: {f.mfaActivo ? "activada" : "no activada"}
               {f.debeCambiar && " · Pendiente de elegir su contraseña"}
             </p>
             {f.roles.includes("consultor") && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600">
                 Puede: {f.paquetes.map((p) => PAQUETES_PERMISOS[p].texto.toLowerCase()).join("; ") || "nada todavía"}
               </p>
             )}
           </div>
           {f.esPropia ? (
-            <p className="text-sm text-slate-500">No puedes cambiar tu propio estado ni tus roles. Tu contraseña se cambia en «Mi cuenta».</p>
+            <p className="text-sm text-slate-600">No puedes cambiar tu propio estado ni tus roles. Tu contraseña se cambia en «Mi cuenta».</p>
           ) : (
             <div className="space-y-3">
               <ControlRoles fila={f} />

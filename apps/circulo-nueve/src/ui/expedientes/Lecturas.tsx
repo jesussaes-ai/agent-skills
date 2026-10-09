@@ -10,6 +10,7 @@ import { Etiqueta } from "@/ui/componentes/Seccion";
 import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
 import { CartaGuardada } from "@/ui/carta-natal/CartaExpediente";
 import { Casilla, Selector } from "./Selector";
+import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
 
 function Indicadores({ resultado }: { resultado: ResultadoNumerologia }) {
   const [abierto, setAbierto] = useState<string | null>(null);
@@ -156,7 +157,13 @@ function AccionesLectura({ id, lecturaId, puedeBorrar, puedeGenerarPdf }: { id: 
 }
 
 export function HistorialLecturas({ id, lecturas, puedeBorrar, puedeGenerarPdf }: { id: string; lecturas: Lectura[]; puedeBorrar: boolean; puedeGenerarPdf: boolean }) {
-  if (!lecturas.length) return <p className="text-slate-600">Todavía no hay lecturas guardadas.</p>;
+  if (!lecturas.length) {
+    return (
+      <EstadoVacio titulo="Todavía no hay lecturas guardadas" motivo="numeros">
+        Calcula una lectura en «Nueva lectura de numerología» o guarda una carta natal; con el consentimiento del historial quedará aquí.
+      </EstadoVacio>
+    );
+  }
   return (
     <ol className="space-y-4">
       {lecturas.map((l) => (

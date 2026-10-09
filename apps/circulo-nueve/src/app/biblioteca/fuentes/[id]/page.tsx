@@ -109,7 +109,7 @@ export default async function PaginaFuente({ params }: { params: Promise<{ id: s
                     {g.ocr && <p className="text-xs text-slate-600">OCR: {g.ocr}</p>}
                     <p className="text-xs">
                       <Etiqueta tono="ambar">Descripción generada</Etiqueta> {g.descripcion_generada}
-                      <span className="block text-slate-500">
+                      <span className="block text-slate-600">
                         Método: {g.descripcion_modelo} · {g.descripcion_fecha ? new Date(g.descripcion_fecha).toLocaleString("es-MX") : ""}
                       </span>
                     </p>
@@ -126,7 +126,7 @@ export default async function PaginaFuente({ params }: { params: Promise<{ id: s
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="font-medium">#{c.orden + 1}</span>
                   <span className="text-xs text-slate-600">{formatearLocalizador(c.localizador) || "sin localizador"}</span>
-                  {c.jerarquia?.length > 0 && <span className="text-xs text-slate-500">{c.jerarquia.join(" › ")}</span>}
+                  {c.jerarquia?.length > 0 && <span className="text-xs text-slate-600">{c.jerarquia.join(" › ")}</span>}
                   {c.sospechoso && <Etiqueta tono="ambar">Posible instrucción incrustada: {c.motivo_sospecha}</Etiqueta>}
                   {c.ocr_confianza !== null && c.ocr_confianza < 0.7 && <Etiqueta tono="ambar">OCR con baja confianza</Etiqueta>}
                   {c.excluido && <Etiqueta tono="gris">Excluido</Etiqueta>}

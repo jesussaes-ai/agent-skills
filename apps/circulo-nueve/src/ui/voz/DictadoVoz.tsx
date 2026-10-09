@@ -33,7 +33,7 @@ export function DictadoVoz({ alTexto }: { alTexto: (texto: string) => void }) {
   };
 
   if (fase === "sin-soporte") {
-    return <p className="text-xs text-slate-500">Este navegador no ofrece dictado por voz; escribe tu pregunta.</p>;
+    return <p className="text-xs text-slate-600">Este navegador no ofrece dictado por voz; escribe tu pregunta.</p>;
   }
 
   return (

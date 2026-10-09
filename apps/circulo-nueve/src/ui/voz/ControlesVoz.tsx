@@ -57,7 +57,7 @@ export function ControlesVoz({ texto, crearTts = crearTtsWebSpeech }: Props) {
     setReproduccion("detenida");
   }, [texto]);
 
-  if (estado === "cargando") return <p className="text-sm text-slate-500">Buscando voces del dispositivo…</p>;
+  if (estado === "cargando") return <p className="text-sm text-slate-600">Buscando voces del dispositivo…</p>;
   if (estado === "sin-soporte") {
     return (
       <p role="note" className="rounded-lg bg-slate-100 p-3 text-sm text-slate-700">
@@ -112,7 +112,7 @@ export function ControlesVoz({ texto, crearTts = crearTtsWebSpeech }: Props) {
             </option>
           ))}
         </select>
-        <span id={idNota} className="text-xs text-slate-500">
+        <span id={idNota} className="text-xs text-slate-600">
           Voces es-MX y es-ES instaladas en este dispositivo ({voces?.coincidentes.length ?? 0} de {voces?.total ?? 0}). El navegador no
           indica el género de forma uniforme: «posible voz masculina» es una pista por el nombre. Tu elección se guarda solo en este navegador.
         </span>

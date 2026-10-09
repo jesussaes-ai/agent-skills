@@ -60,7 +60,7 @@ export function AppDemo() {
             <li
               key={p.id}
               aria-current={i === indice ? "step" : undefined}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 ${i === indice ? "bg-marino-800 text-white" : i < indice ? "bg-oro-100 text-oro-800" : "bg-slate-100 text-slate-500"}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 ${i === indice ? "bg-marino-800 text-white" : i < indice ? "bg-oro-100 text-oro-800" : "bg-slate-100 text-slate-600"}`}
             >
               {i === indice && <Emblema tamano={16} />}
               {i + 1}. {p.nombre}

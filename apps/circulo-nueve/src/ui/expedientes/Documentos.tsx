@@ -6,6 +6,7 @@ import type { Asignacion, Documento, Persona } from "@/modulos/expedientes/consu
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Selector } from "./Selector";
+import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
 
 function BorrarDocumento({ id, documentoId }: { id: string; documentoId: string }) {
   const [estado, accion] = useActionState(accionBorrarDocumento, ESTADO_INICIAL);
@@ -69,7 +70,13 @@ interface Props {
 }
 
 export function ListaDocumentos({ id, documentos, puedeBorrar, administracion, usuarioId }: Props) {
-  if (!documentos.length) return <p className="text-slate-600">Todavía no hay documentos. Genera un PDF desde una lectura guardada.</p>;
+  if (!documentos.length) {
+    return (
+      <EstadoVacio titulo="Todavía no hay documentos">
+        Genera un PDF desde una lectura guardada en el «Historial de lecturas»; aparecerá aquí, guardado en privado.
+      </EstadoVacio>
+    );
+  }
   return (
     <ul className="divide-y divide-slate-200">
       {documentos.map((d) => (

@@ -179,7 +179,7 @@ test("la asistente sin permisos asignados no ve ni crea expedientes", async ({ b
 
   await entrar(page, ASISTENTE.usuario, ASISTENTE.contrasena);
   await page.goto("/expedientes");
-  await expect(page.getByText("No tienes expedientes todavía.")).toBeVisible();
+  await expect(page.getByText("No tienes expedientes todavía")).toBeVisible();
   await expect(page.getByRole("button", { name: "Crear expediente", exact: true })).toHaveCount(0);
 
   await fila.getByLabel(/Crear y gestionar sus propios expedientes/).check();

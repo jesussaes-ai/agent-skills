@@ -105,7 +105,7 @@ export function BotBiblioteca({ proveedores }: { proveedores: ProveedorBibliotec
             )}
           </div>
         ) : (
-          <p className="text-xs text-slate-500">Sin proveedor de IA activo: el bot responde con citas literales de las fuentes y nada sale del servidor.</p>
+          <p className="text-xs text-slate-600">Sin proveedor de IA activo: el bot responde con citas literales de las fuentes y nada sale del servidor.</p>
         )}
         <Boton
           type="submit"
@@ -145,7 +145,7 @@ export function BotBiblioteca({ proveedores }: { proveedores: ProveedorBibliotec
         {respuesta.estado === "ok" && respuesta.afirmaciones && (
           <>
             {respuesta.mensaje && <p role="status" className="rounded-lg bg-amber-50 p-2 text-sm text-amber-950">{respuesta.mensaje}</p>}
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               {respuesta.modo === "llm" ? `Respuesta redactada por ${respuesta.proveedor} y validada contra los fragmentos.` : "Modo extractivo: citas literales, sin IA."}
               {respuesta.incluyoComplementarias ? " Incluye fuentes complementarias (autorizado)." : " Solo fuentes aportadas."}
             </p>

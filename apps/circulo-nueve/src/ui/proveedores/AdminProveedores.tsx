@@ -144,7 +144,7 @@ function Selector({ etiqueta, nota, error, children, ...props }: SelectHTMLAttri
         {children}
       </select>
       {nota && (
-        <span id={`${id}-nota`} className="text-xs text-slate-500">
+        <span id={`${id}-nota`} className="text-xs text-slate-600">
           {nota}
         </span>
       )}
@@ -159,7 +159,7 @@ function Casilla({ etiqueta, nota, error, ...props }: InputHTMLAttributes<HTMLIn
       <input type="checkbox" className="mt-1" {...props} />
       <span>
         {etiqueta}
-        {nota && <span className="block text-xs text-slate-500">{nota}</span>}
+        {nota && <span className="block text-xs text-slate-600">{nota}</span>}
         {error && <span className="block text-sm text-red-700">{error}</span>}
       </span>
     </label>
@@ -265,7 +265,7 @@ export function FormularioProveedor({
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
             />
           </label>
-          <span className="text-xs text-slate-500">Si el modelo principal responde 429 o falla, se prueban estos en orden, con el mismo proveedor.</span>
+          <span className="text-xs text-slate-600">Si el modelo principal responde 429 o falla, se prueban estos en orden, con el mismo proveedor.</span>
           {e.modelosAlternos && <span className="text-sm text-red-700">{e.modelosAlternos}</span>}
         </div>
         <Campo

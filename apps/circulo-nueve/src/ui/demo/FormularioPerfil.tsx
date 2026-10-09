@@ -23,7 +23,7 @@ function Campo({ etiqueta, nota, children }: { etiqueta: string; nota?: string; 
     <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
       {etiqueta}
       {children}
-      {nota && <span className="text-xs font-normal text-slate-500">{nota}</span>}
+      {nota && <span className="text-xs font-normal text-slate-600">{nota}</span>}
     </label>
   );
 }

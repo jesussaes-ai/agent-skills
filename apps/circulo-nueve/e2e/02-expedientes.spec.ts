@@ -92,7 +92,7 @@ test("PDF privado: se genera, se descarga con enlace firmado y queda auditado", 
 test("otro consultor no ve, no descarga ni exporta el expediente ajeno", async ({ page }) => {
   await entrar(page, BETO.usuario, BETO.contrasena);
   await page.goto("/expedientes");
-  await expect(page.getByText("No tienes expedientes todavía.")).toBeVisible();
+  await expect(page.getByText("No tienes expedientes todavía")).toBeVisible();
   const detalle = await page.request.get(`/expedientes/${expedienteId}`);
   expect(detalle.status()).toBe(404);
   const { data: docs } = await supabaseServicio().from("documents").select("id").eq("case_file_id", expedienteId);

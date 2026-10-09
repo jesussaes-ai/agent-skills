@@ -30,7 +30,7 @@ export function Campo({ etiqueta, error, nota, className = "", ...props }: Props
         className={`rounded-lg border px-3 py-2 text-base ${error ? "border-red-600" : "border-slate-300"} ${className}`}
       />
       {nota && (
-        <span id={idNota} className="text-xs text-slate-500">
+        <span id={idNota} className="text-xs text-slate-600">
           {nota}
         </span>
       )}
@@ -90,7 +90,7 @@ export function CampoContrasena({ etiqueta, error, nota, className = "", ...prop
         </div>
       </div>
       {nota && (
-        <span id={idNota} className="text-xs text-slate-500">
+        <span id={idNota} className="text-xs text-slate-600">
           {nota}
         </span>
       )}

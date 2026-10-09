@@ -127,7 +127,7 @@ export function AsistenteAyuda() {
             </option>
           ))}
         </select>
-        <span id={idModoNota} className="text-xs text-slate-500">
+        <span id={idModoNota} className="text-xs text-slate-600">
           {proveedores.length
             ? "Los proveedores de IA los configura la administración. Antes de enviar verás quién recibe tu pregunta."
             : "No hay proveedores de IA activos: el asistente funciona en modo demo."}
@@ -217,7 +217,7 @@ export function AsistenteAyuda() {
 
       {respuesta && (
         <div aria-live="polite" className="mt-5 space-y-3">
-          <p className="text-xs text-slate-500">{respuesta.aviso}</p>
+          <p className="text-xs text-slate-600">{respuesta.aviso}</p>
           {respuesta.afirmaciones.map((a, i) => (
             <div key={i} className="rounded-xl bg-slate-50 p-3">
               <p className="text-slate-800">{a.tipo === "extracto" && a.citas.length ? `«${a.texto}»` : a.texto}</p>

@@ -84,7 +84,7 @@ export function FormularioConsentimientos({ id, vigentes, editable }: { id: stri
         return (
           <div key={c.tipo}>
             <Casilla etiqueta={c.texto} name={c.tipo} defaultChecked={v?.otorgado ?? false} disabled={!editable} />
-            <p className="ml-8 text-xs text-slate-500">
+            <p className="ml-8 text-xs text-slate-600">
               {v ? `${v.otorgado ? "Otorgado" : "Retirado"} el ${new Date(v.fecha).toLocaleString("es-MX")}` : "Nunca otorgado"}
             </p>
           </div>

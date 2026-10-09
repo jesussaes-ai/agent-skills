@@ -4,6 +4,7 @@ import { listarExpedientes } from "@/modulos/expedientes/consultas";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
 import { FormularioNuevoExpediente } from "@/ui/expedientes/Formularios";
+import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Expedientes · Círculo Nueve" };
@@ -34,12 +35,16 @@ export default async function PaginaExpedientes({ searchParams }: { searchParams
                   {e.esDemo && <Etiqueta tono="ambar">Datos ficticios</Etiqueta>}
                   {e.esPropio ? <Etiqueta>Creado por ti</Etiqueta> : e.esCliente ? <Etiqueta>Tu expediente</Etiqueta> : <Etiqueta tono="gris">Asignado</Etiqueta>}
                 </div>
-                <span className="text-xs text-slate-500">{new Date(e.creado).toLocaleDateString("es-MX")}</span>
+                <span className="text-xs text-slate-600">{new Date(e.creado).toLocaleDateString("es-MX")}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-slate-600">No tienes expedientes todavía.</p>
+          <EstadoVacio titulo="No tienes expedientes todavía">
+            {puedeCrear
+              ? "Crea el primero en «Nuevo expediente». Solo tú y quien la administración autorice podrán verlo."
+              : "Cuando la administración te asigne un expediente, aparecerá aquí."}
+          </EstadoVacio>
         )}
       </Seccion>
       {puedeCrear && (

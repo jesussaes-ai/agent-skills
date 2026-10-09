@@ -4,6 +4,7 @@ import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Emblema, Logotipo } from "@/ui/componentes/Marca";
 import { SesionCabecera } from "@/ui/auth/SesionCabecera";
 import { FondoDecorativo } from "@/ui/componentes/FondoDecorativo";
+import { SaltoContenido } from "@/ui/componentes/SaltoContenido";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es">
       <body className="relative isolate min-h-screen">
         <FondoDecorativo />
+        <SaltoContenido />
         <header className="border-b-2 border-oro-400 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-2">
             <EnlaceBoton href="/" descripcion="Ir al inicio de Círculo Nueve." className="px-0 py-0">
@@ -49,7 +51,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </nav>
           </div>
         </header>
-        <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">{children}</main>
+        <main id="contenido" tabIndex={-1} className="mx-auto max-w-4xl px-4 py-6 focus:outline-none sm:py-10">
+          {children}
+        </main>
         <footer className="mx-auto max-w-4xl px-4 pb-8 text-xs text-slate-600">
           En construcción · la demostración usa datos ficticios · uso personal no comercial.
         </footer>
