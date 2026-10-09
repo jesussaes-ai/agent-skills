@@ -12,7 +12,7 @@ import {
 import { NOMBRES_PAQUETES, PAQUETES_PERMISOS, ROLES_ASIGNABLES, type EstadoFormulario, type PaquetePermisos } from "@/modulos/auth/esquemas";
 import { Boton } from "@/ui/componentes/Boton";
 import { Casilla } from "@/ui/expedientes/Selector";
-import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
+import { BotonEnviar, Campo, CampoContrasena, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
 
 export interface FilaUsuario {
   id: string;
@@ -29,7 +29,7 @@ export interface FilaUsuario {
 export const NOMBRE_ROL: Record<string, string> = { admin: "Administración", consultor: "Asistente", cliente: "Cliente" };
 
 const NOTA_ROL: Record<string, string> = {
-  consultor: "Asistente: solo hace lo que marques abajo. Sus expedientes quedan separados de los de los demás.",
+  consultor: "Asistente: solo hace lo que marques abajo. Sus expedientes quedan separados de los del resto del equipo.",
   cliente: "Cliente: solo verá, en lectura, el expediente que vincules a su cuenta (lecturas y PDF).",
   admin: "Administración: control total de expedientes, usuarios y configuración.",
 };
@@ -108,12 +108,10 @@ export function FormularioCrearCuenta() {
           ))}
         </ul>
       </div>
-      <Campo
+      <CampoContrasena
         etiqueta="Contraseña inicial (opcional)"
         name="contrasena"
-        type="text"
-        autoComplete="off"
-        spellCheck={false}
+        autoComplete="new-password"
         nota="Déjala vacía y se generará una segura. Al menos 10 caracteres, con letras y números."
         error={estado.errores?.contrasena}
       />
@@ -165,12 +163,10 @@ function ControlRestablecer({ fila }: { fila: FilaUsuario }) {
   return (
     <form action={accion} className="space-y-2 rounded-lg border border-slate-200 p-3">
       <input type="hidden" name="usuarioId" value={fila.id} />
-      <Campo
+      <CampoContrasena
         etiqueta="Contraseña nueva (opcional)"
         name="contrasena"
-        type="text"
-        autoComplete="off"
-        spellCheck={false}
+        autoComplete="new-password"
         nota="Vacía: se genera una."
         error={estado.errores?.contrasena}
       />

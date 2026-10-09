@@ -8,7 +8,7 @@ import {
   accionEntrar,
   accionVerificarMfa,
 } from "@/modulos/auth/acciones";
-import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
+import { BotonEnviar, Campo, CampoContrasena, ESTADO_INICIAL, MensajeFormulario } from "./Campos";
 
 const NOTA_CONTRASENA = "Al menos 10 caracteres, con letras y números.";
 const NOTA_USUARIO = "De 3 a 32 caracteres: empieza con letra; letras sin acento, números, punto, guion o guion bajo.";
@@ -18,14 +18,13 @@ export function FormularioAlta() {
   return (
     <form action={accion} className="space-y-4" noValidate>
       <MensajeFormulario estado={estado} />
-      <Campo
+      <CampoContrasena
         etiqueta="Clave de alta"
         name="clave"
-        type="password"
         autoComplete="off"
         required
         error={estado.errores?.clave}
-        nota="Solo la conoce el responsable. Se valida en el servidor y deja de servir tras el alta."
+        nota="Solo la conoce la persona responsable del proyecto. Se valida en el servidor y deja de servir tras el alta."
       />
       <Campo
         etiqueta="Usuario de administración"
@@ -38,8 +37,8 @@ export function FormularioAlta() {
         nota={NOTA_USUARIO}
         error={estado.errores?.usuario}
       />
-      <Campo etiqueta="Contraseña" name="contrasena" type="password" required autoComplete="new-password" nota={NOTA_CONTRASENA} error={estado.errores?.contrasena} />
-      <Campo etiqueta="Repite la contraseña" name="confirmacion" type="password" required autoComplete="new-password" error={estado.errores?.confirmacion} />
+      <CampoContrasena etiqueta="Contraseña" name="contrasena" required autoComplete="new-password" nota={NOTA_CONTRASENA} error={estado.errores?.contrasena} />
+      <CampoContrasena etiqueta="Repite la contraseña" name="confirmacion" required autoComplete="new-password" error={estado.errores?.confirmacion} />
       <BotonEnviar descripcion="Valida la clave en el servidor, crea la cuenta de administración y cierra esta página para siempre.">
         Crear administración
       </BotonEnviar>
@@ -63,7 +62,7 @@ export function FormularioEntrar({ siguiente }: { siguiente: string }) {
         defaultValue={estado.valores?.usuario}
         error={estado.errores?.usuario}
       />
-      <Campo etiqueta="Contraseña" name="contrasena" type="password" required autoComplete="current-password" error={estado.errores?.contrasena} />
+      <CampoContrasena etiqueta="Contraseña" name="contrasena" required autoComplete="current-password" error={estado.errores?.contrasena} />
       <BotonEnviar descripcion="Comprueba tu usuario y contraseña. Si activaste la verificación en dos pasos, después te pedirá el código.">
         Entrar
       </BotonEnviar>
@@ -101,8 +100,8 @@ export function FormularioContrasena({ siguiente }: { siguiente?: string }) {
     <form action={accion} className="space-y-4" noValidate>
       <MensajeFormulario estado={estado} />
       {siguiente && <input type="hidden" name="next" value={siguiente} />}
-      <Campo etiqueta="Contraseña nueva" name="contrasena" type="password" required autoComplete="new-password" nota={NOTA_CONTRASENA} error={estado.errores?.contrasena} />
-      <Campo etiqueta="Repite la contraseña" name="confirmacion" type="password" required autoComplete="new-password" error={estado.errores?.confirmacion} />
+      <CampoContrasena etiqueta="Contraseña nueva" name="contrasena" required autoComplete="new-password" nota={NOTA_CONTRASENA} error={estado.errores?.contrasena} />
+      <CampoContrasena etiqueta="Repite la contraseña" name="confirmacion" required autoComplete="new-password" error={estado.errores?.confirmacion} />
       <BotonEnviar descripcion="Guarda la contraseña nueva de tu cuenta.">Guardar contraseña</BotonEnviar>
     </form>
   );

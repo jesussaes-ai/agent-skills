@@ -244,6 +244,22 @@ test("un usuario inexistente recibe el mismo mensaje que una contraseña erróne
   await expect(page.getByText(/^Las cuentas no usan correo/)).toBeVisible();
 });
 
+test("el botón del ojo muestra y oculta la contraseña", async ({ page }) => {
+  await page.goto("/entrar");
+  const campo = page.getByLabel("Contraseña", { exact: true });
+  await campo.fill("Secreta2026x");
+  await expect(campo).toHaveAttribute("type", "password");
+  const mostrar = page.getByRole("button", { name: "Mostrar contraseña", exact: true });
+  await expect(mostrar).toHaveAttribute("aria-pressed", "false");
+  await mostrar.click();
+  await expect(campo).toHaveAttribute("type", "text");
+  const ocultar = page.getByRole("button", { name: "Ocultar contraseña", exact: true });
+  await expect(ocultar).toHaveAttribute("aria-pressed", "true");
+  await ocultar.click();
+  await expect(campo).toHaveAttribute("type", "password");
+  await expect(campo).toHaveValue("Secreta2026x");
+});
+
 test("los botones nuevos tienen ventana explicativa", async ({ page }) => {
   await page.goto("/entrar");
   const boton = page.getByRole("button", { name: "Entrar", exact: true });
