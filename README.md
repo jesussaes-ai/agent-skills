@@ -114,6 +114,15 @@ Preview URL: https://skill-deploy-abc123.vercel.app
 Claim URL:   https://vercel.com/claim-deployment?code=...
 ```
 
+### telegram-bridge
+
+Telegram channel for Cursor agents across all projects: notifications (text plus an optional local-TTS voice note) and approval requests with Approve / Reject / Reply buttons. A free Cloudflare Worker relay validates the webhook `secret_token` and a `chat_id` allowlist, then forwards the answer to the right Cloud Agent via `POST /v1/agents/{id}/runs`. Destructive or production actions require typing an exact confirmation phrase. Voice replies are transcribed locally with faster-whisper. Setup guide (Spanish): `skills/telegram-bridge/GUIA.md`.
+
+**Use when:**
+- "Avísame por Telegram"
+- "Pídeme aprobación"
+- "Mándame una nota de voz cuando termines"
+
 ## Installation
 
 ```bash

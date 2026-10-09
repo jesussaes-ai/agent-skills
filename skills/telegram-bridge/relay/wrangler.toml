@@ -1,0 +1,17 @@
+name = "telegram-bridge-relay"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Reintento de entregas cuando el agente estaba ocupado (409 agent_busy).
+# Cada 5 min = 288 list/día, dentro del límite gratuito de KV (1.000/día).
+[triggers]
+crons = ["*/5 * * * *"]
+
+# deploy-relay.sh sustituye este id por el del namespace creado en tu cuenta.
+[[kv_namespaces]]
+binding = "BRIDGE_KV"
+id = "REEMPLAZAR_CON_ID_DE_KV"
+
+# Secretos (nunca aquí): wrangler secret put TELEGRAM_BOT_TOKEN | TELEGRAM_CHAT_ID |
+# TELEGRAM_WEBHOOK_SECRET | CURSOR_API_KEY
