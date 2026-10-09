@@ -101,9 +101,21 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Interfaz más cálida: tarjetas translúcidas (cristal esmerilado sutil) y motivos SVG propios en azul marino y dorado, distintos por sección: cuadrado de números en numerología y perfiles, rueda zodiacal en carta natal, Árbol de la Vida en cábala, constelaciones en biblioteca y asistente, emblema de nueve esferas en el resto. Son decorativos (`aria-hidden`); la rueda del fondo gira muy lento y se detiene con «reducir movimiento». Contraste AA conservado.
   - Zona horaria con buscador: todas las zonas IANA del navegador (`Intl.supportedValuesOf`, con lista de respaldo), agrupadas por región, México primero, con su desfase UTC de hoy y búsqueda sin acentos por ciudad, región o desfase. «Automática» usa la zona del lugar elegido en la carta natal.
 
+## 9 oct 2026
+- **03:15** — Etapas 9 (resto) y 10, endurecimiento:
+  - **Enlaces para compartir** un PDF o todos los del expediente: vencen (1 hora a 30 días, con tope en `/admin/ajustes`), descargas máximas opcionales, revocables al instante y solo con el permiso «compartir». La base guarda el hash del token y audita cada apertura y descarga con la IP recortada. Vencido o revocado: la página dice «ya no está disponible» y la descarga responde 410 ([detalle](expedientes.md#enlaces-para-compartir)).
+  - **Retención configurable** de enlaces vencidos o revocados (90 días) y de la auditoría (730, mínimo 365); la purga programada los borra y deja constancia.
+  - **Límites de frecuencia** compartidos en una tabla de Supabase (claves SHA-256): entrar y verificación en dos pasos cuentan solo los intentos fallidos; también alta, descargas, exportación, PDF, enlaces públicos, asistente y bot.
+  - **Accesibilidad WCAG 2.2 AA:** axe en e2e sobre las pantallas principales, «Saltar al contenido», estados vacíos y de error (404, error inesperado) con ayuda contextual.
+  - **Lista de seguridad** ([seguridad.md](seguridad.md)): llaves, RLS, registros sin datos sensibles y cabeceras HTTP; buena parte la revisa una prueba automática. CSP con *nonce* queda pendiente para el despliegue.
+  - Ayuda nueva: «Enlaces para compartir», «Página de un enlace compartido», «Privacidad y seguridad», «Instalación y despliegue» y «Errores y páginas vacías». README con instalación, privacidad y seguridad.
+  - Migración `20261009000100_compartir_retencion_limites.sql`, pgTAP `09_compartir_retencion`, e2e `08-compartir`, `09-accesibilidad` y `10-limites`.
+  - **Qué se hizo y por qué:** ahora se puede mandar un reporte a alguien sin darle una cuenta, con un enlace que caduca solo y que se puede apagar en cualquier momento; así nada queda abierto para siempre. Además se pusieron frenos contra quien intente adivinar contraseñas o enlaces, se revisó que la app se pueda usar con teclado y lector de pantalla, y se dejó por escrito cómo instalarla, publicarla y qué datos guarda.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta de la persona propietaria) y tarea programada para `retencion:purgar`.
+- `Content-Security-Policy` con *nonce* al desplegar con el dominio definitivo; revisión manual con lector de pantalla.
 - Texto del aviso de privacidad (lo redacta la persona responsable en `/admin/ajustes`).
 - Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
 - Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.

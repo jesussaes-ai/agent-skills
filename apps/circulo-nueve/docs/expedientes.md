@@ -30,7 +30,17 @@ El modo efímero sin cuenta sigue en la página de inicio: no hay sesión ni alm
    - Los enlaces de descarga no se precargan (`prefetch={false}`), para no generar registros de auditoría falsos.
 3. **Retención:**
    - `documents.retener_hasta` se fija al crear el documento: hoy + `retencion_documentos_dias` (365 por defecto, configurable en `/admin/ajustes`).
-   - `npm run retencion:purgar` (con la llave de servicio, a diario desde el cron del hosting) borra primero el archivo, después el registro, y deja constancia en la auditoría. Con `--simular` solo lista lo que borraría.
+   - `npm run retencion:purgar` (con la llave de servicio, programado en GitHub Actions) borra primero el archivo, después el registro, y deja constancia en la auditoría. Después purga los enlaces y la auditoría vencidos (`purgar_registros_vencidos`). Con `--simular` solo lista los documentos que borraría.
+
+## Enlaces para compartir
+
+Sección «Enlaces para compartir» del expediente; solo la ve quien tiene el permiso `compartir` (administración, o asistentes con el paquete «compartir» en sus propios expedientes o por asignación).
+
+1. **Crear:** se elige un PDF o «Todos los PDF del expediente», la vigencia (1 hora a 30 días, recortada al tope `enlace_vigencia_max_dias` de `/admin/ajustes`, 7 por defecto), un máximo de descargas opcional y una nota opcional. El servidor genera 32 bytes aleatorios (token base64url de 43 caracteres), guarda solo su SHA-256 con la sesión de la persona (RLS y auditoría) y muestra el enlace `/compartido/<token>` **una sola vez**.
+2. **Abrir** (`/compartido/[token]`, sin cuenta): `usar_enlace_compartido` (solo rol de servicio) valida el hash, la revocación, la vigencia y las descargas restantes, y registra la apertura con la IP recortada. Si el enlace venció, se revocó o no existe, la página dice solo «ya no está disponible», sin distinguir el motivo; si se agotaron las descargas, muestra el documento sin botón de descarga. La página no se indexa ni envía *referrer*.
+3. **Descargar** (`/compartido/[token]/[documentoId]`): vuelve a validar, cuenta la descarga, la audita y responde 303 a una URL firmada de 60 s. Enlace vencido, revocado o agotado: **410**; token o documento inexistente: **404**; demasiadas solicitudes desde la misma IP: **429**.
+4. **Revocar:** botón «Revocar» en la lista; deja de funcionar de inmediato y no se puede deshacer. La base solo permite ese cambio (no ampliar la vigencia, no reiniciar descargas, no borrar).
+5. **Retención:** los enlaces vencidos o revocados se borran `retencion_enlaces_dias` después (90 por defecto) y la auditoría tras `retencion_auditoria_dias` (730 por defecto, mínimo 365), con `npm run retencion:purgar`.
 
 Los PDF leen fuentes e imágenes del disco con rutas desde `process.cwd()`. `next.config.ts` incluye `src/reportes/fuentes`, `src/reportes/marca` y `public/datos` (catálogo de lugares para recalcular la carta) en las trazas del servidor para que viajen a las funciones de Vercel.
 
@@ -58,6 +68,8 @@ Nota técnica: en las tablas cuya política de lectura usa `has_case_perm` no se
   - la purga por retención borra archivo y registro;
   - el borrado total elimina también el almacenamiento;
   - el script de recuperación de emergencia.
+- pgTAP `09_compartir_retencion.test.sql`: crear y revocar enlaces con y sin permiso, tope de vigencia, solo revocar, uso público (vigente, revocado, vencido, agotado, documento ajeno), auditoría sin token, límites de frecuencia y purga por retención.
+- e2e `08-compartir.spec.ts`: crear un enlace y descargar sin cuenta; sin permiso de compartir no hay sección ni acceso directo a la base; revocado, vencido y agotado dejan de funcionar (410); auditoría; tope de vigencia desde `/admin/ajustes`; purga.
 - e2e `06-carta-natal.spec.ts`, que recorre:
   - sin el consentimiento del historial, la carta se calcula pero «Guardar carta natal» está desactivado;
   - con consentimiento, se guarda recalculada en el servidor; la fila de `readings` lleva motor, versiones, ajustes (Koch), efemérides, tzdb, UT y la fuente GeoNames;

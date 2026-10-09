@@ -1,11 +1,11 @@
 {
-  "version": "2026-10-06.5",
+  "version": "2026-10-09.1",
   "secciones": [
     {
       "id": "proyecto",
       "titulo": "Sobre Círculo Nueve",
       "resumen": "Qué es la aplicación, en qué etapa está y qué falta.",
-      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado. La etapa 5 añade la biblioteca de fuentes: centro de carga, ingesta web, revisión, búsqueda híbrida y bot con citas.",
+      "deQueTrata": "Círculo Nueve es una aplicación personal y gratuita, en español, para explorar numerología, carta natal y cábala como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones. Se construye por etapas. La etapa 1 es una demo con datos ficticios, el motor de numerología pitagórica y el centro de ayuda. La etapa 2 dejó preparado el esquema de base de datos (Supabase) con permisos que separan los expedientes de cada persona, probado en local; La etapa 3 conecta la app a ese esquema: cuentas por invitación, alta inicial de la administración, verificación en dos pasos y panel de usuarios, probados con Supabase local. La etapa 4 añade los expedientes en la interfaz: perfiles, consentimientos, lecturas guardadas, PDF con descarga verificada, exportación y borrado. La etapa 5 añade la biblioteca de fuentes: centro de carga, ingesta web, revisión, búsqueda híbrida y bot con citas. Las etapas 9 y 10 añaden enlaces para compartir PDF que vencen y se revocan, retención configurable de enlaces y auditoría, límites de frecuencia, revisión de accesibilidad (WCAG 2.2 AA) y una lista de seguridad. La cábala sigue pendiente de los libros de referencia.",
       "datosQueUsa": [
         "En la etapa 1 no se guarda nada: todo vive en la memoria de esta pestaña y se pierde al cerrarla.",
         "No hay cuentas ni envío a servicios externos todavía; la base de datos solo existe en pruebas locales."
@@ -598,7 +598,8 @@
       ],
       "comoSeUsa": [
         "Pulsa «Descargar» junto al documento.",
-        "Pulsa «Borrar» para eliminar el documento y su archivo."
+        "Pulsa «Borrar» para eliminar el documento y su archivo.",
+        "Para enviarlo a otra persona sin darle una cuenta, usa «Enlaces para compartir»."
       ],
       "estado": "disponible",
       "palabrasClave": [
@@ -612,6 +613,55 @@
         "firmado",
         "retención",
         "archivo"
+      ]
+    },
+    {
+      "id": "expediente-compartir",
+      "titulo": "Enlaces para compartir",
+      "resumen": "Enviar un PDF o los PDF del expediente con un enlace que vence y se puede revocar.",
+      "deQueTrata": "Crea un enlace para que alguien sin cuenta descargue un PDF del expediente, o todos sus PDF. Solo pueden hacerlo la administración y las asistentes con el permiso «Compartir». El enlace vence en el plazo que elijas (nunca más que la vigencia máxima de «Ajustes»), puede limitarse a cierto número de descargas y se revoca al instante con «Revocar». Se muestra una sola vez: en la base de datos solo queda una huella cifrada, así que nadie puede recuperarlo después. Cada apertura, descarga e intento con un enlace vencido o revocado queda en la auditoría. Quien lo recibe solo ve los nombres de los PDF y su fecha: nunca el perfil ni los datos del expediente.",
+      "datosQueUsa": [
+        "El PDF elegido (o la lista de PDF del expediente), la fecha de vencimiento, el máximo de descargas y una nota opcional.",
+        "Huella SHA-256 del enlace, número de descargas y fecha de la última."
+      ],
+      "comoSeUsa": [
+        "Elige qué compartir, en cuánto vence y, si quieres, un máximo de descargas.",
+        "Pulsa «Crear enlace» y después «Copiar enlace»; envíalo por un canal privado.",
+        "Pulsa «Revocar» para desactivarlo antes de que venza. No se puede deshacer: crea uno nuevo si hace falta."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "compartir",
+        "enlace",
+        "enlaces",
+        "vence",
+        "vencimiento",
+        "revocar",
+        "link",
+        "enviar pdf",
+        "descargas"
+      ]
+    },
+    {
+      "id": "compartido",
+      "titulo": "Documento compartido contigo",
+      "resumen": "Qué es la página que abres con un enlace compartido.",
+      "deQueTrata": "Alguien del equipo de Círculo Nueve te envió un enlace para descargar uno o varios reportes en PDF, sin necesidad de cuenta. La página muestra hasta cuándo está disponible y, si aplica, cuántas descargas quedan. Cada descarga usa un enlace temporal que caduca en segundos y queda registrada. Si el enlace venció, se revocó o se agotaron sus descargas, verás un aviso y tendrás que pedir uno nuevo.",
+      "datosQueUsa": [
+        "El enlace que recibiste. De tu conexión solo se registra una versión recortada de la dirección IP, sin datos personales."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Descargar PDF» junto al reporte.",
+        "No reenvíes el enlace: quien lo tenga podrá descargar el PDF mientras siga vigente."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "compartido",
+        "enlace",
+        "descargar",
+        "vencido",
+        "revocado",
+        "pdf"
       ]
     },
     {
@@ -664,11 +714,11 @@
     },
     {
       "id": "ajustes",
-      "titulo": "Ajustes de retención y aviso de privacidad",
-      "resumen": "Cuánto tiempo se guardan los documentos y qué dice el aviso de los PDF.",
-      "deQueTrata": "La administración define cuántos días se conservan los documentos (los generados desde ese momento usan el valor nuevo) y cuántos segundos vive cada enlace de descarga. También completa el aviso de privacidad que se imprime en los PDF; los campos vacíos se muestran como pendientes, nunca se inventan. La purga de documentos vencidos se ejecuta con «npm run retencion:purgar» en el servidor.",
+      "titulo": "Ajustes de retención, enlaces y aviso de privacidad",
+      "resumen": "Cuánto tiempo se guardan documentos, enlaces y auditoría, y qué dice el aviso de los PDF.",
+      "deQueTrata": "La administración define cuántos días se conservan los documentos (los generados desde ese momento usan el valor nuevo), cuántos segundos vive cada enlace de descarga, cuántos días puede durar como máximo un enlace para compartir, cuántos días se guarda el registro de los enlaces vencidos o revocados y cuántos días se conserva la auditoría (mínimo un año). También completa el aviso de privacidad que se imprime en los PDF; los campos vacíos se muestran como pendientes, nunca se inventan. La purga diaria («npm run retencion:purgar» en la tarea programada) borra lo que ya venció y deja constancia en la auditoría.",
       "datosQueUsa": [
-        "Días de retención, segundos de vigencia y los textos del aviso."
+        "Días de retención de documentos, enlaces y auditoría; segundos de vigencia de las descargas; vigencia máxima de los enlaces; textos del aviso."
       ],
       "comoSeUsa": [
         "Abre «Ajustes» en la barra superior (solo administración)."
@@ -681,7 +731,10 @@
         "purga",
         "vigencia",
         "aviso de privacidad",
-        "responsable"
+        "responsable",
+        "enlaces",
+        "auditoría",
+        "compartir"
       ]
     },
     {
@@ -985,6 +1038,84 @@
       ]
     },
     {
+      "id": "privacidad-seguridad",
+      "titulo": "Privacidad y seguridad",
+      "resumen": "Cómo se protegen tus datos y qué controles tiene la app.",
+      "deQueTrata": "Círculo Nueve guarda lo mínimo y solo con tu consentimiento. Cada tabla de la base de datos niega el acceso por defecto y solo abre lo que tu cuenta tiene permitido; los archivos viven en almacenamiento privado y se descargan con enlaces que caducan en segundos. Las llaves secretas solo existen en el servidor. La auditoría registra quién hizo qué y cuándo, sin copiar contenidos personales, tokens ni contraseñas. Hay límites de frecuencia para los intentos fallidos al entrar o al verificar códigos, y para descargar, exportar, generar PDF, compartir y preguntar al asistente: tras demasiados intentos se pide esperar unos minutos. Los documentos, los enlaces y la auditoría se borran solos al cumplir su plazo de retención. Puedes exportar o borrar un expediente en cualquier momento.",
+      "datosQueUsa": [
+        "Los consentimientos de cada expediente.",
+        "Registros de auditoría sin contenido personal y contadores de intentos guardados como huellas, sin IP ni usuario en claro."
+      ],
+      "comoSeUsa": [
+        "Revisa «Consentimientos» en cada expediente.",
+        "Activa la verificación en dos pasos en «Mi cuenta».",
+        "Si ves «Demasiados intentos», espera el tiempo indicado y vuelve a intentarlo.",
+        "El aviso de privacidad completo lo redacta la persona responsable y aparece al final de cada PDF."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "privacidad",
+        "seguridad",
+        "datos",
+        "demasiados intentos",
+        "límite",
+        "bloqueo",
+        "aviso de privacidad",
+        "rls",
+        "auditoría",
+        "retención",
+        "contraseña"
+      ]
+    },
+    {
+      "id": "instalacion-despliegue",
+      "titulo": "Instalación y despliegue",
+      "resumen": "Cómo se instala en una computadora y cómo se publica gratis.",
+      "deQueTrata": "La app se instala con Node.js 20.9 o superior: «npm install» y «npm run dev». Sin variables de Supabase funciona en modo demo con datos ficticios. Con Docker se levanta una base de datos local («npm run db:start») para probar cuentas, expedientes y biblioteca. La publicación gratuita usa Supabase Free, Vercel Hobby y tareas programadas en GitHub Actions (worker, ping para que la base no se pause y purga por retención). Los pasos completos están en el README y en docs/despliegue.md del repositorio; la lista de seguridad, en docs/seguridad.md.",
+      "datosQueUsa": [
+        "Ninguno. Las claves se cargan como secretos del hosting, nunca en el código ni en chats."
+      ],
+      "comoSeUsa": [
+        "Sigue la sección «Ejecutar» del README para probarla en tu computadora.",
+        "Sigue docs/despliegue.md para publicarla; al terminar, repasa la «Lista final» y docs/seguridad.md."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "instalar",
+        "instalación",
+        "desplegar",
+        "despliegue",
+        "publicar",
+        "vercel",
+        "supabase",
+        "docker",
+        "readme",
+        "node"
+      ]
+    },
+    {
+      "id": "errores",
+      "titulo": "Errores y páginas no encontradas",
+      "resumen": "Qué hacer si una página no existe o algo falla.",
+      "deQueTrata": "Si una dirección no existe o no tienes permiso para verla, la app muestra «Página no encontrada» (por privacidad, ambos casos se ven igual). Si ocurre un error inesperado, la app no muestra detalles técnicos: ofrece «Intentar de nuevo» y una referencia para soporte. Tus datos no se modifican cuando algo falla.",
+      "datosQueUsa": [
+        "Ninguno."
+      ],
+      "comoSeUsa": [
+        "Pulsa «Intentar de nuevo» o vuelve al inicio.",
+        "Si el problema sigue, comparte la referencia (no tus datos) con la administración."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "error",
+        "falla",
+        "no encontrada",
+        "404",
+        "problema",
+        "referencia"
+      ]
+    },
+    {
       "id": "centro-ayuda",
       "titulo": "Centro de ayuda y ventanas explicativas",
       "resumen": "Dónde encontrar la explicación de cada sección y de cada botón.",
@@ -996,7 +1127,8 @@
         "Pulsa «?» junto al título de una sección.",
         "Pasa el ratón, enfoca con Tab o toca un botón para ver qué hace.",
         "Abre «Ayuda» en la barra superior para ver todas las secciones.",
-        "Los dibujos de fondo (rueda zodiacal, cuadrado de números, Árbol de la Vida, constelaciones y el emblema de nueve esferas) son solo decoración: cambian según la sección y se detienen si tu sistema pide reducir el movimiento."
+        "Los dibujos de fondo (rueda zodiacal, cuadrado de números, Árbol de la Vida, constelaciones y el emblema de nueve esferas) son solo decoración: cambian según la sección y se detienen si tu sistema pide reducir el movimiento.",
+        "La app se revisa con herramientas automáticas de accesibilidad (WCAG 2.2 AA): contraste, etiquetas, orden del teclado y nombres de los botones."
       ],
       "estado": "disponible",
       "palabrasClave": [

@@ -14,6 +14,7 @@ Estado: **migraciones y pruebas locales listas**. No hay ningún proyecto Supaba
 | `…0500_storage.sql` | Buckets privados `cuarentena`, `biblioteca-originales`, `biblioteca-derivados`, `expedientes`; políticas de `storage.objects` según el expediente de la ruta `{uuid}/…`; revocación total al rol anónimo. |
 | `…0800_biblioteca_ingesta.sql` | Biblioteca: origen, URL y derechos en `sources`; versiones con rutas, diferencias y advertencias; cola de trabajos (`tomar_trabajo_ingesta` atómica); fragmentos `vector(384)` con exclusión y marca de posible inyección; `hybrid_search` con umbral de similitud. Detalle: [biblioteca.md](biblioteca.md). |
 | `…2100_consumo_llm_biblioteca.sql` | Permite el origen `biblioteca` en `ai_usage`. |
+| `20261009000100_compartir_retencion_limites.sql` | Enlaces para compartir (alcance documento o expediente, hash SHA-256, nota, máximo de descargas, solo revocar, auditoría sin token), `usar_enlace_compartido`; ajustes de vigencia máxima y retención de enlaces y auditoría; `limites_frecuencia` + `consumir_limite`; purga `purgar_registros_vencidos` (la auditoría solo pierde filas fuera de plazo). Ver [expedientes.md](expedientes.md#enlaces-para-compartir) y [seguridad.md](seguridad.md). |
 
 ## Modelo de permisos
 
@@ -48,6 +49,7 @@ Las claves que imprime `db:start` son las de demostración de la CLI local; no s
 | `01_estructura.test.sql` | RLS en todas las tablas, `anon` sin privilegios, buckets privados, funciones security definer con `search_path` fijo, pgvector e índice HNSW. |
 | `02_aislamiento_expedientes.test.sql` | Seis cuentas ficticias: cada consultor solo ve y modifica sus expedientes, archivos y lecturas; la persona cliente solo lee el suyo; las asignaciones vencidas no dan acceso y las de solo lectura no permiten modificar; una cuenta suspendida no ve nada; sin autoasignación de roles ni expedientes; el alta inicial solo funciona una vez; la búsqueda respeta niveles de acceso; `anon` no lee nada. |
 | `03_auditoria.test.sql` | La auditoría registra los cambios, no copia datos personales y no se puede modificar ni borrar. |
+| `09_compartir_retencion.test.sql` | Enlaces para compartir (permiso, tope de vigencia, solo revocar, uso público y estados), auditoría sin token, límites de frecuencia y purga por retención. |
 
 ## Pendiente
 

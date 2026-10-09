@@ -4,7 +4,7 @@ Aplicación web en español, para teléfono y computadora, que ayuda a explorar 
 
 Uso personal, no comercial y gratuito.
 
-> **Estado: demo, cuentas, expedientes y PDF, probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas con usuario y contraseña (las crea la administración; sin correo), el alta de administración, la verificación en dos pasos opcional, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+> **Estado: demo, cuentas, expedientes, PDF, enlaces para compartir y endurecimiento (accesibilidad, límites, lista de seguridad), probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas con usuario y contraseña (las crea la administración; sin correo), el alta de administración, la verificación en dos pasos opcional, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
 
 ## Qué incluye
 
@@ -28,6 +28,11 @@ Uso personal, no comercial y gratuito.
 | CI (tipos, pruebas, compilación, pgTAP, e2e) | Workflow `.github/workflows/circulo-nueve-ci.yml` en la raíz del repo; copia en `.github/workflows/ci.yml` para cuando la app tenga repo propio |
 | Expedientes: perfil separado, consentimientos exigidos por la base de datos, lecturas guardadas e historial, modo efímero, exportar o borrar, permisos por expediente y por archivo | Funciona con Supabase local ([detalle](docs/expedientes.md)) |
 | Reportes PDF (`src/reportes`): generación en servidor, almacenamiento privado, descarga con URL firmada corta, auditoría y retención configurable con purga | Funciona con Supabase local |
+| Enlaces para compartir un PDF o todos los del expediente: vencen (1 hora a 30 días, tope configurable), máximo de descargas opcional, revocables al instante, solo con el permiso «compartir»; la base guarda solo el hash del token y audita cada apertura y descarga | Funciona con Supabase local ([detalle](docs/expedientes.md#enlaces-para-compartir)) |
+| Retención configurable de documentos, enlaces vencidos o revocados y auditoría (mínimo 1 año), con purga programada | Funciona con Supabase local |
+| Límites de frecuencia compartidos (tabla en Supabase con claves SHA-256) en entrar, verificación en dos pasos, alta, descargas, exportación, PDF, enlaces públicos, asistente y bot | Funciona con Supabase local ([seguridad](docs/seguridad.md)) |
+| Accesibilidad WCAG 2.2 AA: revisión automática con axe en las pantallas principales, salto al contenido, foco visible, estados vacíos y de error claros | Probado en e2e |
+| Lista de seguridad (llaves, RLS, registros sin datos sensibles, cabeceras HTTP) revisada por pruebas automáticas | Disponible ([seguridad](docs/seguridad.md)) |
 | Recuperación de emergencia de la administración | Script de servidor auditado ([procedimiento](docs/recuperacion-emergencia.md)) |
 | Biblioteca RAG: administración de fuentes, centro de carga (PDF, EPUB, DOCX, TXT/MD, imágenes con OCR), web → Markdown, revisión y versiones, worker, embeddings locales, búsqueda híbrida con permisos, bot con citas validadas y proporción 80/20 | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
 | Biblioteca multimedia: figuras de PDF (leyenda, OCR, descripción etiquetada; visión opcional), hojas (XLSX/ODS/CSV con hoja y celdas), PPTX, audio y video con transcripción local (Whisper) y marcas de tiempo, carga directa a Storage, ClamAV opcional | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
@@ -62,7 +67,7 @@ npm run dev        # http://localhost:3000
 | `npm run test:db` | Reinicia la base local y ejecuta las pruebas pgTAP |
 | `npm run test:e2e` | Pruebas de extremo a extremo con Auth local (Playwright) |
 | `npm run setup:hash` | Genera el hash argon2id de la clave de alta |
-| `npm run retencion:purgar` | Borra los documentos con retención vencida (llave de servicio; `-- --simular` para solo listar) |
+| `npm run retencion:purgar` | Borra documentos, enlaces y auditoría con retención vencida (llave de servicio; `-- --simular` para solo listar documentos) |
 | `npm run admin:emergencia` | Recuperación de emergencia de la administración (ver docs) |
 | `npm run ingesta:worker` | Worker de la biblioteca: procesa la cola de ingesta (`-- --continuo` para seguir esperando) |
 | `npm run respaldo` | Respaldo cifrado de base y archivos ([despliegue](docs/despliegue.md#7-respaldos-manuales-el-plan-gratuito-no-tiene)) |
@@ -114,6 +119,8 @@ src/
   modulos/
     auth/                 Sesión, acciones de servidor, clave de alta, límites de intentos, validación
     expedientes/          Consultas y acciones de expedientes, lecturas, documentos y ajustes
+    compartir/            Enlaces para compartir: token, estados, acciones y uso público
+    seguridad/            Reglas y límites de frecuencia; prueba de la lista de seguridad
     biblioteca/           Biblioteca RAG: formatos, extracción, web, fragmentos, embeddings, worker, bot y 80/20
     calculo/numerologia/  Motor puro, sin E/S, con casos de referencia y pruebas
     calculo/astrologia/   Carta natal: efemérides, tzdb, casas, aspectos y casos contra Swiss Ephemeris
@@ -182,9 +189,26 @@ GitHub solo lee los workflows de la raíz del repositorio. Mientras la app viva 
 
 Esquema, modelo de permisos y pruebas: [docs/base-de-datos.md](docs/base-de-datos.md). No hay proyecto remoto creado; todo se prueba con Supabase local.
 
+## Instalación
+
+1. Instala Node.js 20.9+ (probado con 22), Git y Docker.
+2. `npm install` en esta carpeta.
+3. Sin variables, `npm run dev` abre la demo (datos ficticios, nada sale del navegador).
+4. Para cuentas y expedientes, sigue «Cuentas y Supabase local» más abajo.
+5. Comprueba todo con `npm test`, `npm run test:db` y `npm run test:e2e`.
+
 ## Privacidad
 
-En la etapa 1 no hay almacenamiento, cuentas, analítica ni envío a terceros. El aviso de privacidad lo completará la persona responsable; mientras tanto se muestra como pendiente.
+- **Modo demo:** sin cuentas, analítica ni envío a terceros; los datos ficticios no salen del navegador.
+- **Con Supabase:** los perfiles y lecturas se guardan solo con consentimiento explícito (la base lo exige), en tablas con RLS que deniegan por defecto y archivos en buckets privados. Cada persona puede exportar o borrar su expediente.
+- **Compartir:** solo con el permiso «compartir». El enlace vence, puede revocarse y se puede limitar el número de descargas; la base guarda el hash del token, nunca el token. La auditoría registra la IP recortada (/24 o /48), no la completa.
+- **Retención:** documentos, enlaces vencidos o revocados y auditoría se borran según los plazos de `/admin/ajustes` con `npm run retencion:purgar` (programado en GitHub Actions).
+- **IA:** el asistente solo usa proveedores externos tras el consentimiento de la persona; no se guardan los textos enviados.
+- El aviso de privacidad lo completa la persona responsable en `/admin/ajustes`; mientras tanto se muestra como pendiente. Resumen para personas usuarias en `/ayuda#privacidad-seguridad`.
+
+## Seguridad
+
+Lista de verificación (llaves, RLS, registros, cabeceras, límites) y cómo se comprueba: [docs/seguridad.md](docs/seguridad.md). Parte de ella la revisa `src/modulos/seguridad/seguridad.test.ts` en cada ejecución de `npm test`.
 
 ## Extraer a su propio repositorio
 
@@ -199,4 +223,4 @@ El repositorio destino debe existir y estar vacío. El workflow de la raíz (`.g
 
 ## Despliegue
 
-Guía paso a paso, lista para ejecutar: [docs/despliegue.md](docs/despliegue.md) (Supabase Free en `us-east-1`, Vercel Hobby con «Root Directory» = `apps/circulo-nueve`, GitHub Actions para el worker, ping anti-pausa y purga, respaldos manuales cifrados).
+Guía paso a paso, lista para ejecutar: [docs/despliegue.md](docs/despliegue.md) (Supabase Free en `us-east-1`, Vercel Hobby con «Root Directory» = `apps/circulo-nueve`, GitHub Actions para el worker, ping anti-pausa y purga, respaldos manuales cifrados). Antes de publicar, repasa [docs/seguridad.md](docs/seguridad.md). Resumen para personas usuarias en `/ayuda#instalacion-despliegue`.

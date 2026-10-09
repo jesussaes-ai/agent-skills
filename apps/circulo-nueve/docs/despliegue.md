@@ -123,7 +123,7 @@ El workflow `.github/workflows/circulo-nueve-tareas.yml` corre cada 6 horas y ta
 
 1. **Ping a Supabase:** una consulta mínima que cuenta como actividad y evita la pausa semanal.
 2. **Worker:** procesa la cola de la biblioteca (`npm run ingesta:worker`). Instala ffmpeg para audio y video; ClamAV es opcional.
-3. **Purga** de documentos con retención vencida (`npm run retencion:purgar`).
+3. **Purga** por retención (`npm run retencion:purgar`): documentos vencidos, enlaces para compartir vencidos o revocados y auditoría fuera de plazo (plazos en `/admin/ajustes`).
 
 Configuración en *Settings → Secrets and variables → Actions*:
 
@@ -190,3 +190,4 @@ npm run respaldo        # pide la frase de cifrado (o define RESPALDO_CLAVE)
 - [ ] Aviso de privacidad completado en `/admin/ajustes`.
 - [ ] Secretos y variables de Actions; primera ejecución manual del workflow en verde.
 - [ ] Primer respaldo cifrado guardado en dos lugares.
+- [ ] [Lista de seguridad](seguridad.md) repasada (llaves, RLS, registros, cabeceras).
