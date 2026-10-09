@@ -8,7 +8,7 @@ const opcional = (max: number) =>
     .transform((v) => v || null);
 
 export const NIVELES_ACCESO = [
-  ["consultores", "Consultores y administración"],
+  ["consultores", "Equipo: asistentes y administración"],
   ["publico", "Todas las cuentas activas"],
   ["admin", "Solo administración"],
 ] as const;

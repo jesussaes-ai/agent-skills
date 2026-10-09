@@ -39,7 +39,7 @@ export function FormularioAjustes({ retencionDias, vigenciaSegundos }: { retenci
 }
 
 const CAMPOS_AVISO = [
-  ["responsable", "Responsable (identidad y domicilio)"],
+  ["responsable", "Persona o entidad responsable (identidad y domicilio)"],
   ["finalidades", "Finalidades del tratamiento"],
   ["datosTratados", "Datos personales tratados"],
   ["conservacion", "Plazo de conservación"],
@@ -55,7 +55,7 @@ export function FormularioAviso({ valores }: { valores: Record<string, string | 
         <Campo key={nombre} etiqueta={etiqueta} name={nombre} defaultValue={valores[nombre] ?? ""} maxLength={2000} />
       ))}
       <MensajeFormulario estado={estado} />
-      <BotonEnviar descripcion="Guarda el aviso de privacidad que se imprime al final de cada PDF. Lo redacta el responsable; la app no lo completa.">
+      <BotonEnviar descripcion="Guarda el aviso de privacidad que se imprime al final de cada PDF. Lo redacta la persona responsable; la app no lo completa.">
         Guardar aviso
       </BotonEnviar>
     </form>

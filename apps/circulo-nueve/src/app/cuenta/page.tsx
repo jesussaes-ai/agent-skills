@@ -22,7 +22,7 @@ export default async function PaginaCuenta({ searchParams }: { searchParams: Pro
       )}
       {params.bienvenida && (
         <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900" data-testid="bienvenida">
-          Cuenta de administración creada. La página de alta ya quedó cerrada. Te recomendamos activar ahora la
+          Te damos la bienvenida a Círculo Nueve. Tu cuenta de administración quedó creada y la página de alta ya se cerró. Te recomendamos activar ahora la
           verificación en dos pasos y después crear las cuentas de tu equipo en «Usuarios».
         </p>
       )}

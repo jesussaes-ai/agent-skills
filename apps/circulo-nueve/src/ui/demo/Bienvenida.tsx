@@ -5,7 +5,7 @@ import { Seccion } from "@/ui/componentes/Seccion";
 
 export function Bienvenida({ onComenzar }: { onComenzar: () => void }) {
   return (
-    <Seccion titulo="Bienvenida" ayuda="bienvenida">
+    <Seccion titulo="Te damos la bienvenida" ayuda="bienvenida">
       <div className="space-y-3 text-slate-700">
         <p>
           Círculo Nueve te acompaña a explorar la <strong>numerología</strong>, la <strong>carta natal</strong> y la{" "}

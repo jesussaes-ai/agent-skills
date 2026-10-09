@@ -35,7 +35,7 @@
     },
     {
       "id": "bienvenida",
-      "titulo": "Bienvenida",
+      "titulo": "Te damos la bienvenida",
       "resumen": "Presentación breve de la aplicación y de sus límites.",
       "deQueTrata": "Explica en pocas líneas qué puedes hacer en la aplicación y aclara que las lecturas son interpretaciones simbólicas, no consejos médicos, psicológicos, legales ni financieros.",
       "datosQueUsa": [
@@ -46,19 +46,21 @@
       ],
       "estado": "demo",
       "palabrasClave": [
-        "inicio",
-        "empezar",
+        "aviso",
+        "bienvenida",
+        "bienvenidos",
         "comenzar",
-        "presentación",
+        "empezar",
+        "inicio",
         "límites",
-        "aviso"
+        "presentación"
       ]
     },
     {
       "id": "consentimiento",
       "titulo": "Aviso de privacidad y consentimiento",
       "resumen": "Decides por separado qué permites hacer con tus datos.",
-      "deQueTrata": "Cada permiso se pide por separado: usar lo que escribes en la conversación, guardar el perfil, guardar el historial y enviar datos a un servicio externo. En la etapa 1 solo está disponible el uso en la sesión actual; los demás permisos aparecen desactivados porque todavía no existe almacenamiento ni proveedores externos. El texto del aviso de privacidad lo completará el responsable; mientras tanto se muestra como pendiente y no se inventa.",
+      "deQueTrata": "Cada permiso se pide por separado: usar lo que escribes en la conversación, guardar el perfil, guardar el historial y enviar datos a un servicio externo. En la etapa 1 solo está disponible el uso en la sesión actual; los demás permisos aparecen desactivados porque todavía no existe almacenamiento ni proveedores externos. El texto del aviso de privacidad lo completará la persona responsable; mientras tanto se muestra como pendiente y no se inventa.",
       "datosQueUsa": [
         "Tus elecciones de consentimiento, solo en la memoria de la pestaña."
       ],
@@ -93,20 +95,25 @@
       ],
       "comoSeUsa": [
         "Escribe los datos o pulsa «Cargar persona ficticia» para probar con datos de demostración.",
+        "En «Zona horaria», escribe una ciudad, un país o un desfase (por ejemplo «Mérida», «Madrid» o «-06») para buscar entre todas las zonas del mundo, agrupadas por región y con México primero; cada una muestra su desfase UTC de hoy. Usa las flechas y Enter, o el ratón. «Automática» toma la zona del lugar elegido en la carta natal.",
         "Revisa las reglas de cálculo y pulsa «Calcular»."
       ],
       "estado": "demo",
       "palabrasClave": [
-        "formulario",
-        "nombre",
-        "fecha",
-        "hora",
-        "lugar",
-        "zona horaria",
-        "nacimiento",
-        "ficticia",
         "demo",
-        "reglas"
+        "desfase",
+        "fecha",
+        "ficticia",
+        "formulario",
+        "hora",
+        "huso horario",
+        "iana",
+        "lugar",
+        "nacimiento",
+        "nombre",
+        "reglas",
+        "utc",
+        "zona horaria"
       ]
     },
     {
@@ -219,21 +226,26 @@
         "Escribe la ciudad (por ejemplo «Guadalajara, Jalisco») y pulsa «Buscar lugar».",
         "Elige el resultado correcto: verás coordenadas, zona horaria y el enlace a la ficha de GeoNames.",
         "Si el lugar no aparece, usa «Escribir coordenadas a mano»; la zona horaria es obligatoria porque no se adivina.",
-        "Para fechas anteriores a 1970, compara el desfase mostrado con una fuente local si la tienes."
+        "Para fechas anteriores a 1970, compara el desfase mostrado con una fuente local si la tienes.",
+        "Si escribes las coordenadas a mano, elige la zona en el buscador de zonas horarias: no se adivina."
       ],
       "estado": "demo",
       "palabrasClave": [
-        "lugar",
+        "GeoNames",
+        "IANA",
+        "UTC",
         "ciudad",
         "coordenadas",
+        "desfase",
+        "horario de verano",
+        "huso horario",
+        "iana",
         "latitud",
         "longitud",
-        "GeoNames",
-        "zona horaria",
-        "horario de verano",
-        "UTC",
+        "lugar",
         "tzdb",
-        "IANA"
+        "utc",
+        "zona horaria"
       ]
     },
     {
@@ -299,26 +311,31 @@
       ],
       "comoSeUsa": [
         "Pulsa «Entrar» en la barra superior y escribe tu usuario y tu contraseña.",
+        "El botón del ojo junto a cada contraseña la muestra u oculta para comprobar lo que escribiste. Úsalo solo si nadie está mirando tu pantalla.",
         "Si te lo pide, elige una contraseña nueva distinta de la provisional.",
         "Si olvidaste la contraseña, pide a la administración que la restablezca.",
         "Pulsa «Salir» para cerrar la sesión."
       ],
       "estado": "disponible",
       "palabrasClave": [
+        "cerrar sesión",
+        "contraseña",
+        "cuenta",
         "entrar",
         "iniciar sesión",
         "login",
-        "usuario",
+        "mostrar contraseña",
         "nombre de usuario",
-        "contraseña",
+        "ocultar contraseña",
+        "ojito",
+        "ojo",
         "olvidé",
+        "primera vez",
+        "provisional",
         "recuperar",
         "restablecer",
-        "provisional",
-        "primera vez",
         "salir",
-        "cerrar sesión",
-        "cuenta"
+        "usuario"
       ]
     },
     {
@@ -331,24 +348,25 @@
         "Usuario y contraseña de la cuenta de administración."
       ],
       "comoSeUsa": [
-        "El responsable genera el hash con «npm run setup:hash» y lo carga como secreto ADMIN_SETUP_KEY_HASH.",
+        "La persona responsable del proyecto genera el hash con «npm run setup:hash» y lo carga como secreto ADMIN_SETUP_KEY_HASH.",
         "Abre /setup, escribe la clave, tu usuario y tu contraseña.",
         "Después, en «Mi cuenta», activa la verificación en dos pasos (recomendado) y crea las cuentas de tu equipo en «Usuarios»."
       ],
       "estado": "disponible",
       "palabrasClave": [
-        "setup",
-        "alta",
-        "clave de alta",
-        "administrador",
         "admin",
+        "administrador",
+        "administradora",
+        "alta",
+        "argon2",
+        "clave de alta",
+        "hash",
         "primera vez",
         "puesta en marcha",
-        "usuario",
-        "rotar",
         "rotación",
-        "hash",
-        "argon2"
+        "rotar",
+        "setup",
+        "usuario"
       ]
     },
     {
@@ -498,18 +516,23 @@
         "Nombre de nacimiento y preferido, fecha, hora, precisión, lugar y zona horaria."
       ],
       "comoSeUsa": [
-        "Activa el consentimiento, completa los campos y pulsa «Guardar perfil»."
+        "Activa el consentimiento, completa los campos y pulsa «Guardar perfil».",
+        "En «Zona horaria», escribe una ciudad, un país o un desfase (por ejemplo «Mérida», «Madrid» o «-06») para buscar entre todas las zonas del mundo, agrupadas por región y con México primero; cada una muestra su desfase UTC de hoy. Usa las flechas y Enter, o el ratón. «Automática» toma la zona del lugar elegido en la carta natal."
       ],
       "estado": "disponible",
       "palabrasClave": [
-        "perfil",
-        "nacimiento",
+        "desfase",
+        "editar",
         "fecha",
         "hora",
+        "huso horario",
+        "iana",
         "lugar",
-        "zona horaria",
+        "nacimiento",
         "nombre preferido",
-        "editar"
+        "perfil",
+        "utc",
+        "zona horaria"
       ]
     },
     {
@@ -972,7 +995,8 @@
       "comoSeUsa": [
         "Pulsa «?» junto al título de una sección.",
         "Pasa el ratón, enfoca con Tab o toca un botón para ver qué hace.",
-        "Abre «Ayuda» en la barra superior para ver todas las secciones."
+        "Abre «Ayuda» en la barra superior para ver todas las secciones.",
+        "Los dibujos de fondo (rueda zodiacal, cuadrado de números, Árbol de la Vida, constelaciones y el emblema de nueve esferas) son solo decoración: cambian según la sección y se detienen si tu sistema pide reducir el movimiento."
       ],
       "estado": "disponible",
       "palabrasClave": [

@@ -10,12 +10,15 @@ Uso personal, no comercial y gratuito.
 
 | Parte | Estado |
 |---|---|
-| Flujo de demo: bienvenida → consentimiento granular → perfil → resultados | Demo con datos ficticios |
+| Flujo de demo: presentación → consentimiento granular → perfil → resultados | Demo con datos ficticios |
 | Numerología pitagórica configurable con pasos visibles | Disponible ([reglas](docs/numerologia-reglas.md)) |
 | Carta natal determinista: efemérides MIT (`astronomy-engine`), zona horaria histórica IANA, lugares GeoNames, casas configurables, ayanamsas, aspectos, precisión según los datos | Demo ([motor y casos de referencia](docs/astrologia-motor.md)) |
 | Cábala | Pendiente (se muestra como tal) |
 | Centro de ayuda `/ayuda` y botón «?» en cada sección | Disponible |
 | Ventana explicativa (tooltip) en todos los botones y enlaces | Disponible |
+| Interfaz cálida: tarjetas translúcidas y motivos SVG propios por sección (cuadrado de números, rueda zodiacal, Árbol de la Vida, constelaciones, emblema de nueve esferas), decorativos y sin movimiento si el sistema lo pide; lenguaje inclusivo | Disponible |
+| Botón «ojo» para mostrar u ocultar cada contraseña (`aria-pressed`, etiqueta y ventana explicativa) | Disponible |
+| Zona horaria con buscador: todas las zonas IANA del navegador, agrupadas por región, México primero, desfase UTC actual; «Automática» usa la del lugar | Disponible |
 | Asistente de la app (responde sobre la app citando la ayuda) | Modo demo sin IA, o con un proveedor de IA activo y consentimiento previo |
 | Proveedores de IA intercambiables: OpenRouter, FreeLLMAPI, compatible con OpenAI/local; límites, reintentos ante 429, respaldo, consumo sin prompts | Funciona con Supabase local ([detalle](docs/proveedores-ia-y-voz.md)) |
 | Voz del asistente (Web Speech API es-MX/es-ES) y dictado con permiso de micrófono | Disponible ([detalle](docs/proveedores-ia-y-voz.md#voz)) |
@@ -29,7 +32,7 @@ Uso personal, no comercial y gratuito.
 | Biblioteca RAG: administración de fuentes, centro de carga (PDF, EPUB, DOCX, TXT/MD, imágenes con OCR), web → Markdown, revisión y versiones, worker, embeddings locales, búsqueda híbrida con permisos, bot con citas validadas y proporción 80/20 | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
 | Biblioteca multimedia: figuras de PDF (leyenda, OCR, descripción etiquetada; visión opcional), hojas (XLSX/ODS/CSV con hoja y celdas), PPTX, audio y video con transcripción local (Whisper) y marcas de tiempo, carga directa a Storage, ClamAV opcional | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
 | Despliegue gratuito: Supabase Free (`us-east-1`), Vercel Hobby, worker y ping en GitHub Actions, respaldos cifrados | Guía lista ([despliegue](docs/despliegue.md)) |
-| Supabase remoto, cábala | Pendiente de las cuentas del propietario / etapas posteriores |
+| Supabase remoto, cábala | Pendiente de las cuentas de la persona propietaria / etapas posteriores |
 
 ## Requisitos
 
@@ -181,7 +184,7 @@ Esquema, modelo de permisos y pruebas: [docs/base-de-datos.md](docs/base-de-dato
 
 ## Privacidad
 
-En la etapa 1 no hay almacenamiento, cuentas, analítica ni envío a terceros. El aviso de privacidad lo completará el responsable; mientras tanto se muestra como pendiente.
+En la etapa 1 no hay almacenamiento, cuentas, analítica ni envío a terceros. El aviso de privacidad lo completará la persona responsable; mientras tanto se muestra como pendiente.
 
 ## Extraer a su propio repositorio
 

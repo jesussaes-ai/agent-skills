@@ -13,7 +13,7 @@ import { PERFIL_VACIO, type Consentimientos, type Perfil, type ReglasDemo } from
 type Paso = "bienvenida" | "consentimiento" | "perfil" | "resultados";
 
 const PASOS: { id: Paso; nombre: string }[] = [
-  { id: "bienvenida", nombre: "Bienvenida" },
+  { id: "bienvenida", nombre: "Te damos la bienvenida" },
   { id: "consentimiento", nombre: "Consentimiento" },
   { id: "perfil", nombre: "Perfil" },
   { id: "resultados", nombre: "Resultados" },

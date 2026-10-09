@@ -95,10 +95,15 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - **Asistentes:** sin permisos por rol; solo los paquetes que marque la administración (sus propios expedientes, compartirlos, ver todos en lectura, biblioteca). Sus expedientes quedan separados.
   - **Clientes:** solo su expediente vinculado, en lectura (perfil, lecturas y PDF); no generan PDF ni consultan la biblioteca.
   - Migración `20261007000100_cuentas_por_usuario.sql`, pgTAP nuevo `08_cuentas_usuario`, e2e de cuentas reescrito, ayuda y documentación actualizadas. Recuperación de emergencia ahora por `--usuario`, con contraseña provisional.
+- **00:40 (9 oct)** — Interfaz v2, tras probar Jesús la demo:
+  - Botón «ojo» para mostrar u ocultar la contraseña en el alta, al entrar, al cambiarla y al crear o restablecer cuentas. Es accesible: `aria-pressed`, etiqueta «Mostrar/Ocultar contraseña» y ventana explicativa.
+  - Lenguaje inclusivo: «Te damos la bienvenida», «la persona responsable», «Equipo: asistentes y administración», «Autoría».
+  - Interfaz más cálida: tarjetas translúcidas (cristal esmerilado sutil) y motivos SVG propios en azul marino y dorado, distintos por sección: cuadrado de números en numerología y perfiles, rueda zodiacal en carta natal, Árbol de la Vida en cábala, constelaciones en biblioteca y asistente, emblema de nueve esferas en el resto. Son decorativos (`aria-hidden`); la rueda del fondo gira muy lento y se detiene con «reducir movimiento». Contraste AA conservado.
+  - Zona horaria con buscador: todas las zonas IANA del navegador (`Intl.supportedValuesOf`, con lista de respaldo), agrupadas por región, México primero, con su desfase UTC de hoy y búsqueda sin acentos por ciudad, región o desfase. «Automática» usa la zona del lugar elegido en la carta natal.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
-- Proyecto Supabase remoto (requiere la cuenta del propietario) y tarea programada para `retencion:purgar`.
-- Texto del aviso de privacidad (lo redacta el responsable en `/admin/ajustes`).
+- Proyecto Supabase remoto (requiere la cuenta de la persona propietaria) y tarea programada para `retencion:purgar`.
+- Texto del aviso de privacidad (lo redacta la persona responsable en `/admin/ajustes`).
 - Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
 - Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.

@@ -7,7 +7,7 @@ Estado: **migraciones y pruebas locales listas**. No hay ningún proyecto Supaba
 | Archivo | Contenido |
 |---|---|
 | `…0100_base_identidad_permisos.sql` | Extensiones `vector` y `unaccent`; `app_setup`, `user_profiles`, `roles`, `permissions`, `role_permissions`, `user_roles`; funciones `es_usuario_activo`, `has_perm`, `has_global_perm`. Catálogo de roles (`admin`, `consultor`, `cliente`) y permisos. |
-| `…0200_expedientes.sql` | `case_files`, `case_file_grants` (con vencimiento), `birth_profiles`, `consents`, `readings`, `documents`, `share_links` (vencen en ≤ 30 días), `privacy_notice_settings` (campos vacíos hasta que el responsable los complete); función `has_case_perm`. |
+| `…0200_expedientes.sql` | `case_files`, `case_file_grants` (con vencimiento), `birth_profiles`, `consents`, `readings`, `documents`, `share_links` (vencen en ≤ 30 días), `privacy_notice_settings` (campos vacíos hasta que la persona responsable los complete); función `has_case_perm`. |
 | `…0300_biblioteca_rag.sql` | `sources`, `source_versions` (hash SHA-256, una sola vigente), `ingestion_jobs`, `chunks` (FTS `spanish` sin acentos + `vector(1024)` con índice HNSW), `visual_assets`, `chunk_visual_links`; RPC `hybrid_search` (RRF) que filtra por nivel de acceso dentro de la función. |
 | `…0400_proveedores_auditoria_alta.sql` | `ai_providers` (sin secretos: solo el nombre del secreto), `ai_usage` (sin prompts), `audit_log` de solo inserción con triggers, `registrar_acceso`, `completar_alta_admin` (una sola vez, solo service role). |
 | `…2000_proveedores_llm_config.sql` | Columnas de `ai_providers` para tipo, modelos de respaldo, destinatarios, política, límites, costo y prioridad. Restricciones: secreto con prefijo `LLM_KEY_`, endpoint http(s), id «entorno» reservado, y lo gratuito o FreeLLMAPI nunca apto para datos reales. Políticas de alta y baja para `admin_proveedores` y auditoría. `ai_usage` con intento, latencia, origen y código validado. `ai_uso_actual()` solo para service role. Ver [proveedores-ia-y-voz.md](proveedores-ia-y-voz.md). |
@@ -51,6 +51,6 @@ Las claves que imprime `db:start` son las de demostración de la CLI local; no s
 
 ## Pendiente
 
-- Crear el proyecto Supabase remoto (plan gratuito, región cercana a México) y vincularlo; requiere la cuenta del propietario.
+- Crear el proyecto Supabase remoto (plan gratuito, región cercana a México) y vincularlo; requiere la cuenta de la persona propietaria.
 - Conectar la app: Auth con registro desactivado e invitaciones, ruta `/setup` con verificación argon2id, MFA para administración.
 - Pruebas de extremo a extremo con dos usuarios reales del Auth local.

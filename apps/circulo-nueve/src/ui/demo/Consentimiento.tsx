@@ -24,7 +24,7 @@ export function Consentimiento({ valor, onCambiar, onAtras, onContinuar }: Props
         <div className="rounded-xl bg-slate-50 p-4 text-sm">
           <p className="mb-1 font-semibold">Aviso de privacidad</p>
           <p>
-            <Etiqueta tono="ambar">Pendiente</Etiqueta> El responsable completará el aviso (identidad y contacto,
+            <Etiqueta tono="ambar">Pendiente</Etiqueta> La persona responsable completará el aviso (identidad y contacto,
             finalidades, datos tratados, conservación y derechos). Hasta entonces la app solo funciona como
             demostración, sin guardar ni enviar datos.
           </p>
@@ -64,7 +64,7 @@ export function Consentimiento({ valor, onCambiar, onAtras, onContinuar }: Props
         </fieldset>
       </div>
       <div className="mt-5 flex flex-wrap gap-3">
-        <Boton variante="secundario" descripcion="Vuelve a la bienvenida." onClick={onAtras}>
+        <Boton variante="secundario" descripcion="Vuelve a la presentación del recorrido." onClick={onAtras}>
           Atrás
         </Boton>
         <Boton

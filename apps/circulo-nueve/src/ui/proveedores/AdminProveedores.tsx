@@ -326,7 +326,7 @@ export function FormularioProveedor({
           etiqueta="Apto para datos reales"
           {...casilla("permiteDatosReales")}
           error={e.permiteDatosReales}
-          nota={motivo ?? "Las reglas lo permiten. Requiere tu confirmación y la aprobación del responsable."}
+          nota={motivo ?? "Las reglas lo permiten. Requiere tu confirmación y la aprobación de la persona responsable."}
         />
         {v.permiteDatosReales && (
           <Casilla

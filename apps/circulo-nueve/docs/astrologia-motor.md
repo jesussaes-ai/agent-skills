@@ -76,7 +76,7 @@ También se avisa cuando, dentro de los márgenes, un punto podría:
 
 ## 5. Separación entre cálculo e interpretación
 
-`ResultadoCarta` solo contiene posiciones calculadas. `interpretaciones` está en estado `pendiente`: las interpretaciones llegarán con los libros del propietario, con citas y en otro módulo. La UI lo indica con la etiqueta «Interpretación pendiente».
+`ResultadoCarta` solo contiene posiciones calculadas. `interpretaciones` está en estado `pendiente`: las interpretaciones llegarán con los libros de la persona propietaria, con citas y en otro módulo. La UI lo indica con la etiqueta «Interpretación pendiente».
 
 ## 6. Casos de referencia (fuente independiente)
 

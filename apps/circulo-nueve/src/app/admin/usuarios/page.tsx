@@ -65,8 +65,8 @@ export default async function PaginaUsuarios() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <caption className="mb-2 text-left text-slate-600">
-              «Global»: en todos los expedientes. «Propio»: solo en los creados por la persona o asignados. Los
-              asistentes no tienen nada fijo: reciben solo lo que marques en su cuenta. Los clientes ven, en lectura,
+              «Global»: en todos los expedientes. «Propio»: solo en los creados por la persona o asignados. Las
+              cuentas de asistente no tienen nada fijo: reciben solo lo que marques. Las cuentas de cliente ven, en lectura,
               únicamente el expediente vinculado a su cuenta.
             </caption>
             <thead>

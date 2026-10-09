@@ -65,7 +65,7 @@ function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { e
     <>
       <div className="grid gap-4 sm:grid-cols-2">
         <Campo etiqueta="Título" name="titulo" defaultValue={valores.titulo} required maxLength={300} error={e.titulo} />
-        <Campo etiqueta="Autor u organización" name="autor" defaultValue={valores.autor ?? ""} maxLength={200} />
+        <Campo etiqueta="Autoría (persona u organización)" name="autor" defaultValue={valores.autor ?? ""} maxLength={200} />
         <Campo
           etiqueta="Referencia"
           name="referencia"
