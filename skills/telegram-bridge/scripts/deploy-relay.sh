@@ -7,6 +7,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 require_env CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_WEBHOOK_SECRET CURSOR_API_KEY
+normalize_cf_token
+export CLOUDFLARE_ACCOUNT_ID
 command -v npx >/dev/null || die "falta Node.js/npx"
 
 RELAY_DIR="$(cd "$SCRIPT_DIR/../relay" && pwd)"
@@ -38,6 +40,11 @@ for S in TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_WEBHOOK_SECRET CURSOR_API_
 done
 
 bash "$SCRIPT_DIR/setup-webhook.sh" "$URL" >&2
-curl -sf "$URL/healthz" >/dev/null || echo "Aviso: /healthz aún no responde (puede tardar unos segundos)." >&2
+HEALTHY=0
+for _ in 1 2 3 4 5 6; do
+  curl -sf --max-time 10 "$URL/healthz" >/dev/null && { HEALTHY=1; break; }
+  sleep 5
+done
+[ "$HEALTHY" = "1" ] || echo "Aviso: /healthz aún no responde (el subdominio workers.dev puede tardar unos minutos)." >&2
 printf '{"ok":true,"relay_url":"%s","kv_id":"%s"}\n' "$URL" "$KV_ID"
 echo "Guarda TELEGRAM_RELAY_URL=$URL como secreto de usuario en Cursor (no es sensible, pero así lo ven todos los agentes)." >&2

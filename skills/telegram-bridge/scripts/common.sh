@@ -13,6 +13,22 @@ require_env() {
   done
 }
 
+# El panel de Cloudflare muestra el token dentro de un comando curl de prueba y es fácil
+# guardar el comando completo como secreto. Si pasa, se queda solo con lo que sigue a "Bearer".
+normalize_cf_token() {
+  case "$CLOUDFLARE_API_TOKEN" in
+    *Bearer\ *)
+      local tok
+      tok=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | grep -oE 'Bearer [A-Za-z0-9_-]+' | head -1 | cut -d' ' -f2)
+      [ -n "$tok" ] || die "CLOUDFLARE_API_TOKEN no tiene formato de token"
+      echo "Aviso: CLOUDFLARE_API_TOKEN contiene un comando completo; uso solo el token. Corrige el secreto en Cursor." >&2
+      export CLOUDFLARE_API_TOKEN="$tok"
+      ;;
+  esac
+  [[ "$CLOUDFLARE_API_TOKEN" =~ ^[A-Za-z0-9_-]+$ ]] \
+    || die "CLOUDFLARE_API_TOKEN tiene espacios o comillas; guarda solo el token"
+}
+
 detect_agent_id() {
   if [ -n "$1" ]; then echo "$1"; return; fi
   if [ -n "$CURSOR_AGENT_ID" ]; then echo "$CURSOR_AGENT_ID"; return; fi
