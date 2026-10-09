@@ -1,6 +1,6 @@
 #!/bin/bash
-# Instala (una sola vez, gratis) lo necesario para voz local.
-# Uso: setup-voice.sh tts [voz-piper]   -> piper-tts + modelo de voz (~63 MB)
+# Instala (una sola vez, gratis) lo necesario para la voz.
+# Uso: setup-voice.sh tts [voz-piper]   -> edge-tts + piper-tts y voz local de respaldo (~63 MB)
 #      setup-voice.sh stt [modelo]      -> faster-whisper + modelo (small ~460 MB)
 set -e
 source "$(dirname "$0")/common.sh"
@@ -14,7 +14,8 @@ pip_install() {
 
 case "$MODE" in
   tts)
-    VOICE="${2:-${TELEGRAM_TTS_VOICE:-es_MX-ald-medium}}"
+    VOICE="${2:-${TELEGRAM_TTS_FALLBACK_VOICE:-es_MX-claude-high}}"
+    [ -n "$2" ] || python3 -c "import edge_tts" 2>/dev/null || { echo "Instalando edge-tts…" >&2; pip_install edge-tts || true; }
     python3 -c "import piper" 2>/dev/null || { echo "Instalando piper-tts…" >&2; pip_install piper-tts; }
     if [ ! -s "$BRIDGE_CACHE/piper/$VOICE.onnx" ]; then
       LANG_CODE="${VOICE%%-*}"

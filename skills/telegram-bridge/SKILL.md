@@ -60,7 +60,10 @@ bash /mnt/skills/user/telegram-bridge/scripts/transcribe-voice.sh --file-id ID -
 
 **Variables:** `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (salida); `TELEGRAM_RELAY_URL`,
 `TELEGRAM_WEBHOOK_SECRET` (esperar decisiones). Voz: `TELEGRAM_TTS_ENGINE`
-(`piper` local por defecto, `edge` remoto, `none`), `TELEGRAM_TTS_VOICE`, `TELEGRAM_STT_MODEL` (`small`).
+(`edge` por defecto con la voz `es-MX-JorgeNeural`, elegida por Jesús; `piper` solo local; `none`),
+`TELEGRAM_TTS_VOICE`, `TELEGRAM_TTS_FALLBACK_VOICE` (Piper `es_MX-claude-high`; si edge falla o no
+hay red se usa esta voz local; `none` desactiva el respaldo), `TELEGRAM_STT_MODEL` (`small`).
+Con `edge`, el texto ya filtrado sale al servicio de voz de Microsoft: por eso nunca va nada sensible.
 
 ## Reglas para el agente
 
@@ -96,8 +99,8 @@ o `{"status":"timeout"}` (código 2).
 
 - `falta la variable …`: guarda el secreto en Cursor › Cloud Agents › Secrets (nivel usuario).
 - `Telegram rechazó el mensaje: chat not found`: Jesús debe escribirle `/start` al bot.
-- Sin voz: necesita `ffmpeg` y Python 3; `setup-voice.sh tts` instala Piper y la voz (~63 MB)
-  y `setup-voice.sh stt` instala faster-whisper (`small` ~460 MB). Si falla, el texto igual llega.
+- Sin voz: necesita `ffmpeg` y Python 3; `setup-voice.sh tts` instala edge-tts, Piper y la voz
+  local de respaldo (~63 MB) y `setup-voice.sh stt` instala faster-whisper (`small` ~460 MB). Si falla, el texto igual llega.
 - `401` en `wait-decision.sh`: `TELEGRAM_WEBHOOK_SECRET` distinto al del relay.
 - Puesta en marcha, despliegue y límites: ver [GUIA.md](GUIA.md).
 

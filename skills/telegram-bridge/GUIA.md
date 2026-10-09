@@ -9,8 +9,9 @@
   producción, un toque no basta: tienes que escribir una frase exacta. Así nadie aprueba
   algo grave por accidente.
 - **Avisos con voz.** Además del texto te llega una nota de voz corta para escucharla rápido.
-  La voz se fabrica en la misma máquina del agente (programa gratuito Piper), sin mandar
-  el texto a otra empresa.
+  La voz es «Jorge» (la que elegiste), del servicio gratuito de voz de Microsoft: el texto,
+  ya filtrado, viaja a Microsoft para convertirse en audio. Si falla o no hay internet, el
+  agente usa una voz local (Piper) que no manda nada a nadie.
 - **Puedes contestar hablando.** Si respondes con una nota de voz, el agente la pasa a texto
   en su propia máquina (Whisper, gratuito) y te muestra lo que entendió. Si era para aprobar
   algo, te pide confirmar con un botón que entendió bien.
@@ -79,9 +80,10 @@ Un texto libre o una nota de voz **nunca** cuenta como aprobación de una acció
 
 | Opción | Costo | ¿Sale tu texto a terceros? | Calidad | Uso |
 | --- | --- | --- | --- | --- |
-| **Piper `es_MX-ald-medium`** (por defecto) | 0 | No, todo local | Clara, algo robótica; tropieza con nombres propios | `TELEGRAM_TTS_ENGINE=piper` |
-| Piper `es_MX-claude-high` | 0 | No | Un poco más nítida; género de la voz no documentado | `TELEGRAM_TTS_VOICE=es_MX-claude-high` |
-| edge-tts `es-MX-JorgeNeural` | 0 | **Sí**: el texto (ya filtrado), la voz elegida y la IP del agente van al servicio de voz de Microsoft Edge (no es una API oficial con contrato) | Muy natural | `TELEGRAM_TTS_ENGINE=edge` |
+| **edge-tts `es-MX-JorgeNeural`** (por defecto, elegida por Jesús el 9 oct 2026) | 0 | **Sí**: el texto (ya filtrado), la voz elegida y la IP del agente van al servicio de voz de Microsoft Edge (no es una API oficial con contrato) | Muy natural | `TELEGRAM_TTS_ENGINE=edge` (o sin definir) |
+| **Piper `es_MX-claude-high`** (respaldo automático) | 0 | No, todo local | Nítida, algo robótica | Se usa sola si edge falla o no hay red; `TELEGRAM_TTS_ENGINE=piper` para usarla siempre |
+| edge-tts `es-MX-DaliaNeural` | 0 | **Sí**, igual que Jorge | Muy natural, voz femenina | `TELEGRAM_TTS_VOICE=es-MX-DaliaNeural` |
+| Piper `es_MX-ald-medium` (la anterior) | 0 | No | Clara, robótica; tropieza con nombres propios | `TELEGRAM_TTS_ENGINE=piper TELEGRAM_TTS_VOICE=es_MX-ald-medium` |
 | Transcripción: faster-whisper `small` | 0 | No: el audio solo se baja de Telegram al agente | Buena en español | `TELEGRAM_STT_MODEL=small` (o `base`, más rápido) |
 
 Antes de hablar, el texto pasa por un filtro que oculta enlaces, correos, llaves, ids y

@@ -15,6 +15,16 @@ const SECRET = "e2e_secret_abcdefghijkl";
 const JESUS = 424242;
 const AGENT = "bc-11111111-2222-3333-4444-555555555555";
 
+const hasEdge = (() => {
+  try {
+    execFileSync("python3", ["-c", "import edge_tts"], { stdio: "ignore" });
+    execFileSync("curl", ["-sfI", "--max-time", "5", "https://speech.platform.bing.com"], { stdio: "ignore" });
+    return true;
+  } catch (e) {
+    return e.status === 22;
+  }
+})();
+
 const hasVoice = (() => {
   try {
     execFileSync("python3", ["-c", "import piper, faster_whisper"], { stdio: "ignore" });
@@ -115,7 +125,8 @@ const scriptEnv = () => ({
   TELEGRAM_PROJECT: "Proyecto Demo",
 });
 
-const script = (name, args) => run("bash", [path.join(SCRIPTS, name), ...args], { env: scriptEnv(), timeout: 300000 });
+const script = (name, args, extra = {}) =>
+  run("bash", [path.join(SCRIPTS, name), ...args], { env: { ...scriptEnv(), ...extra }, timeout: 300000 });
 
 function pressButton(data, messageText) {
   return worker.fetch(new Request("https://relay/telegram/webhook", {
@@ -178,8 +189,10 @@ test("sanitize_for_voice oculta secretos, URLs, correos e ids", async () => {
   for (const bad of ["crsr_", "ghp_", "https", "jesus@", "xyz", "bc-1234", "1234 5678"]) assert.ok(!stdout.includes(bad), `${bad} en ${stdout}`);
 });
 
-test("voz: notify.sh --voice envía OGG/Opus y la transcripción local lo entiende", { skip: !hasVoice && "sin piper/faster-whisper" }, async () => {
-  const { stdout } = await script("notify.sh", ["--status", "done", "--summary", "El reporte de carta natal ya está listo.", "--voice"]);
+test("voz: si edge-tts falla, notify.sh --voice cae a Piper y la transcripción local lo entiende", { skip: !hasVoice && "sin piper/faster-whisper" }, async () => {
+  const { stdout, stderr } = await script("notify.sh", ["--status", "done", "--summary", "El reporte de carta natal ya está listo.", "--voice"],
+    { TELEGRAM_TTS_ENGINE: "", TELEGRAM_TTS_VOICE: "", TELEGRAM_TTS_EDGE_TIMEOUT: "0.01" });
+  assert.match(stderr, /Voz usada: piper es_MX-claude-high \(respaldo\)/);
   const out = JSON.parse(stdout);
   assert.equal(out.voice, true);
   const voice = tgCalls.findLast((c) => c.method === "sendVoice").params;
@@ -193,4 +206,11 @@ test("voz: notify.sh --voice envía OGG/Opus y la transcripción local lo entien
   assert.match(t.text.toLowerCase(), /reporte/);
   assert.match(t.text.toLowerCase(), /listo/);
   assert.match(tgCalls.findLast((c) => c.method === "sendMessage").params.text, /Entendí tu nota de voz/);
+});
+
+test("voz: por defecto usa edge-tts es-MX-JorgeNeural", { skip: !hasEdge && "sin edge-tts o sin red" }, async () => {
+  const { stdout, stderr } = await script("notify.sh", ["--summary", "Prueba de voz.", "--voice"], { TELEGRAM_TTS_ENGINE: "", TELEGRAM_TTS_VOICE: "" });
+  assert.match(stderr, /Voz usada: edge es-MX-JorgeNeural/);
+  assert.equal(JSON.parse(stdout).voice, true);
+  assert.equal(tgCalls.findLast((c) => c.method === "sendVoice").params.voice.subarray(0, 4).toString(), "OggS");
 });
