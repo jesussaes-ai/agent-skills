@@ -54,7 +54,7 @@ Al superarlo, la interfaz dice cuánto esperar y las rutas responden 429 con `Re
 
 - [x] `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Strict-Transport-Security`, `Cross-Origin-Opener-Policy: same-origin`, `Permissions-Policy` (micrófono solo para la propia app; cámara y ubicación desactivadas).
 - [x] `/compartido/*`: `Referrer-Policy: no-referrer` (el token no se filtra a otros sitios), `X-Robots-Tag: noindex` y sin caché.
-- [ ] **Pendiente:** `Content-Security-Policy` con *nonce*. Next.js inserta scripts en línea; una CSP estricta exige pasar el *nonce* desde `proxy.ts` y revisar el asistente de voz. Se hará al desplegar, con el dominio definitivo.
+- [x] `Content-Security-Policy` con *nonce* por petición (`src/modulos/seguridad/csp.ts`, aplicada en `proxy.ts`): scripts solo con el *nonce* (`'strict-dynamic'`, sin `eval` en producción), `frame-ancestors 'none'`, `object-src 'none'` y conexiones solo a la propia app y a Supabase (subida directa a Storage). Los estilos admiten `'unsafe-inline'` porque React escribe atributos `style`.
 
 ## Accesibilidad (WCAG 2.2 AA)
 
