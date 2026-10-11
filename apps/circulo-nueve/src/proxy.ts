@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { leerConfigSupabase, origenPublico } from "@/modulos/auth/config";
+import { nuevoNonce, politicaCsp } from "@/modulos/seguridad/csp";
 
 const PROTEGIDAS = ["/cuenta", "/admin", "/expedientes", "/biblioteca"];
 
@@ -13,17 +14,28 @@ async function altaCompletada(url: string): Promise<boolean> {
   return Boolean(data?.completed_at);
 }
 
-/** Refresca la sesión de Supabase en cada petición y cierra /setup tras el alta. */
+/** Fija la CSP con nonce, refresca la sesión de Supabase y cierra /setup tras el alta. */
 export async function proxy(request: NextRequest) {
   const config = leerConfigSupabase();
-  if (!config.configurado) return NextResponse.next({ request });
+  const csp = politicaCsp(nuevoNonce(), {
+    supabaseUrl: config.configurado ? config.url : undefined,
+    desarrollo: process.env.NODE_ENV === "development",
+  });
+  request.headers.set("content-security-policy", csp);
+  const conCsp = (respuesta: NextResponse) => {
+    respuesta.headers.set("content-security-policy", csp);
+    return respuesta;
+  };
+  if (!config.configurado) return conCsp(NextResponse.next({ request }));
 
   const { pathname } = request.nextUrl;
   if (pathname === "/setup" && (await altaCompletada(config.url))) {
-    return new NextResponse("El alta inicial ya se completó. Esta página ya no está disponible.", {
-      status: 410,
-      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
-    });
+    return conCsp(
+      new NextResponse("El alta inicial ya se completó. Esta página ya no está disponible.", {
+        status: 410,
+        headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+      }),
+    );
   }
 
   let respuesta = NextResponse.next({ request });
@@ -40,9 +52,9 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user && PROTEGIDAS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    return NextResponse.redirect(new URL(`/entrar?next=${encodeURIComponent(pathname)}`, origenPublico(request.headers)));
+    return conCsp(NextResponse.redirect(new URL(`/entrar?next=${encodeURIComponent(pathname)}`, origenPublico(request.headers))));
   }
-  return respuesta;
+  return conCsp(respuesta);
 }
 
 export const config = {

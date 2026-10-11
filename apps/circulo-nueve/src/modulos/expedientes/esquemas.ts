@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/modulos/seguridad/zod";
 
 export const PERMISOS_EXPEDIENTE = ["listar", "abrir_descargar", "cargar", "modificar", "borrar", "compartir"] as const;
 export type PermisoExpediente = (typeof PERMISOS_EXPEDIENTE)[number];

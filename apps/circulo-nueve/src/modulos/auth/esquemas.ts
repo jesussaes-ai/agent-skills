@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/modulos/seguridad/zod";
 import { PATRON_USUARIO, normalizarUsuario } from "./usuarios";
 
 export const ROLES_ASIGNABLES = ["consultor", "cliente", "admin"] as const;

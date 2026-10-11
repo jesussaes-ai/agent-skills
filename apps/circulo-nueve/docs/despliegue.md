@@ -117,6 +117,25 @@ npm run setup:hash -- --generar
    - En `/admin/usuarios`, crea una cuenta de asistente de prueba (marca «Pedirle que elija su propia contraseña»), entra con ella en otra ventana privada y comprueba que te pide cambiar la contraseña y que no ve la administración.
 4. **Opcional, IA:** en `/admin/proveedores`, da de alta un proveedor con el nombre de su secreto `LLM_KEY_…` y pulsa «Probar conexión». Los modelos gratuitos solo sirven para demo, sin datos personales.
 
+## 6a. Purga programada dentro de Supabase (recomendada)
+
+La migración `20261010000100_purga_programada.sql` programa con `pg_cron` una llamada diaria (09:17 UTC) a la Edge Function `purga-retencion` (`supabase/functions/purga-retencion`), que hace lo mismo que `npm run retencion:purgar` con la llave de servicio del propio entorno de la función. Así la purga no depende de GitHub Actions ni de guardar la llave de servicio fuera de Supabase.
+
+Una vez por proyecto:
+
+```bash
+npx supabase functions deploy purga-retencion
+```
+
+```sql
+-- SQL Editor del proyecto. El token se genera dentro de la base y no sale de ella.
+select vault.create_secret('https://<ref>.supabase.co', 'cn_supabase_url');
+select vault.create_secret('<llave anon>', 'cn_anon_key');
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'cn_purga_token');
+```
+
+Comprobación: `select status_code, content from net._http_response order by id desc limit 1;` tras la ejecución (o lanzando a mano el comando de `cron.job`) debe dar 200 y `"ok":true`. Sin la cabecera correcta la función responde 401 y no borra nada. En el plan Pro, Supabase no se pausa, así que el ping del paso 6 solo hace falta en Free.
+
 ## 6. Worker de ingesta, ping anti-pausa y purga (GitHub Actions)
 
 El workflow `.github/workflows/circulo-nueve-tareas.yml` corre cada 6 horas y también a mano (*Actions → Círculo Nueve tareas → Run workflow*). Pasos:

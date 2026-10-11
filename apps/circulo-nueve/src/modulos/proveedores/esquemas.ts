@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/modulos/seguridad/zod";
 import { PLANTILLAS, esModeloGratuito } from "./catalogo";
 import { TIPOS_PROVEEDOR, type ConfigProveedor } from "./tipos";
 
