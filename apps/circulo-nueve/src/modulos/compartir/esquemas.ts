@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/modulos/seguridad/zod";
 
 const uuid = z.string().uuid();
 

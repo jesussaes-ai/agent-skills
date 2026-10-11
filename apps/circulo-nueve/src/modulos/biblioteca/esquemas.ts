@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/modulos/seguridad/zod";
 
 const opcional = (max: number) =>
   z
