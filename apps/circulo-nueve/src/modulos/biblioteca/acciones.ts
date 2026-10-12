@@ -129,17 +129,28 @@ export async function accionAgregarWeb(_: EstadoFormulario, form: FormData): Pro
   return { ok: true, mensaje: `Página añadida; pendiente de descargar y revisar.` };
 }
 
-/** Procesa en este servidor hasta 5 trabajos. En producción lo hace el worker aparte. */
+/**
+ * Procesa en este servidor hasta 5 trabajos. En Vercel solo los ligeros: lo que necesita
+ * OCR, audio o video lo cede al worker de GitHub Actions (ver docs/biblioteca.md).
+ */
 export async function accionProcesarPendientes(_: EstadoFormulario): Promise<EstadoFormulario & { resultados?: ResultadoTrabajo[] }> {
   if (!(await sesionFuentes())) return SIN_PERMISO;
+  const soloLigeros = process.env.VERCEL === "1" || process.env.INGESTA_SOLO_LIGEROS === "1";
   const resultados: ResultadoTrabajo[] = [];
   for (let i = 0; i < 5; i++) {
-    const r = await procesarSiguiente(clienteSupabaseAdmin());
+    const r = await procesarSiguiente(clienteSupabaseAdmin(), undefined, { soloLigeros });
     if (!r) break;
     resultados.push(r);
   }
   revalidatePath("/biblioteca");
-  if (!resultados.length) return { ok: true, mensaje: "No hay trabajos pendientes." };
+  if (!resultados.length) {
+    return {
+      ok: true,
+      mensaje: soloLigeros
+        ? "No hay trabajos que se puedan procesar aquí. Los escaneados, imágenes, audio y video los procesa el worker en segundo plano (cada 15 minutos aprox.)."
+        : "No hay trabajos pendientes.",
+    };
+  }
   return { ok: true, mensaje: resultados.map((r) => `${r.estado}: ${r.mensaje}`).join(" · "), resultados };
 }
 

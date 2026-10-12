@@ -9,7 +9,7 @@ import { promisify } from "node:util";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { diffLines } from "diff";
 import { aVector, crearEmbeddingsLocales, type ProveedorEmbeddings } from "./embeddings";
-import { extraerDocumento, ocrImagen } from "./extraer";
+import { ErrorRequiereOcr, extraerDocumento, ocrImagen } from "./extraer";
 import { describirConVision, describirSinVision, proveedorVisionConfigurado, type DescripcionFigura } from "./figuras";
 import { EXTENSIONES, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
 import { fragmentar } from "./fragmentar";
@@ -19,11 +19,20 @@ import { ErrorWeb, obtenerPaginaWeb } from "./web";
 
 const ejecutar = promisify(execFile);
 
+/**
+ * Cliente con permisos de servicio. En GitHub Actions no hay llave de servicio: el
+ * workflow canjea su token OIDC por un JWT de servicio que caduca (SUPABASE_WORKER_TOKEN)
+ * y lo envía junto con la llave pública.
+ */
 export function clienteServicio(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const llave = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!url || !llave) throw new Error("Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY.");
-  return createClient(url, llave, { auth: { persistSession: false, autoRefreshToken: false } });
+  const token = process.env.SUPABASE_WORKER_TOKEN?.trim();
+  const publica = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const opciones = { auth: { persistSession: false, autoRefreshToken: false } };
+  if (url && token && publica) return createClient(url, publica, { ...opciones, accessToken: async () => token });
+  if (!url || !llave) throw new Error("Faltan NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY (o SUPABASE_WORKER_TOKEN con la llave pública).");
+  return createClient(url, llave, opciones);
 }
 
 interface Trabajo {
@@ -40,7 +49,7 @@ export interface ResultadoTrabajo {
   trabajoId: string;
   fuenteId: string;
   etapa: string;
-  estado: "requiere_revision" | "indexado" | "fallido";
+  estado: "requiere_revision" | "indexado" | "fallido" | "cedido_al_worker";
   mensaje: string;
 }
 
@@ -110,7 +119,7 @@ async function marcarFallo(db: SupabaseClient, t: Trabajo, mensaje: string): Pro
   return { trabajoId: t.id, fuenteId: t.source_id, etapa: t.etapa, estado: "fallido", mensaje };
 }
 
-async function extraer(db: SupabaseClient, t: Trabajo): Promise<ResultadoTrabajo> {
+async function extraer(db: SupabaseClient, t: Trabajo, permitirOcr: boolean): Promise<ResultadoTrabajo> {
   const { data: fuente } = await db.from("sources").select("*").eq("id", t.source_id).single();
   if (!fuente) throw new ErrorIngesta("La fuente ya no existe.");
   await db.from("sources").update({ estado: "procesando", motivo_fallo: null }).eq("id", t.source_id);
@@ -154,7 +163,8 @@ async function extraer(db: SupabaseClient, t: Trabajo): Promise<ResultadoTrabajo
     if (activo.rechazar) throw new ErrorIngesta(activo.motivos.join(" "));
     const aviso = await antivirus(original);
     if (aviso) advertencias.push(aviso);
-    documento = await extraerDocumento(formato, original, t.nombre_archivo ?? undefined).catch((e: unknown) => {
+    documento = await extraerDocumento(formato, original, t.nombre_archivo ?? undefined, { permitirOcr }).catch((e: unknown) => {
+      if (e instanceof ErrorRequiereOcr) throw e;
       throw new ErrorIngesta(e instanceof Error ? e.message : "No se pudo extraer el contenido.");
     });
   }
@@ -349,9 +359,19 @@ async function indexar(db: SupabaseClient, t: Trabajo, embeddings: ProveedorEmbe
 
 let embeddingsCompartidos: ProveedorEmbeddings | null = null;
 
+export interface OpcionesProceso {
+  /** La app en Vercel: sin OCR, audio ni video (no caben en una función de 300 s). */
+  soloLigeros?: boolean;
+}
+
 /** Toma el siguiente trabajo pendiente (atómico) y lo procesa. Devuelve null si no hay. */
-export async function procesarSiguiente(db = clienteServicio(), embeddings?: ProveedorEmbeddings): Promise<ResultadoTrabajo | null> {
-  const { data, error } = await db.rpc("tomar_trabajo_ingesta");
+export async function procesarSiguiente(
+  db = clienteServicio(),
+  embeddings?: ProveedorEmbeddings,
+  opciones: OpcionesProceso = {},
+): Promise<ResultadoTrabajo | null> {
+  const soloLigeros = opciones.soloLigeros ?? false;
+  const { data, error } = await db.rpc("tomar_trabajo_ingesta", { p_solo_ligeros: soloLigeros });
   if (error) throw new Error(`No se pudo tomar un trabajo: ${error.message}`);
   const t = (data as Trabajo[] | null)?.[0];
   if (!t) return null;
@@ -360,8 +380,12 @@ export async function procesarSiguiente(db = clienteServicio(), embeddings?: Pro
       embeddingsCompartidos ??= crearEmbeddingsLocales();
       return await indexar(db, t, embeddings ?? embeddingsCompartidos);
     }
-    return await extraer(db, t);
+    return await extraer(db, t, !soloLigeros);
   } catch (e) {
+    if (e instanceof ErrorRequiereOcr) {
+      await db.rpc("ceder_trabajo_al_worker", { p_trabajo: t.id });
+      return { trabajoId: t.id, fuenteId: t.source_id, etapa: t.etapa, estado: "cedido_al_worker", mensaje: `${e.message} Lo procesará el worker en segundo plano.` };
+    }
     const mensaje = e instanceof ErrorIngesta ? e.message : `Error inesperado: ${e instanceof Error ? e.message : String(e)}`;
     return marcarFallo(db, t, mensaje);
   }

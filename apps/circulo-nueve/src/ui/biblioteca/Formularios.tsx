@@ -178,9 +178,10 @@ export function BotonProcesar({ pendientes }: { pendientes: number }) {
   return (
     <form action={accion} className="space-y-3">
       <p className="text-sm text-slate-700">
-        Trabajos pendientes: <strong data-testid="pendientes">{pendientes}</strong>. En producción los procesa el worker (<code>npm run ingesta:worker</code>).
+        Trabajos pendientes: <strong data-testid="pendientes">{pendientes}</strong>. El worker los procesa solo, cada 15 minutos aproximadamente
+        (los escaneados con OCR, el audio y el video, únicamente él). Con el botón, los textos, EPUB, DOCX, PDF con texto y páginas web se procesan al momento.
       </p>
-      <BotonEnviar variante="secundario" descripcion="Procesa ahora en este servidor hasta 5 trabajos pendientes: extracción o cálculo de vectores. Puede tardar.">
+      <BotonEnviar variante="secundario" descripcion="Procesa ahora en este servidor hasta 5 trabajos pendientes: extracción o cálculo de vectores. Puede tardar un par de minutos.">
         Procesar pendientes ahora
       </BotonEnviar>
       <MensajeFormulario estado={estado} />

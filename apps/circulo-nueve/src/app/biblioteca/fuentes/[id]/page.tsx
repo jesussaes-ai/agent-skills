@@ -61,7 +61,7 @@ export default async function PaginaFuente({ params }: { params: Promise<{ id: s
       {f.motivo_fallo && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-900">{f.motivo_fallo}</p>}
       {aprobadaPendiente && (
         <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
-          Versión aprobada: pendiente de calcular los vectores e indexar (lo hace el worker o «Procesar pendientes ahora»).
+          Versión aprobada: pendiente de calcular los vectores e indexar (lo hace el worker en unos 15 minutos, o al momento con «Procesar pendientes ahora» en la Biblioteca).
         </p>
       )}
 

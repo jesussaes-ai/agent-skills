@@ -27,7 +27,7 @@ async function extractor(modelo: string): Promise<Extractor> {
       modelo,
       (async () => {
         const { pipeline, env } = await import("@huggingface/transformers");
-        env.cacheDir = process.env.MODELOS_CACHE?.trim() || join(process.cwd(), ".cache", "modelos");
+        env.cacheDir = process.env.MODELOS_CACHE?.trim() || (process.env.VERCEL ? "/tmp/modelos" : join(process.cwd(), ".cache", "modelos"));
         return (await pipeline("feature-extraction", modelo, { dtype: "q8" })) as unknown as Extractor;
       })(),
     );
