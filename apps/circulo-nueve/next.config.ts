@@ -36,6 +36,18 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingIncludes: {
     "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*", "public/datos/**/*"],
+    // transformers.js carga onnxruntime-node con createRequire y el trazado no lo ve. Solo Linux x64 (Vercel).
+    ...Object.fromEntries(
+      ["/biblioteca", "/biblioteca/**"].map((ruta) => [
+        ruta,
+        [
+          "node_modules/onnxruntime-node/package.json",
+          "node_modules/onnxruntime-node/dist/**/*",
+          "node_modules/onnxruntime-node/bin/napi-v6/linux/x64/**/*",
+          "node_modules/onnxruntime-common/**/*",
+        ],
+      ]),
+    ),
   },
 };
 
