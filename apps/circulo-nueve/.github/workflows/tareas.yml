@@ -1,48 +1,76 @@
-# Tareas programadas de Círculo Nueve en producción (ver apps/circulo-nueve/docs/despliegue.md):
-# ping anti-pausa de Supabase, worker de ingesta de la biblioteca y purga por retención.
-# Solo corre si la variable del repositorio CIRCULO_NUEVE_ACTIVO = "true" y existen los secretos.
+# Worker de ingesta de la biblioteca de Círculo Nueve en producción (ver apps/circulo-nueve/docs/biblioteca.md).
+# No usa secretos de Actions: canjea el token OIDC de GitHub por un JWT de servicio que caduca
+# (Edge Function `credencial-worker`, que solo acepta este workflow en `main` de este repositorio).
+# Si no hay trabajos pendientes termina en segundos sin instalar nada.
+# La purga por retención corre en Supabase (pg_cron) y el plan Pro no se pausa: aquí ya no van.
 # Copia del workflow de la raíz de agent-skills (.github/workflows/circulo-nueve-tareas.yml), para el repo propio.
+# En el repo propio: variable CIRCULO_NUEVE_ACTIVO=true y, en la Edge Function, CN_WORKER_REPOSITORIO y CN_WORKER_REPO_ID de ese repo.
 name: Círculo Nueve tareas
 
 on:
   schedule:
-    - cron: "23 */6 * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/tareas.yml
+      - src/modulos/biblioteca/**
+      - scripts/worker-ingesta.mts
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: circulo-nueve-tareas
   cancel-in-progress: false
 
 jobs:
-  tareas:
+  ingesta:
     if: vars.CIRCULO_NUEVE_ACTIVO == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 170
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.CIRCULO_NUEVE_SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CIRCULO_NUEVE_SERVICE_ROLE_KEY }}
-      NEXT_PUBLIC_SITE_URL: ${{ vars.CIRCULO_NUEVE_SITE_URL }}
+      SUPABASE_URL_PROYECTO: ${{ vars.CIRCULO_NUEVE_SUPABASE_URL || 'https://dsjtbtcyyliqqzkxxbjs.supabase.co' }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.CIRCULO_NUEVE_SITE_URL || 'https://circulo-nueve.vercel.app' }}
       CLAMAV_OBLIGATORIO: ${{ vars.CIRCULO_NUEVE_CLAMAV == 'true' && '1' || '0' }}
       VISION_PROVEEDOR_ID: ${{ vars.CIRCULO_NUEVE_VISION_PROVEEDOR_ID }}
+      INGESTA_MAX_MINUTOS: "150"
     steps:
-      - name: Ping anti-pausa de Supabase
+      - name: Credencial temporal (OIDC → Supabase)
+        id: credencial
         run: |
-          curl -fsS "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/app_settings?select=id" \
-            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" > /dev/null
+          set -euo pipefail
+          oidc=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=circulo-nueve-worker" | jq -r .value)
+          echo "::add-mask::$oidc"
+          respuesta=$(curl -fsS -X POST "$SUPABASE_URL_PROYECTO/functions/v1/credencial-worker" -H "authorization: Bearer $oidc")
+          token=$(jq -r .token <<<"$respuesta")
+          echo "::add-mask::$token"
+          {
+            echo "SUPABASE_WORKER_TOKEN=$token"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(jq -r .url <<<"$respuesta")"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(jq -r .llave_publica <<<"$respuesta")"
+          } >> "$GITHUB_ENV"
+          pendientes=$(jq -r '.pendientes // 1' <<<"$respuesta")
+          echo "pendientes=$pendientes" >> "$GITHUB_OUTPUT"
+          echo "Trabajos pendientes: $pendientes"
       - uses: actions/checkout@v4
+        if: steps.credencial.outputs.pendientes != '0'
       - uses: actions/setup-node@v4
+        if: steps.credencial.outputs.pendientes != '0'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: package-lock.json
       - uses: actions/cache@v4
+        if: steps.credencial.outputs.pendientes != '0'
         with:
           path: .cache/modelos
           key: modelos-e5-whisper-tesseract-v2
       - name: ffmpeg (audio y video) y ClamAV opcional
+        if: steps.credencial.outputs.pendientes != '0'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
@@ -51,7 +79,7 @@ jobs:
             sudo freshclam --quiet
           fi
       - run: npm ci
+        if: steps.credencial.outputs.pendientes != '0'
       - name: Worker de ingesta (procesa la cola y termina)
+        if: steps.credencial.outputs.pendientes != '0'
         run: npm run ingesta:worker
-      - name: Purga por retención
-        run: npm run retencion:purgar
