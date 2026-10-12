@@ -31,7 +31,7 @@ Estados de fuente y trabajo: `pendiente → procesando → requiere_revision →
 
 | Formato | Detección | Extracción | Localizador |
 |---|---|---|---|
-| PDF | bytes mágicos (`file-type`) | `unpdf` (pdf.js) por página | página de archivo y página impresa si el PDF trae etiquetas |
+| PDF | bytes mágicos (`file-type`) | `unpdf` (pdf.js) por página; las páginas sin texto (escaneadas) pasan por OCR `tesseract.js` (spa) con la imagen de la página | página de archivo y página impresa si el PDF trae etiquetas; confianza del OCR en las escaneadas |
 | EPUB | zip + `META-INF/container.xml` | OPF/spine → HTML → Markdown | capítulo, sección |
 | DOCX | zip + `word/document.xml` | `mammoth` → HTML → Markdown | sección (encabezados) |
 | TXT / MD | UTF-8 válido sin NUL | directo | sección y rango de líneas |
@@ -66,7 +66,7 @@ Estados de fuente y trabajo: `pendiente → procesando → requiere_revision →
 - **Formulario:** tras un error se conservan los datos escritos; el archivo hay que elegirlo de nuevo, porque el navegador no permite rellenarlo.
 - **Contenido activo:** se rechazan PDF con `/JavaScript`, `/JS`, `/Launch`, `/EmbeddedFile`, `/RichMedia` o `/XFA`, DOCX con macros (`vbaProject.bin`, `macroEnabled`) y EPUB con scripts. La extracción nunca ejecuta nada.
 - **Límites:** 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF y 8 millones de caracteres de texto.
-  - En Vercel, la petición admite como mucho ~4.5 MB. Para archivos mayores hay que subir con URL firmada directa a Storage (pendiente).
+  - En Vercel, la petición admite como mucho ~4.5 MB; por encima de 4 MB el navegador sube directo a Storage con URL firmada (hasta 50 MB).
 - **Buckets privados:** `cuarentena` (entrada), `biblioteca-originales` y `biblioteca-derivados` (Markdown). Solo los usa el servidor con service role.
 
 ## Ingesta web → Markdown
@@ -92,10 +92,21 @@ Está escrito en **TypeScript/Node** (`src/modulos/biblioteca/ingesta.ts`), no e
 - se ejecuta igual en el CI.
 
 Formas de usarlo:
-- `npm run ingesta:worker`: procesa la cola y termina. Con `-- --continuo`, sigue sondeando cada 10 s. Requiere la llave de servicio.
-- «Procesar pendientes ahora» en `/biblioteca`: procesa hasta 5 trabajos dentro del servidor de la app. Es cómodo en local y en instalaciones pequeñas.
-- `tomar_trabajo_ingesta()` usa `for update skip locked`, así que varios workers no toman el mismo trabajo.
-- En producción, el worker corre como contenedor o tarea programada fuera de Vercel: el OCR y los embeddings no caben en las funciones *serverless*.
+- `npm run ingesta:worker`: procesa la cola y termina. Con `-- --continuo`, sigue sondeando cada 10 s. Requiere la llave de servicio (o el token temporal de abajo). `INGESTA_MAX_MINUTOS` impide empezar trabajos nuevos pasado ese tiempo.
+- «Procesar pendientes ahora» en `/biblioteca`: procesa hasta 5 trabajos dentro del servidor de la app. **En Vercel** (o con `INGESTA_SOLO_LIGEROS=1`) solo toma los ligeros —texto, Markdown, EPUB, DOCX, hojas, PPTX, PDF con texto, páginas web y el indexado—; si un PDF resulta escaneado o trae figuras, lo **cede al worker** (`ceder_trabajo_al_worker`) en vez de arriesgarse al límite de 300 s.
+- `tomar_trabajo_ingesta(p_solo_ligeros)` usa `for update skip locked`, así que varios workers no toman el mismo trabajo. Un trabajo que se quedó «procesando» (función cortada a los 300 s, runner cancelado) vuelve a la cola a los 10 min si lo tomó la app o a las 4 h si lo tomó el worker; al tercer intento queda `fallido` con el motivo.
+
+### En producción: GitHub Actions sin secretos
+
+`.github/workflows/circulo-nueve-tareas.yml` corre en `main` cada 15 min (y al cambiar el código del worker o a mano con *Run workflow*):
+
+1. Pide a GitHub un token **OIDC** (audiencia `circulo-nueve-worker`) y lo canjea en la Edge Function `credencial-worker` por un **JWT de servicio que caduca en 3 h**, enmascarado en el log.
+2. La función solo acepta tokens firmados por GitHub del repositorio autorizado (nombre **e id numérico**), rama `main`, runner de GitHub y el archivo de workflow exacto. Sus secretos (`CN_JWT_LEGADO`, `CN_WORKER_REPOSITORIO`, `CN_WORKER_REPO_ID`) están en Supabase, no en el repositorio.
+3. Si `trabajos_ingesta_pendientes()` es 0, termina en segundos. Si no, instala dependencias y ffmpeg, restaura la caché de modelos y ejecuta el worker (OCR, audio, video, figuras, embeddings).
+
+Así no hace falta guardar la llave de servicio como secreto de Actions. Quien pueda fusionar en `main` puede obtener la credencial, igual que podría leer un secreto de Actions: es el mismo nivel de confianza. El repo es público, así que los minutos de Actions no cuestan. Para el repo propio está la copia `apps/circulo-nueve/.github/workflows/tareas.yml` (variable `CIRCULO_NUEVE_ACTIVO=true` y los dos `CN_WORKER_*` de ese repo).
+
+Tiempos orientativos en el runner: un libro con texto de 300 páginas tarda 1–2 min; un escaneo, unos 3–5 s por página (300 páginas ≈ 20 min). GitHub puede retrasar los cron programados varios minutos.
 
 ## Fragmentación
 

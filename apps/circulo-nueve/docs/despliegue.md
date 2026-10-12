@@ -11,7 +11,8 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
 |---|---|---|
 | App web (Next.js) | **Vercel Hobby** (funciones en `iad1`, Washington D. C.) | Páginas, cuentas, expedientes, PDF, bot |
 | Base de datos, Auth y archivos | **Supabase Free**, región **East US (North Virginia) `us-east-1`** | Postgres + RLS, Auth con MFA, Storage privado |
-| Worker de ingesta, ping anti-pausa y purga | **GitHub Actions** (workflow `circulo-nueve-tareas`) | OCR, transcripción, figuras y embeddings; mantener activo Supabase; borrar documentos vencidos |
+| Worker de ingesta | **GitHub Actions** (workflow `circulo-nueve-tareas`, cada 15 min, sin secretos de Actions) | OCR, transcripción, figuras y embeddings |
+| Purga por retención | **Supabase** (`pg_cron` + Edge Function `purga-retencion`) | Borrar documentos vencidos |
 | Correo | **No hace falta** | Las cuentas usan usuario y contraseña; la administración las crea y entrega |
 | IA para redactar respuestas (opcional) | Proveedor en `/admin/proveedores` | Sin proveedor, el bot responde con citas literales |
 
@@ -20,13 +21,13 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
 **Límites que importan (plan gratuito):**
 - **Supabase:**
   - 500 MB de base de datos, 1 GB de archivos y 50 MB por archivo.
-  - **Pausa tras 1 semana sin actividad** (lo evita el ping).
+  - **Pausa tras 1 semana sin actividad** (la evita el worker, que consulta la base cada 15 min).
   - **Sin respaldos automáticos** (ver «Respaldos»).
   - Máximo 2 proyectos activos.
 - **Vercel Hobby:**
   - Funciones de 300 s como máximo y cuerpo de petición de **4.5 MB**. Por eso los archivos de más de 4 MB se suben directo a Storage.
   - El OCR, la transcripción y los embeddings de documentos largos **no** corren en Vercel: los hace el worker.
-- **GitHub Actions:** 2000 minutos al mes en repos privados. El workflow corre cada 6 horas (~3–5 min si no hay trabajos pesados) y cabe con margen. Los `schedule` solo corren en la **rama por defecto**.
+- **GitHub Actions:** gratis sin límite en repos públicos; 2000 minutos al mes en privados. El workflow corre cada 15 min y, sin trabajos pendientes, termina en ~10 s sin instalar nada. Los `schedule` solo corren en la **rama por defecto**.
 
 ## 0. Antes de empezar
 
@@ -68,7 +69,7 @@ Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de em
 5. **Llaves** (*Project Settings → API*). Apunta:
    - la **URL del proyecto**;
    - la llave pública (**anon / publishable**);
-   - la **service_role / secret**. Esta es secreta: solo va en Vercel y en los secretos de GitHub.
+   - la **service_role / secret**. Esta es secreta: solo va en Vercel.
 
 ## 2. Correo
 
@@ -134,31 +135,33 @@ select vault.create_secret('<llave anon>', 'cn_anon_key');
 select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'cn_purga_token');
 ```
 
-Comprobación: `select status_code, content from net._http_response order by id desc limit 1;` tras la ejecución (o lanzando a mano el comando de `cron.job`) debe dar 200 y `"ok":true`. Sin la cabecera correcta la función responde 401 y no borra nada. En el plan Pro, Supabase no se pausa, así que el ping del paso 6 solo hace falta en Free.
+Comprobación: `select status_code, content from net._http_response order by id desc limit 1;` tras la ejecución (o lanzando a mano el comando de `cron.job`) debe dar 200 y `"ok":true`. Sin la cabecera correcta la función responde 401 y no borra nada. En el plan Pro, Supabase no se pausa; en Free, programa un ping semanal (p. ej. otro job de `pg_cron`).
 
-## 6. Worker de ingesta, ping anti-pausa y purga (GitHub Actions)
+## 6. Worker de ingesta (GitHub Actions, sin secretos)
 
-El workflow `.github/workflows/circulo-nueve-tareas.yml` corre cada 6 horas y también a mano (*Actions → Círculo Nueve tareas → Run workflow*). Pasos:
+El workflow `.github/workflows/circulo-nueve-tareas.yml` corre en `main` cada 15 min, al cambiar el código del worker y a mano (*Actions → Círculo Nueve tareas → Run workflow*). Canjea su token OIDC de GitHub por un JWT de servicio de 3 h en la Edge Function `credencial-worker` y procesa la cola (`npm run ingesta:worker`) con ffmpeg; ClamAV es opcional. Detalle y modelo de seguridad: [biblioteca.md](biblioteca.md#en-producción-github-actions-sin-secretos).
 
-1. **Ping a Supabase:** una consulta mínima que cuenta como actividad y evita la pausa semanal.
-2. **Worker:** procesa la cola de la biblioteca (`npm run ingesta:worker`). Instala ffmpeg para audio y video; ClamAV es opcional.
-3. **Purga** por retención (`npm run retencion:purgar`): documentos vencidos, enlaces para compartir vencidos o revocados y auditoría fuera de plazo (plazos en `/admin/ajustes`).
+Una vez por proyecto (desde tu PC, con `npx supabase login`):
 
-Configuración en *Settings → Secrets and variables → Actions*:
+```bash
+npx supabase functions deploy credencial-worker --no-verify-jwt
+npx supabase secrets set CN_WORKER_REPOSITORIO=<propietario/repo> CN_WORKER_REPO_ID=<id numérico del repo>
+npx supabase secrets set CN_JWT_LEGADO=<JWT secret de Project Settings → API (legacy)>
+```
 
-| Tipo | Nombre | Valor |
-|---|---|---|
-| Secret | `CIRCULO_NUEVE_SUPABASE_URL` | URL del proyecto |
-| Secret | `CIRCULO_NUEVE_SERVICE_ROLE_KEY` | llave service_role |
-| Variable | `CIRCULO_NUEVE_ACTIVO` | `true` (sin esto, el workflow no corre) |
-| Variable | `CIRCULO_NUEVE_SITE_URL` | `https://<tu-app>.vercel.app` |
-| Variable (opcional) | `CIRCULO_NUEVE_CLAMAV` | `true` para exigir antivirus. Suma ~2 min por ejecución: descarga firmas. |
-| Variable (opcional) | `CIRCULO_NUEVE_VISION_PROVEEDOR_ID` | id de un proveedor con visión para describir figuras. Sin él, las figuras se describen con leyenda + OCR. |
+Variables opcionales en *Settings → Secrets and variables → Actions* (ninguna es secreta):
+
+| Variable | Valor |
+|---|---|
+| `CIRCULO_NUEVE_ACTIVO` | `true`; solo hace falta en el repo propio (en `jesussaes-ai/agent-skills` corre siempre) |
+| `CIRCULO_NUEVE_SUPABASE_URL` / `CIRCULO_NUEVE_SITE_URL` | si cambian el proyecto o la URL de la app |
+| `CIRCULO_NUEVE_CLAMAV` | `true` para exigir antivirus. Suma ~2 min por ejecución: descarga firmas. |
+| `CIRCULO_NUEVE_VISION_PROVEEDOR_ID` | id de un proveedor con visión para describir figuras. Sin él, las figuras se describen con leyenda + OCR. |
 
 **Cuándo procesa:**
 - Los modelos (embeddings, Whisper, OCR) se descargan la primera vez (~700 MB) y quedan en la caché de Actions.
-- Un archivo cargado se procesa en la siguiente ejecución, o al lanzarlo a mano.
-- Para textos cortos, también sirve «Procesar pendientes ahora» en `/biblioteca`, que corre dentro de Vercel (máximo 300 s).
+- Un archivo cargado se procesa en la siguiente ejecución (≤ 15 min, más el retraso habitual de GitHub), o al lanzarlo a mano.
+- «Procesar pendientes ahora» en `/biblioteca` procesa al momento, dentro de Vercel, los textos, EPUB, DOCX, PDF con texto, páginas web y el indexado tras aprobar; los escaneados, imágenes, audio y video los cede al worker.
 
 **Alternativa sin GitHub Actions:** deja el worker corriendo en tu PC mientras cargas libros. En PowerShell, con las dos variables de servicio:
 

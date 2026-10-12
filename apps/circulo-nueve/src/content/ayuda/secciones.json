@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-09.1",
+  "version": "2026-10-12.1",
   "secciones": [
     {
       "id": "proyecto",
@@ -770,14 +770,15 @@
       "id": "biblioteca-carga",
       "titulo": "Centro de carga",
       "resumen": "Subir libros y documentos de forma segura.",
-      "deQueTrata": "Acepta documentos (PDF —con sus figuras—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Hasta 25 MB a través de la app; los archivos de más de 4 MB se suben directo a Storage con un enlace firmado (hasta 50 MB). El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. Si falta un dato, el formulario conserva lo escrito.",
+      "deQueTrata": "Acepta documentos (PDF —con sus figuras, y también escaneados—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. Los PDF escaneados (páginas que son solo una imagen) se leen con OCR en español página por página; la confianza del OCR queda en cada fragmento y las páginas dudosas se marcan para revisarlas con el original. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Hasta 25 MB a través de la app; los archivos de más de 4 MB se suben directo a Storage con un enlace firmado (hasta 50 MB). Límites: 1000 páginas por PDF y 60 minutos de audio o video; un libro más grande se divide en partes. El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. El worker procesa la cola solo cada 15 minutos aproximadamente; «Procesar pendientes ahora» procesa al momento los textos, EPUB, DOCX, PDF con texto y páginas web, y deja los escaneados, las imágenes, el audio y el video al worker. Si falta un dato, el formulario conserva lo escrito.",
       "datosQueUsa": [
         "El archivo y los metadatos que escribes."
       ],
       "comoSeUsa": [
-        "Elige el archivo, completa título, referencia, grupo, licencia y quién puede consultarla.",
+        "En «Biblioteca» (solo administración), en «Cargar archivo», elige el archivo y completa título, referencia, grupo, licencia y quién puede consultarla.",
         "Marca la confirmación de derechos y pulsa «Cargar a cuarentena».",
-        "Pulsa «Procesar pendientes ahora» o deja que lo haga el worker."
+        "Pulsa «Procesar pendientes ahora» o espera al worker (unos 15 minutos; un escaneo tarda unos segundos por página).",
+        "Cuando la fuente diga «Requiere revisión», ábrela, revisa y pulsa «Aprobar e indexar»; después vuelve a «Procesar pendientes ahora» o espera al worker."
       ],
       "estado": "disponible",
       "palabrasClave": [
@@ -804,7 +805,14 @@
         "antivirus",
         "clamav",
         "grande",
-        "carga directa"
+        "carga directa",
+        "escaneado",
+        "escaneo",
+        "escaneados",
+        "libro",
+        "libros",
+        "worker",
+        "tiempo"
       ]
     },
     {
