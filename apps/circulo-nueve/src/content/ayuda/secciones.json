@@ -775,7 +775,7 @@
         "El archivo y los metadatos que escribes."
       ],
       "comoSeUsa": [
-        "En «Biblioteca» (solo administración), en «Cargar archivo», elige el archivo y completa título, referencia, grupo, licencia y quién puede consultarla.",
+        "En «Biblioteca» (solo administración), en «Centro de carga», elige el archivo y completa título, referencia, grupo, licencia y quién puede consultarla.",
         "Marca la confirmación de derechos y pulsa «Cargar a cuarentena».",
         "Pulsa «Procesar pendientes ahora» o espera al worker (unos 15 minutos; un escaneo tarda unos segundos por página).",
         "Cuando la fuente diga «Requiere revisión», ábrela, revisa y pulsa «Aprobar e indexar»; después vuelve a «Procesar pendientes ahora» o espera al worker."
