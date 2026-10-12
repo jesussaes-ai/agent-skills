@@ -143,8 +143,16 @@ async function extraerEpub(bytes: Uint8Array): Promise<DocumentoExtraido> {
   if (!rutaOpf) throw new Error("EPUB sin META-INF/container.xml válido.");
   const opf = (await zip.file(rutaOpf)?.async("string")) ?? "";
   const baseOpf = rutaOpf.includes("/") ? rutaOpf.slice(0, rutaOpf.lastIndexOf("/") + 1) : "";
-  const manifiesto = new Map([...opf.matchAll(/<item\b[^>]*\bid="([^"]+)"[^>]*\bhref="([^"]+)"/g)].map((m) => [m[1], m[2]]));
-  const lomo = [...opf.matchAll(/<itemref\b[^>]*\bidref="([^"]+)"/g)].map((m) => m[1]);
+  // Los atributos pueden venir en cualquier orden (Project Gutenberg pone href antes que id).
+  const atributo = (etiqueta: string, nombre: string) => new RegExp(`\\s${nombre}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(etiqueta)?.slice(1).find((v) => v !== undefined);
+  const manifiesto = new Map(
+    [...opf.matchAll(/<(?:opf:)?item\b[^>]*>/g)].flatMap((m) => {
+      const id = atributo(m[0], "id");
+      const href = atributo(m[0], "href");
+      return id && href ? [[id, href] as const] : [];
+    }),
+  );
+  const lomo = [...opf.matchAll(/<(?:opf:)?itemref\b[^>]*>/g)].flatMap((m) => atributo(m[0], "idref") ?? []);
   const titulo = /<dc:title[^>]*>([^<]+)</.exec(opf)?.[1]?.trim();
   const autor = /<dc:creator[^>]*>([^<]+)</.exec(opf)?.[1]?.trim();
   const idioma = /<dc:language[^>]*>([^<]+)</.exec(opf)?.[1]?.trim();

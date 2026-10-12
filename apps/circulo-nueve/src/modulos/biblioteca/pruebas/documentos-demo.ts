@@ -56,7 +56,8 @@ export async function docxDemo({ conMacros = false } = {}): Promise<Uint8Array> 
   return new Uint8Array(await zip.generateAsync({ type: "uint8array" }));
 }
 
-export async function epubDemo(): Promise<Uint8Array> {
+/** Con `estiloGutenberg`, el manifiesto pone href antes que id y usa comillas simples, como Project Gutenberg. */
+export async function epubDemo({ estiloGutenberg = false } = {}): Promise<Uint8Array> {
   const zip = new JSZip();
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
   zip.file(
@@ -65,7 +66,11 @@ export async function epubDemo(): Promise<Uint8Array> {
   );
   zip.file(
     "OEBPS/content.opf",
-    `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Libro ficticio (DEMO)</dc:title><dc:creator>Autora ficticia</dc:creator><dc:language>es</dc:language></metadata><manifest><item id="c1" href="cap1.xhtml" media-type="application/xhtml+xml"/><item id="c2" href="cap2.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="c1"/><itemref idref="c2"/></spine></package>`,
+    `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Libro ficticio (DEMO)</dc:title><dc:creator>Autora ficticia</dc:creator><dc:language>es</dc:language></metadata>${
+      estiloGutenberg
+        ? `<manifest><item href='cap1.xhtml' id='c1' media-type='application/xhtml+xml'/><item href='cap2.xhtml' id='c2' media-type='application/xhtml+xml'/></manifest>`
+        : `<manifest><item id="c1" href="cap1.xhtml" media-type="application/xhtml+xml"/><item id="c2" href="cap2.xhtml" media-type="application/xhtml+xml"/></manifest>`
+    }<spine><itemref idref="c1" linear="yes"/><itemref idref="c2"/></spine></package>`,
   );
   zip.file("OEBPS/cap1.xhtml", `<html><body><h1>El cinco</h1><p>En este libro ficticio el cinco simboliza el cambio.</p></body></html>`);
   zip.file("OEBPS/cap2.xhtml", `<html><body><h1>El seis</h1><p>El seis se relaciona aquí con el cuidado de los demás.</p></body></html>`);

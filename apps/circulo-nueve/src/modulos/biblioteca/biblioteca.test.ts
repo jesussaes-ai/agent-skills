@@ -60,6 +60,11 @@ describe("extracción con referencias", () => {
     expect(d.metadatos).toMatchObject({ titulo: "Libro ficticio (DEMO)", autor: "Autora ficticia", idioma: "es" });
   });
 
+  it("EPUB con los atributos del manifiesto en otro orden (Project Gutenberg)", async () => {
+    const d = await extraerDocumento("epub", await epubDemo({ estiloGutenberg: true }));
+    expect(d.segmentos.map((s) => s.localizador.capitulo)).toEqual(["El cinco", "El seis"]);
+  });
+
   it("DOCX: secciones por encabezado", async () => {
     const d = await extraerDocumento("docx", await docxDemo());
     expect(d.markdown).toContain("# Apuntes ficticios (DEMO)");
