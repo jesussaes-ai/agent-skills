@@ -151,6 +151,17 @@ export async function pdfConFiguraDemo(): Promise<Uint8Array> {
   return new Uint8Array(await renderToBuffer(doc as Parameters<typeof renderToBuffer>[0]));
 }
 
+/** PDF «escaneado»: la página es solo una imagen, sin capa de texto. */
+export async function pdfEscaneadoDemo(): Promise<Uint8Array> {
+  const { Image } = await import("@react-pdf/renderer");
+  const doc = h(
+    Document,
+    { title: "Escaneo ficticio (DEMO)" },
+    h(Page, { size: "A5", style: { padding: 24 } }, h(Image, { src: { data: Buffer.from(pngDemo()), format: "png" }, style: { width: 360, height: 104 } })),
+  );
+  return new Uint8Array(await renderToBuffer(doc as Parameters<typeof renderToBuffer>[0]));
+}
+
 export function audioDemo(): Uint8Array {
   return new Uint8Array(readFileSync(join(process.cwd(), "src/modulos/biblioteca/pruebas/audio-demo.wav")));
 }

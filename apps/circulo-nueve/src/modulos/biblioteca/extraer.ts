@@ -43,10 +43,11 @@ function aPng(img: { data: Uint8ClampedArray; width: number; height: number; cha
   return new Uint8Array(PNG.sync.write(png));
 }
 
-/** Figuras incrustadas por página, con la leyenda de esa página si la hay. */
-async function extraerFiguras(pdf: Awaited<ReturnType<typeof getDocumentProxy>>, textos: string[]): Promise<FiguraExtraida[]> {
+/** Figuras incrustadas por página, con la leyenda de esa página si la hay. Las páginas escaneadas no aportan figuras. */
+async function extraerFiguras(pdf: Awaited<ReturnType<typeof getDocumentProxy>>, textos: string[], escaneadas: Set<number>): Promise<FiguraExtraida[]> {
   const figuras: FiguraExtraida[] = [];
   for (let pagina = 1; pagina <= pdf.numPages && figuras.length < LIMITES.figurasPorDocumento; pagina++) {
+    if (escaneadas.has(pagina)) continue;
     const imagenes = (await extractImages(pdf, pagina).catch(() => [])).filter((i) => i.width >= LADO_MINIMO_FIGURA && i.height >= LADO_MINIMO_FIGURA);
     const leyendas = leyendasDePagina(textos[pagina - 1] ?? "");
     imagenes.slice(0, LIMITES.figurasPorDocumento - figuras.length).forEach((img, i) => {
@@ -56,32 +57,83 @@ async function extraerFiguras(pdf: Awaited<ReturnType<typeof getDocumentProxy>>,
   return figuras;
 }
 
-function rutaCache(): string {
-  return process.env.MODELOS_CACHE?.trim() || join(process.cwd(), ".cache", "modelos");
+export function rutaCache(): string {
+  // En Vercel solo /tmp admite escritura.
+  return process.env.MODELOS_CACHE?.trim() || (process.env.VERCEL ? "/tmp/modelos" : join(process.cwd(), ".cache", "modelos"));
 }
 
-async function extraerPdf(bytes: Uint8Array): Promise<DocumentoExtraido> {
+/** La extracción necesita OCR y quien la ejecuta no lo permite (la app en Vercel): el trabajo pasa al worker. */
+export class ErrorRequiereOcr extends Error {}
+
+export interface OpcionesExtraccion {
+  /** Falso en la app: un PDF escaneado o con figuras se cede al worker. */
+  permitirOcr?: boolean;
+}
+
+/** Una página con menos texto que esto se trata como escaneada. */
+const MIN_CARACTERES_PAGINA = 25;
+/** La imagen de una página escaneada es grande; lo menor se considera adorno. */
+const ESCANEO_LADO_MAYOR = 600;
+const ESCANEO_LADO_MENOR = 200;
+
+async function extraerPdf(bytes: Uint8Array, opciones: OpcionesExtraccion = {}): Promise<DocumentoExtraido> {
+  const permitirOcr = opciones.permitirOcr ?? true;
   const pdf = await getDocumentProxy(new Uint8Array(bytes));
   if (pdf.numPages > LIMITES.paginasPdf) throw new Error(`El PDF tiene ${pdf.numPages} páginas; el límite es ${LIMITES.paginasPdf}.`);
   const { text } = await extractText(pdf, { mergePages: false });
   const etiquetas = (await pdf.getPageLabels().catch(() => null)) ?? null;
   const advertencias: string[] = [];
+  const limpios = text.map((pagina) => pagina.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim());
+
+  const sinTexto = limpios.flatMap((t, i) => (t.replace(/\s/g, "").length < MIN_CARACTERES_PAGINA ? [i + 1] : []));
+  const escaneadas = new Map<number, { texto: string; confianza: number }>();
+  if (sinTexto.length) {
+    const candidatas: { pagina: number; png: Uint8Array }[] = [];
+    for (const pagina of sinTexto) {
+      const imagenes = await extractImages(pdf, pagina).catch(() => []);
+      const mayor = imagenes.filter((i) => Math.max(i.width, i.height) >= ESCANEO_LADO_MAYOR && Math.min(i.width, i.height) >= ESCANEO_LADO_MENOR).sort((a, b) => b.width * b.height - a.width * a.height)[0];
+      if (mayor) candidatas.push({ pagina, png: aPng(mayor) });
+    }
+    if (candidatas.length && !permitirOcr) throw new ErrorRequiereOcr(`${candidatas.length} páginas escaneadas necesitan OCR.`);
+    if (candidatas.length) {
+      const ocr = await crearOcr();
+      try {
+        for (const c of candidatas) escaneadas.set(c.pagina, await ocr.reconocer(c.png));
+      } finally {
+        await ocr.terminar();
+      }
+    }
+  }
+
   const segmentos: Segmento[] = [];
   const partes: string[] = [];
-  text.forEach((pagina, i) => {
-    const limpio = pagina.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-    partes.push(`<!-- página ${i + 1} -->\n\n${limpio}`);
+  const bajas: number[] = [];
+  limpios.forEach((limpioPdf, i) => {
+    const escaneo = escaneadas.get(i + 1);
+    const limpio = escaneo ? escaneo.texto : limpioPdf;
+    partes.push(`<!-- página ${i + 1}${escaneo ? ` · OCR ${Math.round(escaneo.confianza * 100)} %` : ""} -->\n\n${limpio}`);
     if (!limpio) return;
+    if (escaneo && escaneo.confianza < UMBRAL_OCR_BAJO) bajas.push(i + 1);
     segmentos.push({
       texto: limpio,
       jerarquia: [],
       localizador: { paginaArchivo: i + 1, ...(etiquetas?.[i] ? { paginaImpresa: etiquetas[i] } : {}) },
+      ...(escaneo ? { ocrConfianza: escaneo.confianza } : {}),
     });
   });
-  if (!segmentos.length) advertencias.push("El PDF no tiene texto extraíble; puede ser un escaneo (súbelo como imagen para OCR).");
-  const figuras = await extraerFiguras(pdf, text);
+  if (escaneadas.size) advertencias.push(`${escaneadas.size} páginas escaneadas se leyeron con OCR (tesseract, español): revisa el texto con el original.`);
+  if (bajas.length) advertencias.push(`Confianza del OCR baja (< ${Math.round(UMBRAL_OCR_BAJO * 100)} %) en las páginas ${bajas.slice(0, 30).join(", ")}${bajas.length > 30 ? "…" : ""}.`);
+  if (!segmentos.length) advertencias.push("El PDF no tiene texto extraíble ni páginas escaneadas legibles.");
+  const figuras = await extraerFiguras(pdf, limpios, new Set(escaneadas.keys()));
+  if (figuras.length && !permitirOcr) throw new ErrorRequiereOcr(`${figuras.length} figuras necesitan OCR.`);
   if (figuras.length >= LIMITES.figurasPorDocumento) advertencias.push(`Se extrajeron solo las primeras ${LIMITES.figurasPorDocumento} figuras.`);
-  return { markdown: partes.join("\n\n"), segmentos, figuras, metodo: "unpdf (pdf.js) por página, con figuras", advertencias };
+  return {
+    markdown: partes.join("\n\n"),
+    segmentos,
+    figuras,
+    metodo: escaneadas.size ? "unpdf (pdf.js) por página + OCR tesseract.js (spa) en páginas escaneadas, con figuras" : "unpdf (pdf.js) por página, con figuras",
+    advertencias,
+  };
 }
 
 async function extraerEpub(bytes: Uint8Array): Promise<DocumentoExtraido> {
@@ -132,15 +184,28 @@ function extraerTexto(bytes: Uint8Array, formato: "txt" | "md"): DocumentoExtrai
   return { markdown: texto, segmentos: segmentarMarkdown(texto), metodo: formato === "md" ? "Markdown" : "Texto plano", advertencias: [] };
 }
 
-/** OCR en español de una imagen; lo usan las imágenes sueltas y las figuras de PDF. */
-export async function ocrImagen(bytes: Uint8Array): Promise<{ texto: string; confianza: number }> {
+/** Un worker de tesseract reutilizable (cargarlo cuesta más que reconocer una página). */
+async function crearOcr(): Promise<{ reconocer(png: Uint8Array): Promise<{ texto: string; confianza: number }>; terminar(): Promise<void> }> {
   const { createWorker } = await import("tesseract.js");
   const worker = await createWorker("spa", 1, { cachePath: rutaCache() });
+  return {
+    async reconocer(png) {
+      const { data } = await worker.recognize(Buffer.from(png));
+      return { texto: data.text.trim(), confianza: Math.max(0, Math.min(1, data.confidence / 100)) };
+    },
+    async terminar() {
+      await worker.terminate();
+    },
+  };
+}
+
+/** OCR en español de una imagen; lo usan las imágenes sueltas y las figuras de PDF. */
+export async function ocrImagen(bytes: Uint8Array): Promise<{ texto: string; confianza: number }> {
+  const ocr = await crearOcr();
   try {
-    const { data } = await worker.recognize(Buffer.from(bytes));
-    return { texto: data.text.trim(), confianza: Math.max(0, Math.min(1, data.confidence / 100)) };
+    return await ocr.reconocer(bytes);
   } finally {
-    await worker.terminate();
+    await ocr.terminar();
   }
 }
 
@@ -165,11 +230,14 @@ async function extraerImagen(bytes: Uint8Array): Promise<DocumentoExtraido> {
   }
 }
 
-export async function extraerDocumento(formato: Formato, bytes: Uint8Array, nombre?: string): Promise<DocumentoExtraido> {
+export async function extraerDocumento(formato: Formato, bytes: Uint8Array, nombre?: string, opciones: OpcionesExtraccion = {}): Promise<DocumentoExtraido> {
+  if (opciones.permitirOcr === false && (FORMATOS_AUDIO_VIDEO.includes(formato) || ["png", "jpeg", "webp"].includes(formato))) {
+    throw new ErrorRequiereOcr("Las imágenes, el audio y el video los procesa el worker.");
+  }
   if (FORMATOS_AUDIO_VIDEO.includes(formato)) return extraerAudioVideo(bytes, formato === "mp4" || formato === "webm");
   switch (formato) {
     case "pdf":
-      return extraerPdf(bytes);
+      return extraerPdf(bytes, opciones);
     case "epub":
       return extraerEpub(bytes);
     case "docx":
