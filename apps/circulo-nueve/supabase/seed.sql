@@ -1,0 +1,1 @@
+-- Sin datos semilla: la app no carga datos personales. Los catálogos (roles, permisos) van en las migraciones.

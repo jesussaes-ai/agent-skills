@@ -1,0 +1,215 @@
+# Despliegue paso a paso (gratuito)
+
+Guía para poner Círculo Nueve en producción en cuanto existan las cuentas. Todo es de plan gratuito y para **uso personal no comercial**: Vercel Hobby no permite uso comercial.
+
+Datos de los planes verificados el 6 oct 2026. Vuelve a comprobarlos antes de empezar:
+[Supabase pricing](https://supabase.com/pricing) · [regiones de Supabase](https://supabase.com/docs/guides/platform/regions) · [límites de Vercel](https://vercel.com/docs/functions/limitations) · [GitHub Actions](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+
+## Cómo queda
+
+| Pieza | Servicio gratuito | Para qué |
+|---|---|---|
+| App web (Next.js) | **Vercel Hobby** (funciones en `iad1`, Washington D. C.) | Páginas, cuentas, expedientes, PDF, bot |
+| Base de datos, Auth y archivos | **Supabase Free**, región **East US (North Virginia) `us-east-1`** | Postgres + RLS, Auth con MFA, Storage privado |
+| Worker de ingesta | **GitHub Actions** (workflow `circulo-nueve-tareas`, cada 15 min, sin secretos de Actions) | OCR, transcripción, figuras y embeddings |
+| Purga por retención | **Supabase** (`pg_cron` + Edge Function `purga-retencion`) | Borrar documentos vencidos |
+| Correo | **No hace falta** | Las cuentas usan usuario y contraseña; la administración las crea y entrega |
+| IA para redactar respuestas (opcional) | Proveedor en `/admin/proveedores` | Sin proveedor, el bot responde con citas literales |
+
+**Por qué `us-east-1`:** Supabase no tiene región en México. Las más cercanas son `us-east-1` (Virginia), `us-east-2` (Ohio) y `us-west-1` (California). `us-east-1` coincide con la región por defecto de las funciones de Vercel (`iad1`), así que cada consulta de la app a la base viaja dentro de la misma zona. Esa latencia pesa más que la del navegador, porque cada página hace varias consultas. Si en tus pruebas `us-west-1` responde notablemente mejor desde tu ciudad, puedes elegirla, pero entonces cambia también la región de funciones de Vercel a `sfo1`.
+
+**Límites que importan (plan gratuito):**
+- **Supabase:**
+  - 500 MB de base de datos, 1 GB de archivos y 50 MB por archivo.
+  - **Pausa tras 1 semana sin actividad** (la evita el worker, que consulta la base cada 15 min).
+  - **Sin respaldos automáticos** (ver «Respaldos»).
+  - Máximo 2 proyectos activos.
+- **Vercel Hobby:**
+  - Funciones de 300 s como máximo y cuerpo de petición de **4.5 MB**. Por eso los archivos de más de 4 MB se suben directo a Storage.
+  - El OCR, la transcripción y los embeddings de documentos largos **no** corren en Vercel: los hace el worker.
+- **GitHub Actions:** gratis sin límite en repos públicos; 2000 minutos al mes en privados. El workflow corre cada 15 min y, sin trabajos pendientes, termina en ~10 s sin instalar nada. Los `schedule` solo corren en la **rama por defecto**.
+
+## 0. Antes de empezar
+
+- [ ] Cuenta de GitHub con el repositorio. Mientras la app viva en `agent-skills`, la PR debe estar fusionada en `main` para que corra el workflow programado.
+- [ ] Cuenta de [Supabase](https://supabase.com) (plan Free).
+- [ ] Cuenta de [Vercel](https://vercel.com) (plan Hobby) conectada a GitHub.
+- [ ] En tu PC:
+  - [Node.js 22](https://nodejs.org) y Git.
+  - [Docker Desktop](https://www.docker.com/products/docker-desktop/), solo para respaldos y para la base local.
+  - Un gestor de contraseñas (la frase de la base, la clave de alta y la del respaldo van ahí, nunca en chats ni documentos).
+- [ ] Copia local, en PowerShell:
+  ```powershell
+  cd C:\Users\<usuario>\Proyectos\circulo-nueve\apps\circulo-nueve   # o la raíz del repo propio
+  npm ci
+  ```
+
+## 1. Supabase
+
+1. **Crear el proyecto:** *New project* → nombre `circulo-nueve` → **Region: East US (North Virginia)** → contraseña de la base generada y guardada en el gestor → plan Free.
+2. **Aplicar el esquema** (migraciones de `supabase/migrations`) desde tu PC:
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <ref-del-proyecto>    # el «ref» aparece en la URL del panel
+   npx supabase db push                                   # aplica todas las migraciones
+   npx supabase migration list                            # local y remoto deben coincidir
+   ```
+3. **Auth** (panel → *Authentication*):
+   - *URL Configuration*:
+     - **Site URL** = `https://<tu-app>.vercel.app`, o tu dominio.
+     - **Redirect URLs**: `https://<tu-app>.vercel.app/**`.
+   - *Sign In / Providers*:
+     - Desactiva **Allow new users to sign up**: no hay registro público.
+     - Deja **Email** activado (es el proveedor de contraseña; cada cuenta usa un correo interno `@usuarios.circulo-nueve.invalid` que nunca se entrega). Desactiva **Confirm email**: las cuentas las crea la administración ya confirmadas.
+     - Contraseña mínima: **10** caracteres, con **letras y números**.
+   - *Multi-Factor*: activa **TOTP**. Es opcional para cada cuenta y recomendada para la administración; si alguien la activa, la base la exige siempre.
+   - *Emails → Templates* y *SMTP*: no hace falta tocarlos, la app no envía correos. El «Enlace de recuperación» del panel se genera en el servidor y lo entrega la administración.
+   - Alternativa por CLI: `npx supabase config diff` y luego `npx supabase config push`. Antes, revisa que `site_url` y `additional_redirect_urls` de `supabase/config.toml` apunten a producción y no a `127.0.0.1`.
+4. **Storage:** las migraciones ya crean los buckets privados. En *Storage → Settings* deja el límite global en **50 MB**.
+5. **Llaves** (*Project Settings → API*). Apunta:
+   - la **URL del proyecto**;
+   - la llave pública (**anon / publishable**);
+   - la **service_role / secret**. Esta es secreta: solo va en Vercel.
+
+## 2. Correo
+
+No hace falta configurar SMTP ni tener dominio. Nadie recibe correos: la administración crea cada cuenta con usuario y contraseña inicial desde `/admin/usuarios`, la entrega en persona o por un canal privado y, si quiere, obliga a cambiarla en el primer acceso. Si alguien olvida su contraseña, la administración la restablece desde el mismo panel.
+
+## 3. Clave de alta de la administración
+
+En tu PC, nunca en el servidor ni en un chat:
+
+```bash
+npm run setup:hash -- --generar
+```
+
+- Muestra **una sola vez** una clave aleatoria: guárdala en el gestor de contraseñas.
+- Imprime el **hash argon2id**, que es lo que va a Vercel como `ADMIN_SETUP_KEY_HASH`.
+- La clave en texto plano no se guarda en ninguna parte del sistema.
+- **Rotar antes del alta:** genera otro hash y reemplaza la variable en Vercel (vuelve a desplegar). Después del alta, la clave deja de servir y `/setup` responde 410.
+
+## 4. Vercel
+
+1. *Add New → Project* → importa el repositorio.
+2. **Root Directory**: `apps/circulo-nueve` (o la raíz, si ya es el repo propio). El framework es Next.js; no cambies los comandos.
+3. Revisa que la región de funciones sea **Washington, D.C. (`iad1`)** (*Settings → Functions*).
+4. **Variables de entorno** (*Settings → Environment Variables*, entorno *Production*):
+
+   | Variable | Valor | ¿Secreta? |
+   |---|---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase | no |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | llave pública (anon/publishable) | no |
+   | `SUPABASE_SERVICE_ROLE_KEY` | llave service_role/secret | **sí** |
+   | `NEXT_PUBLIC_SITE_URL` | `https://<tu-app>.vercel.app` | no |
+   | `ADMIN_SETUP_KEY_HASH` | hash del paso 3 | **sí** |
+   | `LLM_KEY_*` (opcional) | llave de un proveedor de IA, p. ej. `LLM_KEY_OPENROUTER` | **sí** |
+
+   No definas `INGESTA_PERMITIR_HOSTS_LOCALES`: es solo para pruebas.
+5. *Deploy*. Al terminar, abre `https://<tu-app>.vercel.app`.
+
+## 5. Alta inicial y comprobaciones
+
+1. **Alta:**
+   - Abre `/setup`, escribe la clave de alta y elige tu **usuario** y tu contraseña.
+   - En «Mi cuenta», activa la verificación en dos pasos (recomendado: QR o clave secreta en tu aplicación de autenticación).
+2. **Comprueba que `/setup` responde 410.**
+3. **Revisa la configuración:**
+   - En `/admin/ajustes`: retención de documentos, vigencia de los enlaces de descarga y **texto del aviso de privacidad** (lo redacta el responsable).
+   - En `/admin/usuarios`, crea una cuenta de asistente de prueba (marca «Pedirle que elija su propia contraseña»), entra con ella en otra ventana privada y comprueba que te pide cambiar la contraseña y que no ve la administración.
+4. **Opcional, IA:** en `/admin/proveedores`, da de alta un proveedor con el nombre de su secreto `LLM_KEY_…` y pulsa «Probar conexión». Los modelos gratuitos solo sirven para demo, sin datos personales.
+
+## 6a. Purga programada dentro de Supabase (recomendada)
+
+La migración `20261010000100_purga_programada.sql` programa con `pg_cron` una llamada diaria (09:17 UTC) a la Edge Function `purga-retencion` (`supabase/functions/purga-retencion`), que hace lo mismo que `npm run retencion:purgar` con la llave de servicio del propio entorno de la función. Así la purga no depende de GitHub Actions ni de guardar la llave de servicio fuera de Supabase.
+
+Una vez por proyecto:
+
+```bash
+npx supabase functions deploy purga-retencion
+```
+
+```sql
+-- SQL Editor del proyecto. El token se genera dentro de la base y no sale de ella.
+select vault.create_secret('https://<ref>.supabase.co', 'cn_supabase_url');
+select vault.create_secret('<llave anon>', 'cn_anon_key');
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'cn_purga_token');
+```
+
+Comprobación: `select status_code, content from net._http_response order by id desc limit 1;` tras la ejecución (o lanzando a mano el comando de `cron.job`) debe dar 200 y `"ok":true`. Sin la cabecera correcta la función responde 401 y no borra nada. En el plan Pro, Supabase no se pausa; en Free, programa un ping semanal (p. ej. otro job de `pg_cron`).
+
+## 6. Worker de ingesta (GitHub Actions, sin secretos)
+
+El workflow `.github/workflows/circulo-nueve-tareas.yml` corre en `main` cada 15 min, al cambiar el código del worker y a mano (*Actions → Círculo Nueve tareas → Run workflow*). Canjea su token OIDC de GitHub por un JWT de servicio de 3 h en la Edge Function `credencial-worker` y procesa la cola (`npm run ingesta:worker`) con ffmpeg; ClamAV es opcional. Detalle y modelo de seguridad: [biblioteca.md](biblioteca.md#en-producción-github-actions-sin-secretos).
+
+Una vez por proyecto (desde tu PC, con `npx supabase login`):
+
+```bash
+npx supabase functions deploy credencial-worker --no-verify-jwt
+npx supabase secrets set CN_WORKER_REPOSITORIO=<propietario/repo> CN_WORKER_REPO_ID=<id numérico del repo>
+npx supabase secrets set CN_JWT_LEGADO=<JWT secret de Project Settings → API (legacy)>
+```
+
+Variables opcionales en *Settings → Secrets and variables → Actions* (ninguna es secreta):
+
+| Variable | Valor |
+|---|---|
+| `CIRCULO_NUEVE_ACTIVO` | `true`; solo hace falta en el repo propio (en `jesussaes-ai/agent-skills` corre siempre) |
+| `CIRCULO_NUEVE_SUPABASE_URL` / `CIRCULO_NUEVE_SITE_URL` | si cambian el proyecto o la URL de la app |
+| `CIRCULO_NUEVE_CLAMAV` | `true` para exigir antivirus. Suma ~2 min por ejecución: descarga firmas. |
+| `CIRCULO_NUEVE_VISION_PROVEEDOR_ID` | id de un proveedor con visión para describir figuras. Sin él, las figuras se describen con leyenda + OCR. |
+
+**Cuándo procesa:**
+- Los modelos (embeddings, Whisper, OCR) se descargan la primera vez (~700 MB) y quedan en la caché de Actions.
+- Un archivo cargado se procesa en la siguiente ejecución (≤ 15 min, más el retraso habitual de GitHub), o al lanzarlo a mano.
+- «Procesar pendientes ahora» en `/biblioteca` procesa al momento, dentro de Vercel, los textos, EPUB, DOCX, PDF con texto, páginas web y el indexado tras aprobar; los escaneados, imágenes, audio y video los cede al worker.
+
+**Alternativa sin GitHub Actions:** deja el worker corriendo en tu PC mientras cargas libros. En PowerShell, con las dos variables de servicio:
+
+```powershell
+npm run ingesta:worker -- --continuo
+```
+
+Necesita ffmpeg en el `PATH` para audio y video.
+
+## 7. Respaldos (manuales: el plan gratuito no tiene)
+
+**Cada semana, o antes de cambios grandes**, desde tu PC con Docker Desktop abierto:
+
+```bash
+export SUPABASE_DB_URL="postgresql://postgres.<ref>:<contraseña>@aws-0-us-east-1.pooler.supabase.com:5432/postgres"   # Connect → Session pooler
+export NEXT_PUBLIC_SUPABASE_URL="https://<ref>.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="<service_role>"
+npm run respaldo        # pide la frase de cifrado (o define RESPALDO_CLAVE)
+```
+
+- Genera `~/respaldos-circulo-nueve/respaldo-AAAAMMDD-HHMM.tar.gz.gpg`, **cifrado con AES-256**. Contiene:
+  - `roles.sql`, `esquema.sql` y `datos.sql`;
+  - todos los archivos privados (expedientes, originales y derivados de la biblioteca).
+- Contiene datos personales: guárdalo cifrado, fuera del repositorio, y en dos lugares (p. ej. disco externo y nube personal).
+- **Restaurar en un proyecto nuevo y vacío** (sin `db push`: el esquema viaja en el respaldo):
+  ```bash
+  gpg -d respaldo-AAAAMMDD-HHMM.tar.gz.gpg | tar -xz && cd respaldo-AAAAMMDD-HHMM
+  psql "$SUPABASE_DB_URL" -f roles.sql
+  psql "$SUPABASE_DB_URL" -f esquema.sql
+  psql "$SUPABASE_DB_URL" -c "SET session_replication_role = replica" -f datos.sql   # sin triggers mientras se cargan los datos
+  npx tsx ../../scripts/restaurar-storage.mts storage    # desde apps/circulo-nueve, con las variables del proyecto nuevo
+  ```
+  `datos.sql` incluye las cuentas de Auth (`auth.users`, factores MFA) y los datos de `public` (comprobado en local). Después, vuelve a configurar Auth en el panel (paso 1.3) y actualiza las variables de Vercel y de Actions.
+
+## 8. Mantenimiento
+
+- **Cada semana:** respaldo.
+- **Cada mes:** revisar el consumo en Supabase (base < 500 MB, archivos < 1 GB) y los minutos de Actions.
+- **Si Supabase se pausó** (p. ej. porque el workflow estaba desactivado): *Restore project* en el panel, y vuelve a activar `CIRCULO_NUEVE_ACTIVO`.
+- **Recuperación de emergencia** de la administración: [recuperacion-emergencia.md](recuperacion-emergencia.md).
+- **Cambiar de modelo de embeddings** (otra dimensión): requiere una migración nueva y reindexar ([biblioteca.md](biblioteca.md)).
+
+## Lista final
+
+- [ ] Proyecto Supabase en `us-east-1`, migraciones aplicadas y Auth configurado (sin registro público, TOTP, plantillas).
+- [ ] Vercel con las 5 variables, región `iad1` y despliegue verde.
+- [ ] `/setup` completado (usuario y contraseña) y luego 410; verificación en dos pasos de la administración activada (recomendado).
+- [ ] Aviso de privacidad completado en `/admin/ajustes`.
+- [ ] Secretos y variables de Actions; primera ejecución manual del workflow en verde.
+- [ ] Primer respaldo cifrado guardado en dos lugares.
+- [ ] [Lista de seguridad](seguridad.md) repasada (llaves, RLS, registros, cabeceras).
