@@ -1,0 +1,45 @@
+name: Telegram Bridge CI
+
+on:
+  push:
+    branches: [main]
+    paths: ['skills/telegram-bridge/**', '.github/workflows/telegram-bridge-ci.yml']
+  pull_request:
+    paths: ['skills/telegram-bridge/**', '.github/workflows/telegram-bridge-ci.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-bridge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: Relay, scripts y voz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Sintaxis de los scripts
+        run: for f in skills/telegram-bridge/scripts/*.sh; do bash -n "$f"; done
+      - name: Caché de modelos de voz
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/telegram-bridge
+            ~/.cache/huggingface
+          key: telegram-bridge-voz-${{ hashFiles('skills/telegram-bridge/scripts/common.sh', 'skills/telegram-bridge/scripts/setup-voice.sh') }}
+      - name: Voz local (Kokoro, Piper, faster-whisper)
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+          bash skills/telegram-bridge/scripts/setup-voice.sh tts
+          bash skills/telegram-bridge/scripts/setup-voice.sh stt
+      - name: Pruebas
+        working-directory: skills/telegram-bridge/relay
+        run: npm test

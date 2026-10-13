@@ -3,6 +3,8 @@
 
 TG_API_BASE="${TELEGRAM_API_BASE:-https://api.telegram.org}"
 BRIDGE_CACHE="${TELEGRAM_BRIDGE_CACHE:-$HOME/.cache/telegram-bridge}"
+DEFAULT_KOKORO_VOICE="ef_dora:0.5,if_sara:0.3,af_heart:0.2"
+DEFAULT_PIPER_VOICE="es_ES-sharvard-medium:1"
 
 die() { echo "Error: $*" >&2; exit 1; }
 

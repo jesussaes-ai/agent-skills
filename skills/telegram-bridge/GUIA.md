@@ -9,9 +9,8 @@
   producción, un toque no basta: tienes que escribir una frase exacta. Así nadie aprueba
   algo grave por accidente.
 - **Avisos con voz.** Además del texto te llega una nota de voz corta para escucharla rápido.
-  La voz es «Jorge» (la que elegiste), del servicio gratuito de voz de Microsoft: el texto,
-  ya filtrado, viaja a Microsoft para convertirse en audio. Si falla o no hay internet, el
-  agente usa una voz local (Piper) que no manda nada a nadie.
+  La voz es de mujer y se fabrica en la misma máquina del agente con programas gratuitos
+  (Kokoro y, de respaldo, Piper): el texto no se manda a ninguna otra empresa.
 - **Puedes contestar hablando.** Si respondes con una nota de voz, el agente la pasa a texto
   en su propia máquina (Whisper, gratuito) y te muestra lo que entendió. Si era para aprobar
   algo, te pide confirmar con un botón que entendió bien.
@@ -80,15 +79,14 @@ Un texto libre o una nota de voz **nunca** cuenta como aprobación de una acció
 
 | Opción | Costo | ¿Sale tu texto a terceros? | Calidad | Uso |
 | --- | --- | --- | --- | --- |
-| **edge-tts `es-MX-JorgeNeural`** (por defecto, elegida por Jesús el 9 oct 2026) | 0 | **Sí**: el texto (ya filtrado), la voz elegida y la IP del agente van al servicio de voz de Microsoft Edge (no es una API oficial con contrato) | Muy natural | `TELEGRAM_TTS_ENGINE=edge` (o sin definir) |
-| **Piper `es_MX-claude-high`** (respaldo automático) | 0 | No, todo local | Nítida, algo robótica | Se usa sola si edge falla o no hay red; `TELEGRAM_TTS_ENGINE=piper` para usarla siempre |
-| edge-tts `es-MX-DaliaNeural` | 0 | **Sí**, igual que Jorge | Muy natural, voz femenina | `TELEGRAM_TTS_VOICE=es-MX-DaliaNeural` |
-| Piper `es_MX-ald-medium` (la anterior) | 0 | No | Clara, robótica; tropieza con nombres propios | `TELEGRAM_TTS_ENGINE=piper TELEGRAM_TTS_VOICE=es_MX-ald-medium` |
+| **Kokoro-82M, mezcla Dora/Sara/Heart** (por defecto desde el 13 oct 2026) | 0 | No, todo local | La más natural de las voces de mujer locales probadas | `TELEGRAM_TTS_ENGINE=kokoro` (o sin definir) |
+| **Piper `es_ES-sharvard-medium:1`** (respaldo automático) | 0 | No, todo local | Clara, acento de España, algo robótica | Se usa sola si Kokoro falla; `TELEGRAM_TTS_ENGINE=piper` para usarla siempre |
+| edge-tts `es-ES-ElviraNeural` / `es-MX-DaliaNeural` / `es-MX-JorgeNeural` | 0 | **Sí**: el texto (ya filtrado), la voz elegida y la IP del agente van al servicio de voz de Microsoft Edge (no es una API oficial con contrato) | Muy natural | `TELEGRAM_TTS_ENGINE=edge`. Desde VMs en la nube Microsoft responde 403: si falla, cae al respaldo local |
 | Transcripción: faster-whisper `small` | 0 | No: el audio solo se baja de Telegram al agente | Buena en español | `TELEGRAM_STT_MODEL=small` (o `base`, más rápido) |
 
 Antes de hablar, el texto pasa por un filtro que oculta enlaces, correos, llaves, ids y
 números largos; y el resumen hablado se corta a ~600 caracteres.
-Muestra: `media/telegram/aviso-muestra.ogg` (13 s, 52 KB, OGG/Opus, voz Piper).
+Muestra: `media/telegram/aviso-muestra.ogg` (13 s, 52 KB, OGG/Opus, voz Piper anterior).
 
 ## Límites reales
 

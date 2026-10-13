@@ -15,13 +15,12 @@ const SECRET = "e2e_secret_abcdefghijkl";
 const JESUS = 424242;
 const AGENT = "bc-11111111-2222-3333-4444-555555555555";
 
-const hasEdge = (() => {
+const hasKokoro = (() => {
   try {
-    execFileSync("python3", ["-c", "import edge_tts"], { stdio: "ignore" });
-    execFileSync("curl", ["-sfI", "--max-time", "5", "https://speech.platform.bing.com"], { stdio: "ignore" });
+    execFileSync("python3", ["-c", "import kokoro_onnx, soundfile"], { stdio: "ignore" });
     return true;
-  } catch (e) {
-    return e.status === 22;
+  } catch {
+    return false;
   }
 })();
 
@@ -189,10 +188,10 @@ test("sanitize_for_voice oculta secretos, URLs, correos e ids", async () => {
   for (const bad of ["crsr_", "ghp_", "https", "jesus@", "xyz", "bc-1234", "1234 5678"]) assert.ok(!stdout.includes(bad), `${bad} en ${stdout}`);
 });
 
-test("voz: si edge-tts falla, notify.sh --voice cae a Piper y la transcripción local lo entiende", { skip: !hasVoice && "sin piper/faster-whisper" }, async () => {
+test("voz: si Kokoro falla, notify.sh --voice cae a Piper y la transcripción local lo entiende", { skip: !hasVoice && "sin piper/faster-whisper" }, async () => {
   const { stdout, stderr } = await script("notify.sh", ["--status", "done", "--summary", "El reporte de carta natal ya está listo.", "--voice"],
-    { TELEGRAM_TTS_ENGINE: "", TELEGRAM_TTS_VOICE: "", TELEGRAM_TTS_EDGE_TIMEOUT: "0.01" });
-  assert.match(stderr, /Voz usada: piper es_MX-claude-high \(respaldo\)/);
+    { TELEGRAM_TTS_ENGINE: "", TELEGRAM_TTS_VOICE: "voz_inexistente" });
+  assert.match(stderr, /Voz usada: piper es_ES-sharvard-medium:1 \(respaldo\)/);
   const out = JSON.parse(stdout);
   assert.equal(out.voice, true);
   const voice = tgCalls.findLast((c) => c.method === "sendVoice").params;
@@ -208,9 +207,15 @@ test("voz: si edge-tts falla, notify.sh --voice cae a Piper y la transcripción 
   assert.match(tgCalls.findLast((c) => c.method === "sendMessage").params.text, /Entendí tu nota de voz/);
 });
 
-test("voz: por defecto usa edge-tts es-MX-JorgeNeural", { skip: !hasEdge && "sin edge-tts o sin red" }, async () => {
+test("voz: por defecto usa la voz femenina local de Kokoro", { skip: !hasKokoro && "sin kokoro-onnx" }, async () => {
   const { stdout, stderr } = await script("notify.sh", ["--summary", "Prueba de voz.", "--voice"], { TELEGRAM_TTS_ENGINE: "", TELEGRAM_TTS_VOICE: "" });
-  assert.match(stderr, /Voz usada: edge es-MX-JorgeNeural/);
+  assert.match(stderr, /Voz usada: kokoro ef_dora:0\.5,if_sara:0\.3,af_heart:0\.2/);
   assert.equal(JSON.parse(stdout).voice, true);
   assert.equal(tgCalls.findLast((c) => c.method === "sendVoice").params.voice.subarray(0, 4).toString(), "OggS");
+});
+
+test("voz: edge-tts sin conexión cae al respaldo local", { skip: !hasVoice && "sin piper" }, async () => {
+  const { stderr } = await script("notify.sh", ["--summary", "Prueba de voz.", "--voice"],
+    { TELEGRAM_TTS_ENGINE: "edge", TELEGRAM_TTS_VOICE: "", TELEGRAM_TTS_EDGE_TIMEOUT: "0.01" });
+  assert.match(stderr, /Voz usada: piper es_ES-sharvard-medium:1 \(respaldo\)/);
 });
