@@ -1,6 +1,6 @@
 # Proveedores de IA y voz del asistente
 
-Estado: **funciona con Supabase local y con un servidor compatible con OpenAI simulado** (e2e). No hay llaves reales cargadas; sin proveedor activo, el asistente sigue en modo demo sin IA.
+Estado: **en producción desde el 13 oct 2026** con DeepSeek V4 Flash vía OpenRouter y retención cero (ver [En producción](#en-producción)). Sin proveedor activo, el asistente vuelve al modo demo sin IA.
 
 ## Qué hay
 
@@ -60,6 +60,17 @@ Lo que se encontró:
 
 Los modelos gratuitos cambian a menudo. La administración puede escribir cualquier id de modelo; el catálogo solo sirve para rellenar el formulario.
 
+### Revisión de DeepSeek (13 oct 2026)
+
+Fuentes: `/api/v1/models`, `/api/v1/models/{id}/endpoints`, `/api/v1/endpoints/zdr` y las guías [ZDR](https://openrouter.ai/docs/guides/features/zdr), [Provider selection](https://openrouter.ai/docs/guides/routing/provider-selection) y [Reasoning tokens](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
+
+- `deepseek/deepseek-v4-flash` sigue vigente. Tiene 10 endpoints ZDR: DeepInfra, DigitalOcean, Venice, Parasail, SiliconFlow, Azure, Mancer, OpenInference, Relace y Wafer. Precio ZDR más alto: 0.38 USD por millón de entrada y 1.28 de salida.
+- `deepseek/deepseek-v4.1-flash` es más reciente y tiene más de 20 endpoints ZDR. Precio ZDR más alto: 0.6 y 2.4. Razona por defecto: unos 150 tokens extra por respuesta, el triple de costo.
+- También hay instantáneas (`-0731`, `-0813`), alias `~…-latest` (pueden cambiar de modelo sin aviso) y Pro. No se usan.
+- La doc vigente sigue usando `provider: { zdr: true, data_collection: "deny" }`, y la app lo envía igual. `zdr` funciona como un «O» con los ajustes de la cuenta: solo puede endurecer la política, nunca relajarla.
+- Ninguno de los dos tiene razonamiento obligatorio. En los modelos del catálogo marcados con `apagarRazonamiento`, la app envía `reasoning: { enabled: false }`. Un modelo con razonamiento obligatorio rechazaría ese parámetro, por eso no se envía a modelos que no están en el catálogo.
+- OpenRouter devuelve `usage.cost` en cada respuesta, así que `ai_usage` guarda el costo real. La estimación del catálogo solo sirve para decidir de antemano si la siguiente solicitud cabe en el tope.
+
 ## Garantías
 
 - **Llaves solo en el servidor.** La tabla guarda el nombre del secreto, que debe cumplir `^LLM_KEY_[A-Z0-9_]{1,40}$` (lo validan el formulario y la base). Así un endpoint configurado desde la interfaz nunca puede recibir `SUPABASE_SERVICE_ROLE_KEY` ni otra variable. La llave viaja solo en la cabecera `Authorization`. La API pública del asistente no expone ni el endpoint ni el nombre del secreto.
@@ -97,6 +108,23 @@ Los modelos gratuitos cambian a menudo. La administración puede escribir cualqu
 2. En `/admin/proveedores`, elige la plantilla y el modelo y escribe ese nombre de secreto. Revisa los límites y guarda.
 3. Pulsa «Probar conexión».
 4. Sin Supabase, se puede definir un único proveedor de respaldo con `LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY`, etc. (ver `.env.example`).
+
+## En producción
+
+Configuración de https://circulo-nueve.vercel.app desde el 13 oct 2026:
+
+| Campo | Valor |
+|---|---|
+| Fila de `ai_providers` | `openrouter-deepseek`, activa, prioridad 10 |
+| Modelo / respaldo | `deepseek/deepseek-v4-flash` / `deepseek/deepseek-v4.1-flash`. Los dos van con ZDR y sin razonamiento. |
+| Secreto | `LLM_KEY_OPENROUTER`: variable **sensible** de Vercel, solo en Production |
+| Política | `exigirZdr: true`, no entrena, no retiene. **Apto para datos reales.** |
+| Límites | 10 por minuto, 200 al día, 5 USD al mes, 800 tokens de salida, 20 s, 2 reintentos |
+| Costo de catálogo | 0.6 / 2.4 USD por millón: el endpoint ZDR más caro de cualquiera de los dos modelos |
+
+- **Costo medido:** de 0.00008 a 0.0002 USD por consulta (unos 500–700 tokens de entrada y 50–150 de salida). Con 5 USD alcanza para unas 25 000 consultas. El tope diario de 200 solicitudes limita el gasto a menos de 0.50 USD al día, incluso con la estimación más cara.
+- **Cómo se dio de alta:** con SQL (Management API), porque el panel exige la verificación en dos pasos de la cuenta de administración. El trigger `auditar_ai_providers` registró el alta. Se puede editar desde `/admin/proveedores`.
+- **Ojo:** el saldo de la cuenta de OpenRouter es aparte del tope de la app. Si se acaba el crédito, OpenRouter responde 402 y el asistente vuelve al modo demo con el aviso «La cuenta del proveedor no tiene crédito disponible».
 
 ## Pruebas
 

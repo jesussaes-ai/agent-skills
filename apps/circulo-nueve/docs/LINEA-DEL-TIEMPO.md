@@ -112,10 +112,17 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Migración `20261009000100_compartir_retencion_limites.sql`, pgTAP `09_compartir_retencion`, e2e `08-compartir`, `09-accesibilidad` y `10-limites`.
   - **Qué se hizo y por qué:** ahora se puede mandar un reporte a alguien sin darle una cuenta, con un enlace que caduca solo y que se puede apagar en cualquier momento; así nada queda abierto para siempre. Además se pusieron frenos contra quien intente adivinar contraseñas o enlaces, se revisó que la app se pueda usar con teclado y lector de pantalla, y se dejó por escrito cómo instalarla, publicarla y qué datos guarda.
 
+## 13 oct 2026
+- **03:10** — IA real en producción: DeepSeek V4 Flash vía OpenRouter ([detalle](proveedores-ia-y-voz.md#en-producción)).
+  - Slug, precios y endpoints con retención cero verificados en la API de OpenRouter. V4.1 Flash queda como respaldo, también con ZDR.
+  - Llave `LLM_KEY_OPENROUTER` como variable sensible de Vercel. Proveedor `openrouter-deepseek` activo y apto para datos reales, con topes de 10 por minuto, 200 al día y 5 USD al mes.
+  - La app apaga el razonamiento en los modelos del catálogo que lo permiten. El panel muestra el origen «biblioteca» en el consumo.
+  - Probado en producción: el asistente de ayuda y el bot de la biblioteca responden en español con citas, y el consentimiento aparece antes de enviar. El consumo se registra sin prompts. Costo de unos 0.0001–0.0002 USD por consulta.
+  - **Qué se hizo y por qué:** el asistente y el bot ya redactan con una IA de verdad en lugar del modo demo. Se eligió DeepSeek porque es muy barato y porque OpenRouter puede obligar a que solo lo atiendan servidores que no guardan ni aprenden de lo que se les pregunta. Por eso la app lo marca como apto para datos reales. Tiene un tope de gasto para que nunca cueste más de 5 dólares al mes.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta de la persona propietaria) y tarea programada para `retencion:purgar`.
 - `Content-Security-Policy` con *nonce* al desplegar con el dominio definitivo; revisión manual con lector de pantalla.
 - Texto del aviso de privacidad (lo redacta la persona responsable en `/admin/ajustes`).
 - Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
-- Cargar una llave real (p. ej. `LLM_KEY_OPENROUTER`) y decidir si se aprueba un modelo de pago con retención cero para datos reales.
