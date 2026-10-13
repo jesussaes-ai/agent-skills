@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { exigirAdmin } from "@/modulos/auth/sesion";
-import { FECHA_VERIFICACION, FUENTES_OPENROUTER } from "@/modulos/proveedores/catalogo";
+import { FECHA_VERIFICACION, FECHA_VERIFICACION_DEEPSEEK, FUENTES_OPENROUTER } from "@/modulos/proveedores/catalogo";
 import { proveedorDesdeEntorno } from "@/modulos/proveedores/config";
 import { consumoDelMes, hayBaseDeDatos, listarProveedoresAdmin } from "@/modulos/proveedores/repositorio";
 import { Seccion } from "@/ui/componentes/Seccion";
@@ -24,7 +24,9 @@ export default async function PaginaProveedores() {
         Catálogo verificado el {FECHA_VERIFICACION} con la{" "}
         <span className="font-mono">{FUENTES_OPENROUTER.modelos}</span> y la documentación de privacidad de OpenRouter. Ese día no había
         variantes gratuitas de Qwen ni de DeepSeek; las de NVIDIA eran gratuitas pero NVIDIA puede entrenar con los textos, así que quedan como
-        «solo demo». Los modelos gratuitos cambian a menudo: revisa {FUENTES_OPENROUTER.gratuitos} antes de elegir.
+        «solo demo». DeepSeek V4 Flash y V4.1 Flash se volvieron a verificar el {FECHA_VERIFICACION_DEEPSEEK} en {FUENTES_OPENROUTER.zdr}:
+        siguen sin variante gratuita y tienen varios endpoints con retención cero. Los modelos gratuitos cambian a menudo: revisa{" "}
+        {FUENTES_OPENROUTER.gratuitos} antes de elegir.
         {!hayBaseDeDatos() && " Falta la llave de servicio de Supabase en el servidor: el asistente no puede leer esta configuración."}
       </p>
 
@@ -94,7 +96,7 @@ export default async function PaginaProveedores() {
                     <td className="py-1 pr-3">{f.codigo}</td>
                     <td className="py-1 pr-3">{f.intento}</td>
                     <td className="py-1 pr-3">{f.latenciaMs ?? "—"}</td>
-                    <td className="py-1 pr-3">{f.origen === "prueba-admin" ? "prueba" : "asistente"}</td>
+                    <td className="py-1 pr-3">{f.origen === "prueba-admin" ? "prueba" : f.origen === "biblioteca" ? "biblioteca" : "asistente"}</td>
                   </tr>
                 ))}
               </tbody>
