@@ -10,7 +10,7 @@ import { formularioAObjeto } from "@/modulos/expedientes/esquemas";
 import { consumirLimite, mensajeEspera } from "@/modulos/seguridad/limite-frecuencia";
 import { aVector, crearEmbeddingsLocales } from "./embeddings";
 import { esquemaEditarFuente, esquemaMetadatos, esquemaPregunta, esquemaWeb } from "./esquemas";
-import { EXTENSIONES, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
+import { EXTENSIONES, FORMATOS_IMAGEN, LIMITES, detectarFormato, revisarContenidoActivo, type Formato } from "./formatos";
 import { procesarSiguiente, type ResultadoTrabajo } from "./ingesta";
 import { llmParaBiblioteca, mensajeErrorProveedor } from "./llm";
 import { construirMensajes, medirProporcion, respuestaExtractiva, validarRespuesta } from "./respuesta";
@@ -285,6 +285,9 @@ export async function accionPrepararCargaDirecta(form: FormData): Promise<Estado
   if (!tamano || tamano > LIMITES.bytesCargaDirecta) {
     return { errores: { archivo: `El archivo supera el límite de ${LIMITES.bytesCargaDirecta / 1024 / 1024} MB.` }, valores: valoresDe(form) };
   }
+  if (FORMATOS_IMAGEN.includes(formato) && tamano > LIMITES.bytesImagen) {
+    return { errores: { archivo: `La imagen supera el límite de ${LIMITES.bytesImagen / 1024 / 1024} MB.` }, valores: valoresDe(form) };
+  }
 
   const fuenteId = randomUUID();
   const supabase = await clienteSupabaseServidor();
@@ -300,7 +303,7 @@ export async function accionConfirmarCargaDirecta(fuenteId: string, nombreArchiv
   const sesion = await sesionFuentes();
   if (!sesion) return SIN_PERMISO;
   const supabase = await clienteSupabaseServidor();
-  const { data: fuente } = await supabase.from("sources").select("id, estado, formato").eq("id", fuenteId).maybeSingle();
+  const { data: fuente } = await supabase.from("sources").select("id, titulo, estado, formato").eq("id", fuenteId).maybeSingle();
   if (!fuente || fuente.estado !== "pendiente") return { mensaje: "La fuente no está esperando un archivo." };
   const extension = EXTENSIONES[fuente.formato as Formato]?.find((e) => nombreArchivo.toLowerCase().endsWith(`.${e}`));
   if (!extension) return { mensaje: "El archivo no coincide con el preparado." };
@@ -332,7 +335,26 @@ export async function accionConfirmarCargaDirecta(fuenteId: string, nombreArchiv
   });
   if (error) return fallar("No se pudo crear el trabajo de ingesta.");
   revalidatePath("/biblioteca");
-  return { ok: true, mensaje: `Archivo de ${(bytes.byteLength / 1024 / 1024).toFixed(1)} MB subido directamente a la cuarentena, pendiente de procesar.` };
+  return {
+    ok: true,
+    mensaje: `«${fuente.titulo}» quedó en cuarentena (${(bytes.byteLength / 1024 / 1024).toFixed(1)} MB subido directamente a la cuarentena), pendiente de procesar.`,
+  };
+}
+
+/** La subida desde el navegador no terminó: la fuente preparada queda como fallida y se borra lo que haya llegado. */
+export async function accionCancelarCargaDirecta(fuenteId: string, motivo: string): Promise<EstadoFormulario> {
+  if (!(await sesionFuentes())) return SIN_PERMISO;
+  const supabase = await clienteSupabaseServidor();
+  const { data: fuente } = await supabase.from("sources").select("id, estado, formato").eq("id", fuenteId).maybeSingle();
+  if (!fuente || fuente.estado !== "pendiente") return { ok: true };
+  const rutas = (EXTENSIONES[fuente.formato as Formato] ?? []).map((e) => `${fuenteId}.${e}`);
+  if (rutas.length) await clienteSupabaseAdmin().storage.from("cuarentena").remove(rutas);
+  await supabase
+    .from("sources")
+    .update({ estado: "fallido", motivo_fallo: `La subida no terminó: ${motivo}`.slice(0, 500) })
+    .eq("id", fuenteId);
+  revalidatePath("/biblioteca");
+  return { ok: true };
 }
 
 export async function accionCorregirFigura(_: EstadoFormulario, form: FormData): Promise<EstadoFormulario> {

@@ -12,10 +12,17 @@ interface Props {
   className?: string;
   /** Desactívalo en rutas con efectos (descargas auditadas, exportaciones). */
   prefetch?: boolean;
+  /** «principal»: con aspecto de botón destacado, para acciones que deben encontrarse a la primera. */
+  variante?: "enlace" | "principal";
 }
 
+const ESTILOS = {
+  enlace: "rounded-md px-2 py-1 text-marino-800 underline-offset-4 hover:underline",
+  principal: "inline-flex items-center gap-2 rounded-lg bg-marino-800 px-4 py-2 text-white shadow-sm hover:bg-marino-700",
+};
+
 /** Único enlace de la app: obliga a pasar `descripcion`. */
-export function EnlaceBoton({ href, descripcion, children, className = "", prefetch }: Props) {
+export function EnlaceBoton({ href, descripcion, children, className = "", prefetch, variante = "enlace" }: Props) {
   return (
     <Explicacion descripcion={descripcion}>
       {(disparador) => (
@@ -23,7 +30,7 @@ export function EnlaceBoton({ href, descripcion, children, className = "", prefe
           href={href}
           prefetch={prefetch}
           {...disparador}
-          className={`rounded-md px-2 py-1 font-medium text-marino-800 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-marino-800 ${className}`}
+          className={`font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marino-800 ${ESTILOS[variante]} ${className}`}
         >
           {children}
         </Link>

@@ -11,6 +11,7 @@ export const REGLAS_FRECUENCIA = {
   descargarDocumento: { maximo: 60, ventanaSegundos: 10 * 60 },
   exportar: { maximo: 20, ventanaSegundos: 10 * 60 },
   generarPdf: { maximo: 30, ventanaSegundos: 10 * 60 },
+  subirDocumento: { maximo: 60, ventanaSegundos: 10 * 60 },
   crearEnlace: { maximo: 30, ventanaSegundos: 60 * 60 },
   enlacePublico: { maximo: 60, ventanaSegundos: 10 * 60 },
   asistente: { maximo: 10, ventanaSegundos: 60 },

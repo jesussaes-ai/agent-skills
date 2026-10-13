@@ -24,15 +24,27 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-slate-900">Biblioteca de fuentes</h1>
-        <EnlaceBoton href="/biblioteca/preguntar" descripcion="Abre el bot de la biblioteca para hacer preguntas con citas.">
-          Preguntar a la biblioteca
-        </EnlaceBoton>
+        <div className="flex flex-wrap items-center gap-2">
+          <EnlaceBoton
+            href="#centro-de-carga"
+            variante="principal"
+            descripcion="Lleva al Centro de carga: elige archivos, toma fotos con la cámara o elige de la galería, también desde el teléfono o la tableta."
+          >
+            Subir archivos o fotos
+          </EnlaceBoton>
+          <EnlaceBoton href="/biblioteca/preguntar" descripcion="Abre el bot de la biblioteca para hacer preguntas con citas.">
+            Preguntar a la biblioteca
+          </EnlaceBoton>
+        </div>
       </div>
       {params.retirada && (
         <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
           Fuente retirada: se borraron sus archivos, fragmentos y vectores.
         </p>
       )}
+      <Seccion titulo="Centro de carga" ayuda="biblioteca-carga" id="centro-de-carga">
+        <FormularioCarga supabaseUrl={leerConfigSupabase().url} clavePublica={leerConfigSupabase().clavePublica} />
+      </Seccion>
       <Seccion titulo="Fuentes" ayuda="biblioteca">
         {fuentes?.length ? (
           <ul className="divide-y divide-slate-200">
@@ -56,14 +68,11 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
             ))}
           </ul>
         ) : (
-          <p className="text-slate-600">Todavía no hay fuentes. Carga un archivo o añade una página web.</p>
+          <p className="text-slate-600">Todavía no hay fuentes. Sube un archivo o una foto en el «Centro de carga» o añade una página web.</p>
         )}
       </Seccion>
       <Seccion titulo="Procesar la cola de ingesta" ayuda="biblioteca">
         <BotonProcesar pendientes={pendientes ?? 0} />
-      </Seccion>
-      <Seccion titulo="Centro de carga" ayuda="biblioteca-carga">
-        <FormularioCarga supabaseUrl={leerConfigSupabase().url} clavePublica={leerConfigSupabase().clavePublica} />
       </Seccion>
       <Seccion titulo="Añadir una página web" ayuda="biblioteca-web">
         <FormularioWeb />

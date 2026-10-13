@@ -61,7 +61,7 @@ function FormularioEnlace({ id, documentos, maxDias }: { id: string; documentos:
           name="documentoId"
           defaultValue={documentos[0]?.id ?? ""}
           error={estado.errores?.documentoId}
-          opciones={[...documentos.map((d) => [d.id, `PDF: ${d.nombre}`] as const), ["", "Todos los PDF del expediente"] as const]}
+          opciones={[...documentos.map((d) => [d.id, `${d.tipo === "adjunto" ? "Subido" : "PDF"}: ${d.nombre}`] as const), ["", "Todos los documentos del expediente"] as const]}
         />
         <Selector
           etiqueta="Vence en"
@@ -139,7 +139,7 @@ export function EnlacesCompartidos({ id, documentos, enlaces, maxDias }: Props) 
                 <li key={e.id} className="flex flex-wrap items-center justify-between gap-3 py-3" data-testid="enlace">
                   <div className="text-sm">
                     <p className="flex flex-wrap items-center gap-2 font-medium text-slate-900">
-                      {e.alcance === "documento" ? (nombreDocumento.get(e.documentoId ?? "") ?? "PDF") : "Todos los PDF del expediente"}
+                      {e.alcance === "documento" ? (nombreDocumento.get(e.documentoId ?? "") ?? "Documento") : "Todos los documentos del expediente"}
                       <Etiqueta tono={situacion === "vigente" ? "violeta" : "gris"}>{NOMBRE_ESTADO_ENLACE[situacion]}</Etiqueta>
                     </p>
                     <p className="text-slate-700">

@@ -28,9 +28,17 @@ export async function SesionCabecera() {
         </EnlaceBoton>
       )}
       {sesion.acceso.permisos.includes("admin_fuentes") && (
-        <EnlaceBoton href="/biblioteca" descripcion="Administra las fuentes: centro de carga, páginas web, revisión, versiones y retiro.">
-          Biblioteca
-        </EnlaceBoton>
+        <>
+          <EnlaceBoton href="/biblioteca" descripcion="Administra las fuentes: centro de carga, páginas web, revisión, versiones y retiro.">
+            Biblioteca
+          </EnlaceBoton>
+          <EnlaceBoton
+            href="/biblioteca#centro-de-carga"
+            descripcion="Sube libros, documentos o fotos a la biblioteca desde el teléfono, la tableta o la computadora. Para el expediente de una persona, usa el botón dentro de su expediente."
+          >
+            Subir archivos
+          </EnlaceBoton>
+        </>
       )}
       {esAdmin(sesion) && (
         <>

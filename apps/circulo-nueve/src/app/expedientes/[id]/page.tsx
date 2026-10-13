@@ -22,6 +22,8 @@ import type { ResultadoCarta } from "@/modulos/calculo/astrologia";
 import { CartaExpediente } from "@/ui/carta-natal/CartaExpediente";
 import { HistorialLecturas, NuevaLectura } from "@/ui/expedientes/Lecturas";
 import { PermisosExpediente } from "@/ui/expedientes/Permisos";
+import { SubirDocumentos } from "@/ui/expedientes/SubirDocumentos";
+import { leerConfigSupabase } from "@/modulos/auth/config";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Expediente · Círculo Nueve" };
@@ -49,6 +51,7 @@ export default async function PaginaExpediente({
     administracion,
   } = detalle;
   const puedeModificar = permisos.modificar;
+  const puedeSubir = permisos.cargar && permisos.modificar;
   const [enlaces, ajustes] = permisos.compartir
     ? await Promise.all([listarEnlaces(id), leerAjustes()])
     : [[], null];
@@ -77,6 +80,15 @@ export default async function PaginaExpediente({
           <Etiqueta tono="ambar">Datos ficticios de demostración</Etiqueta>
         )}
       </div>
+      {puedeSubir && (
+        <EnlaceBoton
+          href="#subir-documentos"
+          variante="principal"
+          descripcion="Lleva a «Subir documentos o fotos»: elige archivos, toma una foto con la cámara o elige de la galería."
+        >
+          Subir documentos o fotos
+        </EnlaceBoton>
+      )}
 
       <Seccion titulo="Resumen y tus permisos" ayuda="expedientes">
         <p className="mb-3 text-sm text-slate-700">
@@ -169,11 +181,22 @@ export default async function PaginaExpediente({
         />
       </Seccion>
 
+      {puedeSubir && (
+        <Seccion titulo="Subir documentos o fotos" ayuda="expediente-subir" id="subir-documentos">
+          <SubirDocumentos
+            expedienteId={id}
+            supabaseUrl={leerConfigSupabase().url}
+            clavePublica={leerConfigSupabase().clavePublica}
+          />
+        </Seccion>
+      )}
+
       <Seccion titulo="Documentos" ayuda="expediente-documentos">
         <ListaDocumentos
           id={id}
           documentos={documentos}
           puedeBorrar={permisos.borrar}
+          puedeSubir={puedeSubir}
           usuarioId={sesion.usuarioId}
           administracion={
             administracion

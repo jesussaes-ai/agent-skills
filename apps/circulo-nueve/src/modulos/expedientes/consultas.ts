@@ -33,6 +33,8 @@ export interface Documento {
   retenerHasta: string | null;
   tamanoBytes: number | null;
   lecturaId: string | null;
+  /** «reporte» (generado por la app) o «adjunto» (subido por una persona). */
+  tipo: string;
 }
 
 export interface Consentimiento {
@@ -134,7 +136,7 @@ export async function obtenerExpediente(sesion: Sesion, id: string): Promise<Det
       .order("created_at", { ascending: false }),
     supabase
       .from("documents")
-      .select("id, nombre, created_at, retener_hasta, tamano_bytes, reading_id")
+      .select("id, nombre, created_at, retener_hasta, tamano_bytes, reading_id, tipo")
       .eq("case_file_id", id)
       .order("created_at", { ascending: false }),
   ]);
@@ -183,6 +185,7 @@ export async function obtenerExpediente(sesion: Sesion, id: string): Promise<Det
       retenerHasta: d.retener_hasta,
       tamanoBytes: d.tamano_bytes,
       lecturaId: d.reading_id,
+      tipo: d.tipo ?? "reporte",
     })),
     administracion: null,
   };

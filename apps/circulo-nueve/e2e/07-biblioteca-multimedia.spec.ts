@@ -78,7 +78,7 @@ test("el formulario conserva lo escrito si falta la confirmación de derechos", 
   await expect(zona.getByText("Confirma que tienes derecho a usar esta fuente.")).toBeVisible();
   await expect(zona.getByLabel("Título", { exact: true })).toHaveValue("Tabla que no se envía (DEMO)");
   await expect(zona.getByLabel("Licencia o permiso de uso", { exact: true })).toHaveValue("Material propio de demostración");
-  await expect(zona.getByText("vuelve a elegir el archivo")).toBeVisible();
+  await expect(zona.getByTestId("archivo-en-cola")).toContainText("tabla-demo.xlsx");
 });
 
 test("hojas, presentaciones, audio y figuras: extracción con su localizador", async () => {

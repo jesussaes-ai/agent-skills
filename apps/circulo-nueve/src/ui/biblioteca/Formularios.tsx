@@ -1,13 +1,12 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useActionState, useState, type FormEvent } from "react";
 import {
   accionActualizarWeb,
   accionAgregarWeb,
   accionAprobarVersion,
-  accionCargarArchivo,
+  accionCancelarCargaDirecta,
   accionConfirmarCargaDirecta,
   accionCorregirFigura,
   accionEditarFuente,
@@ -21,11 +20,13 @@ import {
 import { GRUPOS, NIVELES_ACCESO } from "@/modulos/biblioteca/esquemas";
 import type { EstadoFormulario } from "@/modulos/auth/esquemas";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
+import { Boton } from "@/ui/componentes/Boton";
+import { SelectorArchivos, useColaCarga } from "@/ui/carga/SelectorArchivos";
+import { aceptaDe, tituloParaArchivo } from "@/modulos/carga/reglas";
+import { subirConProgreso } from "@/modulos/carga/subir-firmado";
 import { Casilla, Selector } from "@/ui/expedientes/Selector";
 
-const ACEPTA = ".pdf,.epub,.docx,.txt,.md,.markdown,.csv,.xlsx,.ods,.pptx,.png,.jpg,.jpeg,.webp,.mp3,.wav,.ogg,.oga,.opus,.m4a,.mp4,.m4v,.webm";
-/** Por encima de este tamaño se sube directo a Storage (Vercel limita el cuerpo de la petición a ~4.5 MB). */
-const UMBRAL_CARGA_DIRECTA = 4 * 1024 * 1024;
+const ACEPTA = aceptaDe("biblioteca");
 
 export interface ValoresFuente {
   titulo?: string;
@@ -41,7 +42,17 @@ export interface ValoresFuente {
   esDemo?: boolean;
 }
 
-function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { estado: EstadoFormulario; valores?: ValoresFuente; conDerechos?: boolean }) {
+function CamposMetadatos({
+  estado,
+  valores: base = {},
+  conDerechos = true,
+  tituloOpcional = false,
+}: {
+  estado: EstadoFormulario;
+  valores?: ValoresFuente;
+  conDerechos?: boolean;
+  tituloOpcional?: boolean;
+}) {
   const e = estado.errores ?? {};
   // Tras un error, React vacía el formulario: se vuelven a mostrar los valores enviados.
   const enviados = estado.valores;
@@ -64,7 +75,15 @@ function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { e
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Campo etiqueta="Título" name="titulo" defaultValue={valores.titulo} required maxLength={300} error={e.titulo} />
+        <Campo
+          etiqueta="Título"
+          name="titulo"
+          defaultValue={valores.titulo}
+          required={!tituloOpcional}
+          maxLength={280}
+          error={e.titulo}
+          nota={tituloOpcional ? "Si lo dejas vacío se usa el nombre de cada archivo. Con varios archivos se numeran: «Título (1 de 3)»." : undefined}
+        />
         <Campo etiqueta="Autoría (persona u organización)" name="autor" defaultValue={valores.autor ?? ""} maxLength={200} />
         <Campo
           etiqueta="Referencia"
@@ -103,34 +122,65 @@ function CamposMetadatos({ estado, valores: base = {}, conDerechos = true }: { e
 }
 
 export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: string; clavePublica: string }) {
-  const [estadoServidor, accion] = useActionState(accionCargarArchivo, ESTADO_INICIAL);
-  const [estadoDirecto, setEstadoDirecto] = useState<EstadoFormulario | null>(null);
+  const cola = useColaCarga("biblioteca");
+  const [estado, setEstado] = useState<EstadoFormulario>(ESTADO_INICIAL);
   const [subiendo, setSubiendo] = useState(false);
   const router = useRouter();
-  const estado = estadoDirecto ?? estadoServidor;
+  const pendientes = cola.cola.filter((a) => a.estado === "listo" || a.estado === "error");
 
+  // Cada archivo es una fuente con los mismos metadatos. Todos van directo a la
+  // cuarentena con una URL firmada (Vercel limita el cuerpo a ~4.5 MB) y el
+  // servidor comprueba el formato real antes de crear el trabajo de ingesta.
   const alEnviar = async (e: FormEvent<HTMLFormElement>) => {
-    const formulario = e.currentTarget;
-    const archivo = (formulario.elements.namedItem("archivo") as HTMLInputElement | null)?.files?.[0];
-    if (!archivo || archivo.size <= UMBRAL_CARGA_DIRECTA) {
-      setEstadoDirecto(null);
-      return;
-    }
-    // Archivo grande: no pasa por el servidor de la app; va directo a la cuarentena con URL firmada.
     e.preventDefault();
+    if (!pendientes.length) return setEstado({ errores: { archivo: "Elige al menos un archivo o toma una foto." } });
+    const base = new FormData(e.currentTarget);
+    const titulo = String(base.get("titulo") ?? "");
     setSubiendo(true);
+    setEstado(ESTADO_INICIAL);
+    let correctos = 0;
     try {
-      const datos = new FormData(formulario);
-      datos.delete("archivo");
-      datos.set("nombreArchivo", archivo.name);
-      datos.set("tamanoArchivo", String(archivo.size));
-      const preparada = await accionPrepararCargaDirecta(datos);
-      if (!preparada.ok || !preparada.ruta || !preparada.token || !preparada.fuenteId) return setEstadoDirecto(preparada);
-      const { error } = await createClient(supabaseUrl, clavePublica)
-        .storage.from("cuarentena")
-        .uploadToSignedUrl(preparada.ruta, preparada.token, archivo, { contentType: archivo.type || "application/octet-stream" });
-      if (error) return setEstadoDirecto({ mensaje: `No se pudo subir el archivo: ${error.message}` });
-      setEstadoDirecto(await accionConfirmarCargaDirecta(preparada.fuenteId, archivo.name));
+      for (const [i, item] of pendientes.entries()) {
+        cola.actualizar(item.id, { estado: "subiendo", progreso: 0, mensaje: undefined });
+        const datos = new FormData();
+        for (const [clave, valor] of base.entries()) datos.append(clave, valor);
+        datos.set("titulo", tituloParaArchivo(titulo, item.archivo.name, i, pendientes.length));
+        datos.set("nombreArchivo", item.archivo.name);
+        datos.set("tamanoArchivo", String(item.archivo.size));
+        const preparada = await accionPrepararCargaDirecta(datos);
+        if (!preparada.ok || !preparada.ruta || !preparada.token || !preparada.fuenteId) {
+          const motivo = preparada.errores?.archivo ?? preparada.mensaje;
+          cola.actualizar(item.id, { estado: "error", progreso: 0, mensaje: motivo ?? "Revisa los datos marcados en el formulario." });
+          // Un error de metadatos afecta a toda la tanda: se corrige y se vuelve a intentar.
+          if (preparada.errores && !preparada.errores.archivo) {
+            setEstado({ errores: preparada.errores });
+            return;
+          }
+          continue;
+        }
+        const subida = await subirConProgreso(
+          { supabaseUrl, clavePublica, bucket: "cuarentena", ruta: preparada.ruta, token: preparada.token },
+          item.archivo,
+          (fraccion) => cola.actualizar(item.id, { progreso: fraccion }),
+        );
+        if (!subida.ok) {
+          await accionCancelarCargaDirecta(preparada.fuenteId, subida.mensaje ?? "error de red");
+          cola.actualizar(item.id, { estado: "error", mensaje: `No se pudo subir: ${subida.mensaje}` });
+          continue;
+        }
+        const confirmada = await accionConfirmarCargaDirecta(preparada.fuenteId, item.archivo.name);
+        if (confirmada.ok) correctos += 1;
+        cola.actualizar(item.id, {
+          estado: confirmada.ok ? "hecho" : "error",
+          mensaje: confirmada.ok ? confirmada.mensaje : (confirmada.errores?.archivo ?? confirmada.mensaje),
+        });
+      }
+      const fallidos = pendientes.length - correctos;
+      setEstado(
+        fallidos
+          ? { mensaje: `Subidos ${correctos} de ${pendientes.length}. ${fallidos === 1 ? "Un archivo no se pudo subir" : `${fallidos} archivos no se pudieron subir`}: revisa el motivo en la lista.` }
+          : { ok: true, mensaje: `Listo: ${correctos} de ${pendientes.length} en cuarentena. Pulsa «Procesar pendientes ahora» o espera al procesamiento automático; las fotos pasan por OCR.` },
+      );
       router.refresh();
     } finally {
       setSubiendo(false);
@@ -138,23 +188,24 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
   };
 
   return (
-    <form action={accion} onSubmit={alEnviar} className="space-y-4" noValidate>
-      <Campo
-        etiqueta="Archivo"
-        name="archivo"
-        type="file"
-        accept={ACEPTA}
-        required
-        error={estado.errores?.archivo}
-        nota="Documentos (PDF con figuras, EPUB, DOCX, TXT, Markdown), hojas (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR y audio o video con transcripción local. Hasta 25 MB; por encima de 4 MB se sube directo a Storage (hasta 50 MB). Se comprueba el formato real y se rechazan macros y contenido activo."
+    <form onSubmit={alEnviar} className="space-y-4" noValidate>
+      <SelectorArchivos
+        destino="biblioteca"
+        cola={cola}
+        ocupado={subiendo}
+        nota="Documentos (PDF, también escaneados, EPUB, DOCX, TXT, Markdown), hojas (CSV, XLSX, ODS), presentaciones (PPTX), fotos o imágenes (JPG, PNG, WebP; pasan por OCR), audio (MP3, WAV, OGG, M4A) y video (MP4, WebM). Hasta 50 MB por archivo y 10 MB por foto; hasta 20 archivos por tanda. Se comprueba el formato real y se rechazan macros y contenido activo."
       />
-      {estado.valores && <p className="text-xs text-slate-600">Se conservaron los datos escritos; vuelve a elegir el archivo.</p>}
-      <CamposMetadatos estado={estado} />
+      {estado.errores?.archivo && <p className="text-sm text-red-700">{estado.errores.archivo}</p>}
+      <CamposMetadatos estado={estado} tituloOpcional />
       <MensajeFormulario estado={estado} />
-      {subiendo && <p role="status" className="text-sm text-slate-700">Subiendo directamente a Storage…</p>}
-      <BotonEnviar descripcion="Comprueba el archivo, lo deja en cuarentena y crea un trabajo de ingesta pendiente. Nada se indexa sin tu revisión.">
-        Cargar a cuarentena
-      </BotonEnviar>
+      <Boton
+        type="submit"
+        disabled={subiendo}
+        aria-busy={subiendo || undefined}
+        descripcion="Sube los archivos elegidos, comprueba cada uno y lo deja en cuarentena con un trabajo de ingesta pendiente. Nada se indexa sin tu revisión."
+      >
+        {subiendo ? "Subiendo…" : "Cargar a cuarentena"}
+      </Boton>
     </form>
   );
 }

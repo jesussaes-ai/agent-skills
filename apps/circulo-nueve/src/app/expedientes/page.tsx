@@ -23,6 +23,11 @@ export default async function PaginaExpedientes({ searchParams }: { searchParams
           Expediente borrado junto con sus archivos.
         </p>
       )}
+      {puedeCrear && expedientes.length > 0 && (
+        <p className="rounded-lg bg-oro-50 p-3 text-sm text-slate-800" data-testid="pista-subir">
+          Para subir documentos o fotos de una persona, abre su expediente y pulsa «Subir documentos o fotos» (arriba, junto al nombre).
+        </p>
+      )}
       <Seccion titulo="Expedientes a los que tienes acceso" ayuda="expedientes">
         {expedientes.length ? (
           <ul className="divide-y divide-slate-200">

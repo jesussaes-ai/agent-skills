@@ -7,6 +7,7 @@ import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Selector } from "./Selector";
 import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
+import { Etiqueta } from "@/ui/componentes/Seccion";
 
 function BorrarDocumento({ id, documentoId }: { id: string; documentoId: string }) {
   const [estado, accion] = useActionState(accionBorrarDocumento, ESTADO_INICIAL);
@@ -65,15 +66,18 @@ interface Props {
   id: string;
   documentos: Documento[];
   puedeBorrar: boolean;
+  puedeSubir?: boolean;
   administracion: { personas: Persona[]; asignacionesArchivo: Asignacion[] } | null;
   usuarioId: string;
 }
 
-export function ListaDocumentos({ id, documentos, puedeBorrar, administracion, usuarioId }: Props) {
+export function ListaDocumentos({ id, documentos, puedeBorrar, puedeSubir = false, administracion, usuarioId }: Props) {
   if (!documentos.length) {
     return (
       <EstadoVacio titulo="Todavía no hay documentos">
-        Genera un PDF desde una lectura guardada en el «Historial de lecturas»; aparecerá aquí, guardado en privado.
+        {puedeSubir
+          ? "Sube documentos o fotos en «Subir documentos o fotos», o genera un PDF desde una lectura guardada en el «Historial de lecturas». Todo se guarda en privado."
+          : "Genera un PDF desde una lectura guardada en el «Historial de lecturas»; aparecerá aquí, guardado en privado."}
       </EstadoVacio>
     );
   }
@@ -83,7 +87,10 @@ export function ListaDocumentos({ id, documentos, puedeBorrar, administracion, u
         <li key={d.id} className="py-3" data-testid="documento">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-medium text-slate-900">{d.nombre}</p>
+              <p className="flex flex-wrap items-center gap-2 break-all font-medium text-slate-900">
+                {d.nombre}
+                <Etiqueta tono={d.tipo === "adjunto" ? "gris" : "violeta"}>{d.tipo === "adjunto" ? "Subido" : "Reporte"}</Etiqueta>
+              </p>
               <p className="text-xs text-slate-600">
                 {new Date(d.creado).toLocaleString("es-MX")}
                 {d.tamanoBytes ? ` · ${Math.round(d.tamanoBytes / 1024)} KB` : ""}
