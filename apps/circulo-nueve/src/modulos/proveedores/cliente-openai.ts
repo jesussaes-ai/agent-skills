@@ -1,3 +1,4 @@
+import { buscarModeloCatalogo } from "./catalogo";
 import type { CodigoResultado, ConfigProveedor, RespuestaLlm, SolicitudLlm } from "./tipos";
 
 /** Error de proveedor sin contenido de la solicitud: solo código, estado HTTP y espera sugerida. */
@@ -63,6 +64,9 @@ export function construirCuerpo(config: ConfigProveedor, modelo: string, solicit
   if (solicitud.respuestaJson && config.capacidades.json) cuerpo.response_format = { type: "json_object" };
   if (config.tipo === "openrouter" && config.politicaDatos.exigirZdr) {
     cuerpo.provider = { zdr: true, data_collection: "deny" };
+  }
+  if (config.tipo === "openrouter" && buscarModeloCatalogo(modelo)?.apagarRazonamiento) {
+    cuerpo.reasoning = { enabled: false };
   }
   return cuerpo;
 }

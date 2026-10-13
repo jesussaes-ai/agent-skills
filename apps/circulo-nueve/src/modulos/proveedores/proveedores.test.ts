@@ -71,7 +71,7 @@ describe("catálogo verificado", () => {
     expect(MODELOS_OPENROUTER.filter((m) => m.familia === "NVIDIA" && m.gratuito).length).toBeGreaterThanOrEqual(3);
     expect(MODELOS_OPENROUTER.some((m) => m.familia === "Qwen" && !m.gratuito)).toBe(true);
     expect(MODELOS_OPENROUTER.some((m) => m.familia === "DeepSeek" && !m.gratuito && m.politica.exigirZdr)).toBe(true);
-    for (const m of MODELOS_OPENROUTER) expect(m.politica.verificadoEn).toBe("2026-10-06");
+    for (const m of MODELOS_OPENROUTER) expect(m.politica.verificadoEn).toBe(m.familia === "DeepSeek" ? "2026-10-13" : "2026-10-06");
   });
 
   it("reconoce modelos gratuitos", () => {
@@ -142,6 +142,13 @@ describe("cliente compatible con OpenAI", () => {
     const c = construirCuerpo(proveedor({ politicaDatos: { permiteDatosReales: true, descripcion: "", exigirZdr: true } }), "deepseek/deepseek-v4-flash", { ...SOLICITUD, maxTokens: 9999 });
     expect(c).toMatchObject({ model: "deepseek/deepseek-v4-flash", max_tokens: 400, response_format: { type: "json_object" }, provider: { zdr: true, data_collection: "deny" } });
     expect(construirCuerpo(proveedor({ tipo: "freellmapi" }), "auto", SOLICITUD).provider).toBeUndefined();
+  });
+
+  it("apaga el razonamiento solo en modelos del catálogo que lo permiten", () => {
+    expect(construirCuerpo(proveedor(), "deepseek/deepseek-v4-flash", SOLICITUD).reasoning).toEqual({ enabled: false });
+    expect(construirCuerpo(proveedor(), "deepseek/deepseek-v4.1-flash", SOLICITUD).reasoning).toEqual({ enabled: false });
+    expect(construirCuerpo(proveedor(), "modelo/desconocido", SOLICITUD).reasoning).toBeUndefined();
+    expect(construirCuerpo(proveedor({ tipo: "openai_compatible" }), "deepseek/deepseek-v4-flash", SOLICITUD).reasoning).toBeUndefined();
   });
 
   it("envía la llave solo en la cabecera Authorization y lee el uso", async () => {

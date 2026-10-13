@@ -8,6 +8,7 @@ import type { CapacidadesLlm, CostoProveedor, LimitesProveedor, PoliticaDatos, T
  */
 
 export const FECHA_VERIFICACION = "2026-10-06";
+export const FECHA_VERIFICACION_DEEPSEEK = "2026-10-13";
 
 export const FUENTES_OPENROUTER = {
   modelos: "https://openrouter.ai/api/v1/models",
@@ -35,6 +36,12 @@ export interface ModeloCatalogo {
   costo: CostoProveedor;
   politica: PoliticaDatos;
   nota: string;
+  /**
+   * OpenRouter: enviar `reasoning: { enabled: false }`. Solo para modelos cuyo
+   * razonamiento no es obligatorio (los obligatorios rechazan la solicitud);
+   * sin esto, el razonamiento gasta tokens de salida que el asistente no usa.
+   */
+  apagarRazonamiento?: boolean;
 }
 
 export interface PlantillaProveedor {
@@ -134,18 +141,40 @@ export const MODELOS_OPENROUTER: ModeloCatalogo[] = [
     gratuito: false,
     contexto: 1048576,
     capacidades: { json: true, herramientas: true, vision: false, audio: false },
-    costo: { entradaUsdPorMillon: 0.21, salidaUsdPorMillon: 1.41 },
+    costo: { entradaUsdPorMillon: 0.38, salidaUsdPorMillon: 1.28 },
     politica: {
       permiteDatosReales: false,
       entrena: false,
       retiene: false,
       exigirZdr: true,
       descripcion:
-        "El 6 oct 2026 no había variante gratuita de DeepSeek. Con «exigir retención cero» OpenRouter solo enruta a endpoints que no entrenan ni retienen (DeepInfra, Venice, Azure, entre otros). Apto para datos reales solo si la administración lo aprueba.",
+        "Sin variante gratuita. Con «exigir retención cero» OpenRouter solo enruta a sus 10 endpoints ZDR, que no entrenan ni retienen (DeepInfra, DigitalOcean, Venice, Parasail, SiliconFlow, Azure, entre otros; verificado el 13 oct 2026 en /api/v1/endpoints/zdr). Apto para datos reales solo si la administración lo aprueba.",
       fuente: FUENTES_OPENROUTER.zdr,
-      verificadoEn: FECHA_VERIFICACION,
+      verificadoEn: FECHA_VERIFICACION_DEEPSEEK,
     },
-    nota: "Costo estimado con el endpoint de retención cero más caro de la lista; el real suele ser menor.",
+    nota: "Costo estimado con el precio más alto de entrada y de salida entre sus endpoints ZDR; el real suele ser mucho menor (≈0.09/0.18 USD por millón).",
+    apagarRazonamiento: true,
+  },
+  {
+    id: "deepseek/deepseek-v4.1-flash",
+    nombre: "DeepSeek V4.1 Flash (de pago, bajo costo)",
+    familia: "DeepSeek",
+    gratuito: false,
+    contexto: 1048576,
+    capacidades: { json: true, herramientas: true, vision: false, audio: false },
+    costo: { entradaUsdPorMillon: 0.6, salidaUsdPorMillon: 2.4 },
+    politica: {
+      permiteDatosReales: false,
+      entrena: false,
+      retiene: false,
+      exigirZdr: true,
+      descripcion:
+        "Sin variante gratuita. Con «exigir retención cero» OpenRouter elige entre más de 20 endpoints ZDR (DeepInfra, CoreWeave, Together, Fireworks, Venice, entre otros; verificado el 13 oct 2026). Buen respaldo de V4 Flash: otra versión del modelo y otros servidores.",
+      fuente: FUENTES_OPENROUTER.zdr,
+      verificadoEn: FECHA_VERIFICACION_DEEPSEEK,
+    },
+    nota: "Razona por defecto; la app lo apaga para no pagar tokens de razonamiento. Costo estimado con el endpoint ZDR más caro.",
+    apagarRazonamiento: true,
   },
   {
     id: "openrouter/free",
