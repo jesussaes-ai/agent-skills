@@ -140,7 +140,14 @@ test("la cuenta cliente ve sus documentos pero no puede subir", async ({ browser
 
 test("biblioteca a 390 px: «Subir archivos» en el menú, fotos de la galería sin título y numeradas", async ({ browser }) => {
   const page = await nuevaSesion(browser, PANTALLAS[0], ADMIN_FUENTES);
-  await page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Subir archivos", exact: true }).click();
+  const enlaceMenu = page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Subir archivos", exact: true });
+  await enlaceMenu.hover();
+  const ayuda = page.getByRole("tooltip").filter({ hasText: /^Sube libros, documentos o fotos/ });
+  await expect(ayuda).toBeVisible();
+  const caja = await ayuda.boundingBox();
+  expect(caja!.x).toBeGreaterThanOrEqual(0);
+  expect(caja!.x + caja!.width).toBeLessThanOrEqual(PANTALLAS[0].width);
+  await enlaceMenu.click();
   await expect(page).toHaveURL(/\/biblioteca#centro-de-carga$/);
   const zona = page.locator("#centro-de-carga");
   await expect(zona.getByRole("button", { name: "Tomar foto", exact: true })).toBeInViewport();

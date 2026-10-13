@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type FocusEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type ReactNode } from "react";
 
 export interface PropsDisparador {
   "aria-describedby": string;
@@ -53,6 +53,20 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
 
   useEffect(() => limpiar, []);
 
+  // Centrada bajo el control, la ventana se saldría de la pantalla junto a los bordes (p. ej. en el menú del celular).
+  const ventana = useRef<HTMLSpanElement>(null);
+  const [desplazamiento, setDesplazamiento] = useState(0);
+  useLayoutEffect(() => {
+    const el = ventana.current;
+    if (!abierta || !el) return setDesplazamiento(0);
+    const margen = 8;
+    const { left, right } = el.getBoundingClientRect();
+    const izquierda = left - desplazamiento;
+    const derecha = right - desplazamiento;
+    const ancho = document.documentElement.clientWidth;
+    setDesplazamiento(izquierda < margen ? margen - izquierda : derecha > ancho - margen ? ancho - margen - derecha : 0);
+  }, [abierta]);
+
   return (
     <span className={`relative inline-flex ${className}`} onMouseLeave={cerrar}>
       {children({
@@ -73,8 +87,10 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
       })}
       <span
         id={id}
+        ref={ventana}
         role="tooltip"
         hidden={!abierta}
+        style={desplazamiento ? { marginLeft: desplazamiento } : undefined}
         className="absolute left-1/2 top-full z-50 mt-2 w-max max-w-[16rem] -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-left text-sm font-normal leading-snug text-white shadow-lg"
       >
         {descripcion}

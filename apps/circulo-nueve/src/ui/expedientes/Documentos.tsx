@@ -8,6 +8,7 @@ import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Selector } from "./Selector";
 import { EstadoVacio } from "@/ui/componentes/EstadoVacio";
 import { Etiqueta } from "@/ui/componentes/Seccion";
+import { tamanoLegible } from "@/modulos/carga/reglas";
 
 function BorrarDocumento({ id, documentoId }: { id: string; documentoId: string }) {
   const [estado, accion] = useActionState(accionBorrarDocumento, ESTADO_INICIAL);
@@ -93,7 +94,7 @@ export function ListaDocumentos({ id, documentos, puedeBorrar, puedeSubir = fals
               </p>
               <p className="text-xs text-slate-600">
                 {new Date(d.creado).toLocaleString("es-MX")}
-                {d.tamanoBytes ? ` · ${Math.round(d.tamanoBytes / 1024)} KB` : ""}
+                {d.tamanoBytes ? ` · ${tamanoLegible(d.tamanoBytes)}` : ""}
                 {d.retenerHasta ? ` · se conserva hasta ${d.retenerHasta}` : ""}
               </p>
             </div>
