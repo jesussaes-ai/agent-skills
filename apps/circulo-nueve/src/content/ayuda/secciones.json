@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-12.1",
+  "version": "2026-10-13.1",
   "secciones": [
     {
       "id": "proyecto",
@@ -589,14 +589,52 @@
       ]
     },
     {
-      "id": "expediente-documentos",
-      "titulo": "Documentos y descargas",
-      "resumen": "Reportes PDF guardados de forma privada, con descarga verificada.",
-      "deQueTrata": "Los PDF se generan en el servidor y se guardan en almacenamiento privado, en una carpeta del expediente. Al pulsar «Descargar», el servidor comprueba tu permiso, registra la descarga en la auditoría y te envía a un enlace temporal que caduca en segundos. Cada documento se conserva hasta la fecha indicada (retención configurable) y después se purga. La administración puede dar acceso a un solo archivo sin abrir el resto del expediente.",
+      "id": "expediente-subir",
+      "titulo": "Subir documentos o fotos al expediente",
+      "resumen": "Añadir al expediente de una persona documentos PDF o fotos desde el teléfono, la tableta o la computadora.",
+      "deQueTrata": "Sirve para guardar en el expediente identificaciones, cartas, notas escaneadas o cualquier foto de un documento. Acepta PDF (hasta 25 MB) y fotos JPG, PNG o WebP (hasta 10 MB cada una), hasta 20 por tanda. Cada archivo se sube directo al almacenamiento privado del expediente con un enlace firmado y una barra de avance; después el servidor comprueba el tipo real del contenido (no solo el nombre), rechaza PDF con contenido activo y lo registra con su huella SHA-256 en la auditoría. Solo lo ven quienes tienen permiso en ese expediente. Lo pueden usar las cuentas con permiso de «Cargar» y «Modificar» en el expediente; las cuentas de cliente solo ven y descargan. Estos archivos no se envían a la biblioteca ni al bot ni pasan por OCR: son datos privados de la persona. Si quieres que un libro o apunte sea consultable con citas, súbelo en el Centro de carga de la Biblioteca.",
       "datosQueUsa": [
-        "El archivo PDF, su tamaño, su huella SHA-256 y su fecha de retención."
+        "Los archivos que eliges o las fotos que tomas, su nombre y su tamaño."
       ],
       "comoSeUsa": [
+        "Abre el expediente y pulsa «Subir documentos o fotos» (arriba, junto al nombre); te lleva a la sección de carga.",
+        "Pulsa «Elegir archivos», «Tomar foto» (abre la cámara; repite para cada página) o «Galería». En computadora también puedes arrastrar y soltar.",
+        "Revisa la lista; «Quitar» saca un archivo antes de subirlo.",
+        "Pulsa «Subir al expediente». Cuando cada archivo diga «Subido», aparece en «Documentos» con la etiqueta «Subido»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "subir",
+        "cargar",
+        "foto",
+        "fotos",
+        "cámara",
+        "camara",
+        "galería",
+        "teléfono",
+        "celular",
+        "tableta",
+        "móvil",
+        "documento",
+        "identificación",
+        "escanear",
+        "adjunto",
+        "archivo",
+        "pdf",
+        "jpg",
+        "png"
+      ]
+    },
+    {
+      "id": "expediente-documentos",
+      "titulo": "Documentos y descargas",
+      "resumen": "Reportes PDF y archivos subidos, guardados de forma privada, con descarga verificada.",
+      "deQueTrata": "Aquí aparecen los reportes PDF que genera la app (etiqueta «Reporte») y los documentos o fotos que alguien subió (etiqueta «Subido»). Todo se guarda en almacenamiento privado, en una carpeta del expediente. Al pulsar «Descargar», el servidor comprueba tu permiso, registra la descarga en la auditoría y te envía a un enlace temporal que caduca en segundos. Cada documento se conserva hasta la fecha indicada (retención configurable) y después se purga. La administración puede dar acceso a un solo archivo sin abrir el resto del expediente.",
+      "datosQueUsa": [
+        "El archivo (PDF o foto), su nombre, su tamaño, su huella SHA-256 y su fecha de retención."
+      ],
+      "comoSeUsa": [
+        "Para añadir documentos o fotos, usa «Subir documentos o fotos» (botón arriba del expediente).",
         "Pulsa «Descargar» junto al documento.",
         "Pulsa «Borrar» para eliminar el documento y su archivo.",
         "Para enviarlo a otra persona sin darle una cuenta, usa «Enlaces para compartir»."
@@ -612,7 +650,10 @@
         "enlace",
         "firmado",
         "retención",
-        "archivo"
+        "archivo",
+        "subido",
+        "foto",
+        "imagen"
       ]
     },
     {
@@ -769,15 +810,17 @@
     {
       "id": "biblioteca-carga",
       "titulo": "Centro de carga",
-      "resumen": "Subir libros y documentos de forma segura.",
-      "deQueTrata": "Acepta documentos (PDF —con sus figuras, y también escaneados—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. Los PDF escaneados (páginas que son solo una imagen) se leen con OCR en español página por página; la confianza del OCR queda en cada fragmento y las páginas dudosas se marcan para revisarlas con el original. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Hasta 25 MB a través de la app; los archivos de más de 4 MB se suben directo a Storage con un enlace firmado (hasta 50 MB). Límites: 1000 páginas por PDF y 60 minutos de audio o video; un libro más grande se divide en partes. El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. El worker procesa la cola solo cada 15 minutos aproximadamente; «Procesar pendientes ahora» procesa al momento los textos, EPUB, DOCX, PDF con texto y páginas web, y deja los escaneados, las imágenes, el audio y el video al worker. Si falta un dato, el formulario conserva lo escrito.",
+      "resumen": "Subir libros, documentos y fotos de forma segura, también desde el teléfono o la tableta.",
+      "deQueTrata": "Acepta documentos (PDF —con sus figuras, y también escaneados—, EPUB, DOCX, TXT, Markdown), hojas de cálculo (CSV, XLSX, ODS), presentaciones (PPTX), imágenes con OCR en español y audio o video con transcripción local. Los PDF escaneados (páginas que son solo una imagen) se leen con OCR en español página por página; la confianza del OCR queda en cada fragmento y las páginas dudosas se marcan para revisarlas con el original. El formato se detecta por el contenido real, no por el nombre; si no coincide con la extensión, se rechaza. También se rechazan macros y contenido activo. Si el entorno tiene ClamAV, cada archivo se escanea (puede configurarse como obligatorio). Cada archivo se sube directo al almacenamiento privado con un enlace firmado y una barra de avance: hasta 50 MB por archivo y 10 MB por foto o imagen, hasta 20 archivos por tanda. Las fotos (JPG, PNG o WebP) pasan por OCR en español. Las fotos HEIC del iPhone no se admiten tal cual: «Tomar foto» y «Galería» las entregan como JPEG. Límites: 1000 páginas por PDF y 60 minutos de audio o video; un libro más grande se divide en partes. El archivo queda en cuarentena hasta procesarse; nada se indexa sin revisión. El worker procesa la cola solo cada 15 minutos aproximadamente; «Procesar pendientes ahora» procesa al momento los textos, EPUB, DOCX, PDF con texto y páginas web, y deja los escaneados, las imágenes, el audio y el video al worker. Si falta un dato, el formulario conserva lo escrito y los archivos elegidos.",
       "datosQueUsa": [
         "El archivo y los metadatos que escribes."
       ],
       "comoSeUsa": [
-        "En «Biblioteca» (solo administración), en «Centro de carga», elige el archivo y completa título, referencia, grupo, licencia y quién puede consultarla.",
-        "Marca la confirmación de derechos y pulsa «Cargar a cuarentena».",
-        "Pulsa «Procesar pendientes ahora» o espera al worker (unos 15 minutos; un escaneo tarda unos segundos por página).",
+        "Abre «Subir archivos» en el menú (o «Biblioteca» › «Subir archivos o fotos»). El Centro de carga está arriba de todo; solo lo ve la administración de fuentes.",
+        "Pulsa «Elegir archivos» para documentos, «Tomar foto» para fotografiar una página con la cámara o «Galería» para fotos que ya tienes. En computadora también puedes arrastrar y soltar. Puedes añadir varios; «Quitar» saca uno de la lista.",
+        "Completa referencia, grupo, licencia y quién puede consultarla. El título es opcional: si lo dejas vacío se usa el nombre del archivo; con varios archivos se numeran.",
+        "Marca la confirmación de derechos y pulsa «Cargar a cuarentena». Verás el avance de cada archivo y el total.",
+        "Pulsa «Procesar pendientes ahora» o espera al worker (unos 15 minutos; las fotos y los escaneos los procesa el worker con OCR, unos segundos por página).",
         "Cuando la fuente diga «Requiere revisión», ábrela, revisa y pulsa «Aprobar e indexar»; después vuelve a «Procesar pendientes ahora» o espera al worker."
       ],
       "estado": "disponible",
@@ -812,7 +855,19 @@
         "libro",
         "libros",
         "worker",
-        "tiempo"
+        "tiempo",
+        "foto",
+        "fotos",
+        "cámara",
+        "camara",
+        "galería",
+        "teléfono",
+        "celular",
+        "tableta",
+        "móvil",
+        "varios",
+        "arrastrar",
+        "progreso"
       ]
     },
     {

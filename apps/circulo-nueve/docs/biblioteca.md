@@ -55,18 +55,25 @@ Estados de fuente y trabajo: `pendiente → procesando → requiere_revision →
   - En CPU tarda aproximadamente la duración del audio dividida entre 2 o 4. La primera vez descarga ~290 MB.
   - `whisper-tiny` y las versiones cuantizadas alucinaban con audio en español en las pruebas: por eso se usa `base` en fp32 (configurable con `TRANSCRIPCION_MODELO`).
   - No separa hablantes (exigiría consentimiento) ni extrae fotogramas del video.
+- **Selector para teléfono, tableta y computadora** (`src/ui/carga/SelectorArchivos.tsx`, compartido con los expedientes):
+  - El Centro de carga está **arriba** de `/biblioteca` (`#centro-de-carga`); el menú tiene «Subir archivos» y la cabecera de la página «Subir archivos o fotos».
+  - Tres botones: «Elegir archivos» (`multiple`, `accept` con las extensiones admitidas), «Tomar foto» (`accept="image/jpeg,image/png,image/webp"` + `capture="environment"`, cámara trasera) y «Galería» (mismas imágenes, `multiple`). Al pedir esos tipos, iOS convierte las fotos HEIC a JPEG; un `.heic` suelto se rechaza con instrucciones.
+  - En computadora (`pointer: fine`) también se puede arrastrar y soltar sobre la zona.
+  - Hasta 20 archivos por tanda; cada uno se valida en el navegador (`src/modulos/carga/reglas.ts`, mismas extensiones y límites que `formatos.ts`, comprobado en pruebas) y en el servidor.
+  - Cada archivo crea su propia fuente con los mismos metadatos. Título opcional: vacío → nombre del archivo; con varios → «Título (n de N)».
+  - Barra de avance por archivo y total (`XMLHttpRequest`, porque `fetch` no informa del avance de subida).
+  - Las fotos van por el OCR del pipeline (las procesa el worker, igual que los escaneados).
 - **Carga directa a Storage:**
-  - Por encima de 4 MB, el navegador pide al servidor una **URL firmada de subida** a la cuarentena (válida 2 h) y sube el archivo directo a Storage, sin pasar por Vercel (límite de 4.5 MB por petición).
+  - **Todos** los archivos: el navegador pide al servidor una **URL firmada de subida** a la cuarentena (válida 2 h) y sube el archivo directo a Storage, sin pasar por Vercel (límite de 4.5 MB por petición). Si la subida falla, `accionCancelarCargaDirecta` marca la fuente como fallida y borra lo que haya llegado.
   - Al terminar, el servidor descarga el objeto, comprueba el formato real y el contenido activo y crea el trabajo; si no pasa, lo borra.
   - Límite: 50 MB, el máximo por archivo del plan gratuito de Supabase.
 - **Antivirus:**
   - ClamAV, si está instalado: primero `clamdscan` y, si no, `clamscan`. El código 1 significa amenaza y la fuente queda `fallido` con el nombre de la firma.
   - Con `CLAMAV_OBLIGATORIO=1`, la falta de escáner o un error rechazan el archivo; si no, se deja una advertencia.
   - Probado con el archivo EICAR.
-- **Formulario:** tras un error se conservan los datos escritos; el archivo hay que elegirlo de nuevo, porque el navegador no permite rellenarlo.
+- **Formulario:** tras un error se conservan los datos escritos y los archivos elegidos.
 - **Contenido activo:** se rechazan PDF con `/JavaScript`, `/JS`, `/Launch`, `/EmbeddedFile`, `/RichMedia` o `/XFA`, DOCX con macros (`vbaProject.bin`, `macroEnabled`) y EPUB con scripts. La extracción nunca ejecuta nada.
-- **Límites:** 25 MB por archivo, 10 MB por imagen, 1000 páginas por PDF y 8 millones de caracteres de texto.
-  - En Vercel, la petición admite como mucho ~4.5 MB; por encima de 4 MB el navegador sube directo a Storage con URL firmada (hasta 50 MB).
+- **Límites:** 50 MB por archivo (carga directa), 10 MB por imagen, 1000 páginas por PDF y 8 millones de caracteres de texto. La acción `accionCargarArchivo` (a través del servidor, 25 MB) sigue existiendo pero la interfaz ya no la usa.
 - **Buckets privados:** `cuarentena` (entrada), `biblioteca-originales` y `biblioteca-derivados` (Markdown). Solo los usa el servidor con service role.
 
 ## Ingesta web → Markdown

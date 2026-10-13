@@ -119,6 +119,11 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - La app apaga el razonamiento en los modelos del catálogo que lo permiten. El panel muestra el origen «biblioteca» en el consumo.
   - Probado en producción: el asistente de ayuda y el bot de la biblioteca responden en español con citas, y el consentimiento aparece antes de enviar. El consumo se registra sin prompts. Costo de unos 0.0001–0.0002 USD por consulta.
   - **Qué se hizo y por qué:** el asistente y el bot ya redactan con una IA de verdad en lugar del modo demo. Se eligió DeepSeek porque es muy barato y porque OpenRouter puede obligar a que solo lo atiendan servidores que no guardan ni aprenden de lo que se les pregunta. Por eso la app lo marca como apto para datos reales. Tiene un tope de gasto para que nunca cueste más de 5 dólares al mes.
+- **05:00** — Subir desde el teléfono o la tableta ([biblioteca](biblioteca.md#centro-de-carga-v1), [expedientes](expedientes.md#subir-documentos-o-fotos)).
+  - Diagnóstico a 390, 768 y 1024 px: el Centro de carga quedaba debajo de la lista de fuentes y de la cola, el menú no decía «subir», el selector era el control nativo diminuto («Choose File»), sin cámara ni varios archivos, y los expedientes no tenían ninguna forma de subir archivos.
+  - Selector compartido con «Elegir archivos», «Tomar foto» (`capture`) y «Galería», varios archivos, barra de avance, arrastrar y soltar en computadora y validación de tipo y tamaño en el navegador y en el servidor. Todo sube directo a Storage con URL firmada.
+  - Biblioteca: Centro de carga arriba, «Subir archivos» en el menú y título opcional (nombre del archivo o «Título (n de N)»). Expedientes: «Subir documentos o fotos» bajo el nombre, con `cargar` + `modificar`; las cuentas cliente solo leen.
+  - Pruebas: unitarias de reglas de carga y e2e `11-carga-movil` a 390, 768 y 1024 px.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).

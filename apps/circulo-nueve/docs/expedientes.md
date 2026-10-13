@@ -12,7 +12,8 @@ Estado: **funciona con Supabase local** y está probado de extremo a extremo.
 | Nueva lectura | «Calcular sin guardar» = **modo efímero**: se calcula en el navegador y no se guarda. «Guardar lectura» recalcula en el servidor y guarda motor, versión, reglas y la huella de las entradas. | `modificar` + consentimiento `guardar_historial` (lo exige la base de datos) |
 | Carta natal | Se calcula en el navegador con la fecha, la hora, la precisión y la zona del perfil, más el lugar y los ajustes elegidos. «Guardar carta natal» la recalcula en el servidor (perfil leído de la base, lugar GeoNames resuelto en la copia del servidor) y guarda motor, reglas, efemérides, versión de la tzdb, ajustes y una huella SHA-256. Ver [astrologia-motor.md](astrologia-motor.md#8-carta-guardada-en-el-expediente-y-pdf). | `modificar` + consentimiento `guardar_historial` (lo exige la base de datos) |
 | Historial | Lecturas de numerología con sus pasos y cartas natales (resumen y carta completa desplegable); generar PDF; borrar. | `abrir_descargar` para el PDF; `borrar` para borrar |
-| Documentos | PDF guardados en privado, con tamaño y fecha de retención. Descargar o borrar. La administración puede dar acceso a un solo archivo. | `abrir_descargar` o permiso de archivo |
+| Subir documentos o fotos | Botón «Subir documentos o fotos» bajo el nombre del expediente (`#subir-documentos`). Elegir archivos, tomar foto con la cámara o elegir de la galería; varios a la vez, barra de avance, arrastrar y soltar en computadora. PDF hasta 25 MB y JPG/PNG/WebP hasta 10 MB. | `cargar` + `modificar` (las cuentas cliente nunca) |
+| Documentos | Reportes PDF y archivos subidos (etiquetas «Reporte» y «Subido»), guardados en privado, con tamaño y fecha de retención. Descargar o borrar. La administración puede dar acceso a un solo archivo. | `abrir_descargar` o permiso de archivo |
 | Permisos del expediente | La administración asigna permisos con vencimiento opcional y los retira. | Administración con `aal2` |
 | Actividad registrada | Últimos eventos de la auditoría del expediente. | Administración |
 | Exportar o borrar | JSON con perfil, consentimientos, lecturas y lista de documentos (auditado). Borrado total con confirmación «BORRAR», incluidos los archivos. | `abrir_descargar` / `borrar` |
@@ -31,6 +32,16 @@ El modo efímero sin cuenta sigue en la página de inicio: no hay sesión ni alm
 3. **Retención:**
    - `documents.retener_hasta` se fija al crear el documento: hoy + `retencion_documentos_dias` (365 por defecto, configurable en `/admin/ajustes`).
    - `npm run retencion:purgar` (con la llave de servicio, programado en GitHub Actions) borra primero el archivo, después el registro, y deja constancia en la auditoría. Después purga los enlaces y la auditoría vencidos (`purgar_registros_vencidos`). Con `--simular` solo lista los documentos que borraría.
+
+## Subir documentos o fotos
+
+`src/modulos/expedientes/acciones-carga.ts` y `src/ui/expedientes/SubirDocumentos.tsx` (usa el mismo selector que la biblioteca):
+
+1. **Preparar:** el servidor comprueba `cargar` y `modificar` en el expediente (`has_case_perm`), el límite de frecuencia `subirDocumento` (60 cada 10 min), la extensión y el tamaño, y entrega una URL firmada de subida a `expedientes/{expediente}/{uuid}.{ext}`.
+2. **Subir:** el navegador sube directo al bucket privado, con barra de avance. Vercel no ve el archivo (límite de 4.5 MB por petición).
+3. **Confirmar:** el servidor descarga el objeto, detecta el formato real (`detectarFormato`; solo PDF, PNG, JPEG y WebP, como el bucket), rechaza PDF con contenido activo y registra `documents` con `tipo = 'adjunto'`, nombre limpio, SHA-256 y tamaño, con la sesión del usuario (RLS + auditoría por trigger). Si algo falla, borra el objeto.
+
+Estos archivos **no** pasan por OCR ni entran a la biblioteca: son datos privados de la persona. El OCR es del pipeline de la biblioteca.
 
 ## Enlaces para compartir
 
