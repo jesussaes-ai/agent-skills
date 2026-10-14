@@ -5,6 +5,8 @@ import { Emblema, Logotipo } from "@/ui/componentes/Marca";
 import { SesionCabecera } from "@/ui/auth/SesionCabecera";
 import { FondoDecorativo } from "@/ui/componentes/FondoDecorativo";
 import { SaltoContenido } from "@/ui/componentes/SaltoContenido";
+import { AvisoVersion } from "@/ui/componentes/AvisoVersion";
+import { versionActual } from "@/modulos/version/version";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -57,6 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <footer className="mx-auto max-w-4xl px-4 pb-8 text-xs text-slate-600">
           En construcción · la demostración usa datos ficticios · uso personal no comercial.
         </footer>
+        <AvisoVersion version={versionActual()} />
       </body>
     </html>
   );

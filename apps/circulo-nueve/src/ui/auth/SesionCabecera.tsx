@@ -4,18 +4,40 @@ import { esAdmin, esSoloCliente, obtenerSesion } from "@/modulos/auth/sesion";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { BotonEnviar } from "./Campos";
 
+const DESTINO_SUBIR = "/biblioteca#centro-de-carga";
+
 export async function SesionCabecera() {
   if (!leerConfigSupabase().configurado) return null;
   const sesion = await obtenerSesion();
   if (!sesion) {
     return (
-      <EnlaceBoton href="/entrar" descripcion="Inicia sesión con la cuenta que te dio la administración.">
-        Entrar
-      </EnlaceBoton>
+      <>
+        <EnlaceBoton
+          href={`/entrar?next=${encodeURIComponent(DESTINO_SUBIR)}`}
+          descripcion="Para subir libros, documentos o fotos primero entra con tu cuenta; después se abre el Centro de carga."
+        >
+          Subir archivos
+        </EnlaceBoton>
+        <EnlaceBoton href="/entrar" variante="principal" descripcion="Inicia sesión con la cuenta que te dio la administración. Sin entrar solo se ve la demostración.">
+          Entrar
+        </EnlaceBoton>
+      </>
     );
   }
+  // Con la contraseña provisional la base aún no entrega permisos; el rol admin ya indica qué verá al elegirla.
+  const debeCambiar = sesion.acceso.debeCambiar;
+  const veFuentes = sesion.acceso.permisos.includes("admin_fuentes") || (debeCambiar && esAdmin(sesion));
   return (
     <>
+      {debeCambiar && (
+        <EnlaceBoton
+          href={`/cuenta/contrasena?obligatorio=1&next=${encodeURIComponent(DESTINO_SUBIR)}`}
+          variante="principal"
+          descripcion="Tu contraseña es provisional. Elige una nueva para usar la app; después se abre el Centro de carga."
+        >
+          Elegir contraseña
+        </EnlaceBoton>
+      )}
       <EnlaceBoton href="/cuenta" descripcion="Tu cuenta: datos, contraseña y verificación en dos pasos.">
         {sesion.acceso.nombre ?? "Mi cuenta"}
       </EnlaceBoton>
@@ -27,7 +49,7 @@ export async function SesionCabecera() {
           Preguntar
         </EnlaceBoton>
       )}
-      {sesion.acceso.permisos.includes("admin_fuentes") && (
+      {veFuentes && (
         <>
           <EnlaceBoton href="/biblioteca" descripcion="Administra las fuentes: centro de carga, páginas web, revisión, versiones y retiro.">
             Biblioteca

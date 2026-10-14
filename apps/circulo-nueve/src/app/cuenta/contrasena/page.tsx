@@ -16,7 +16,7 @@ export default async function PaginaContrasena({ searchParams }: { searchParams:
       <Seccion titulo="Elige tu contraseña" ayuda="cuenta">
         {sesion.acceso.debeCambiar && (
           <p role="note" className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-950" data-testid="aviso-cambio-obligatorio">
-            La administración te dio una contraseña provisional. Elige una nueva, distinta, para poder usar la app.
+            La administración te dio una contraseña provisional. Elige una nueva, distinta, para poder usar la app: al guardarla aparecen la Biblioteca, «Subir archivos» y el resto de tus opciones.
           </p>
         )}
         <FormularioContrasena siguiente={siguiente} />

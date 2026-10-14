@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-13.1",
+  "version": "2026-10-14.1",
   "secciones": [
     {
       "id": "proyecto",
@@ -304,15 +304,16 @@
       "id": "acceso",
       "titulo": "Entrar y recuperar la contraseña",
       "resumen": "Inicio de sesión con el usuario y la contraseña que te da la administración.",
-      "deQueTrata": "No hay registro público ni se usa correo: la administración crea cada cuenta con un nombre de usuario y una contraseña inicial que te entrega en persona o por un canal privado. Se entra con usuario y contraseña; si activaste la verificación en dos pasos, después se pide el código de 6 dígitos. Si la administración lo indicó, la primera vez tendrás que elegir tu propia contraseña antes de seguir. Si olvidas la contraseña, pide a la administración que la restablezca. Por seguridad, el mensaje de error es el mismo si el usuario no existe o la contraseña es incorrecta, y hay un límite de intentos.",
+      "deQueTrata": "No hay registro público ni se usa correo: la administración crea cada cuenta con un nombre de usuario y una contraseña inicial que te entrega en persona o por un canal privado. Se entra con usuario y contraseña; si activaste la verificación en dos pasos, después se pide el código de 6 dígitos. Si la administración lo indicó, la primera vez tendrás que elegir tu propia contraseña antes de seguir. Si olvidas la contraseña, pide a la administración que la restablezca. Por seguridad, el mensaje de error es el mismo si el usuario no existe o la contraseña es incorrecta, y hay un límite de intentos. Sin entrar solo se ve la demostración: el menú muestra «Inicio», «Ayuda», «Subir archivos» y «Entrar», y lo demás aparece al iniciar sesión. Mientras la contraseña sea provisional, la app pide elegir una nueva antes de mostrar la Biblioteca y el Centro de carga. La app instalada en la pantalla de inicio del iPhone o iPad guarda su propia sesión, distinta de la de Safari: hay que entrar también desde ahí. Cuando se publica una versión nueva, la app se recarga sola al volver a abrirla; si estabas escribiendo, muestra «Hay una versión nueva» con el botón «Actualizar ahora».",
       "datosQueUsa": [
         "Tu usuario y tu contraseña, que se comprueban en el servidor de autenticación.",
         "Una cookie de sesión segura en este navegador."
       ],
       "comoSeUsa": [
-        "Pulsa «Entrar» en la barra superior y escribe tu usuario y tu contraseña.",
+        "Pulsa «Entrar» en la barra superior (o «Subir archivos», que te pide entrar y después abre el Centro de carga) y escribe tu usuario y tu contraseña.",
         "El botón del ojo junto a cada contraseña la muestra u oculta para comprobar lo que escribiste. Úsalo solo si nadie está mirando tu pantalla.",
         "Si te lo pide, elige una contraseña nueva distinta de la provisional.",
+        "Si no ves «Subir archivos» después de entrar, revisa que hayas elegido tu contraseña nueva (botón «Elegir contraseña» arriba) y, en la app instalada, que también hayas entrado desde ella.",
         "Si olvidaste la contraseña, pide a la administración que la restablezca.",
         "Pulsa «Salir» para cerrar la sesión."
       ],
@@ -335,7 +336,11 @@
         "recuperar",
         "restablecer",
         "salir",
-        "usuario"
+        "usuario",
+        "no veo subir",
+        "versión nueva",
+        "actualizar",
+        "app instalada"
       ]
     },
     {
@@ -816,7 +821,7 @@
         "El archivo y los metadatos que escribes."
       ],
       "comoSeUsa": [
-        "Abre «Subir archivos» en el menú (o «Biblioteca» › «Subir archivos o fotos»). El Centro de carga está arriba de todo; solo lo ve la administración de fuentes.",
+        "Abre «Subir archivos» en el menú (o «Biblioteca» › «Subir archivos o fotos»). El Centro de carga está arriba de todo; solo lo ve la administración de fuentes. Si no has entrado, «Subir archivos» te pide entrar primero; si tu contraseña es provisional, te pide elegir una nueva y después abre el Centro de carga.",
         "Pulsa «Elegir archivos» para documentos, «Tomar foto» para fotografiar una página con la cámara o «Galería» para fotos que ya tienes. En computadora también puedes arrastrar y soltar. Puedes añadir varios; «Quitar» saca uno de la lista.",
         "Completa referencia, grupo, licencia y quién puede consultarla. El título es opcional: si lo dejas vacío se usa el nombre del archivo; con varios archivos se numeran.",
         "Marca la confirmación de derechos y pulsa «Cargar a cuarentena». Verás el avance de cada archivo y el total.",

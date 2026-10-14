@@ -125,6 +125,17 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - Biblioteca: Centro de carga arriba, «Subir archivos» en el menú y título opcional (nombre del archivo o «Título (n de N)»). Expedientes: «Subir documentos o fotos» bajo el nombre, con `cargar` + `modificar`; las cuentas cliente solo leen.
   - Pruebas: unitarias de reglas de carga y e2e `11-carga-movil` a 390, 768 y 1024 px.
 
+## 14 oct 2026
+- **15:30** — «Subir» visible también sin sesión y con contraseña provisional, y aviso de versión nueva.
+  - Diagnóstico con la cuenta real del dueño (solo lectura):
+    - Es admin con todos los permisos por rol, pero nunca había iniciado sesión desde sus dispositivos.
+    - Sigue con `debe_cambiar_contrasena`, y en ese estado `mi_acceso` entrega `permisos` vacío.
+    - Sin sesión, el menú solo mostraba «Inicio · Ayuda · Entrar». Con la contraseña provisional, ocultaba «Biblioteca» y «Subir archivos».
+    - El despliegue de producción ya incluía #9 y #10. No hay ni hubo service worker, y el HTML se sirve con `no-store`.
+  - Sin sesión: «Subir archivos» en el menú (pide entrar y luego abre el Centro de carga), «Entrar» destacado y un aviso en el inicio. Con contraseña provisional y rol admin: «Elegir contraseña», «Biblioteca» y «Subir archivos»; al guardar la contraseña llega al Centro de carga. Con sesión de administración, el inicio tiene accesos rápidos para subir.
+  - `AvisoVersion` y `/api/version` (id del despliegue). Al volver a primer plano, la app recarga sola si hay una versión nueva; si hay un formulario a medio escribir, muestra «Hay una versión nueva» con un botón. No recarga en bucle y da de baja cualquier service worker que el navegador conserve.
+  - Pruebas: unitarias de `version.ts` y e2e `12-subir-visible` a 390 y 768 px, que también cubre la recarga sin bucle.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
 - Proyecto Supabase remoto (requiere la cuenta de la persona propietaria) y tarea programada para `retencion:purgar`.
