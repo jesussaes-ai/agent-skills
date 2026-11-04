@@ -5,8 +5,9 @@ import { Emblema, Logotipo } from "@/ui/componentes/Marca";
 import { SesionCabecera } from "@/ui/auth/SesionCabecera";
 import { FondoDecorativo } from "@/ui/componentes/FondoDecorativo";
 import { SaltoContenido } from "@/ui/componentes/SaltoContenido";
-import { AvisoVersion } from "@/ui/componentes/AvisoVersion";
-import { versionActual } from "@/modulos/version/version";
+import { VersionApp } from "@/ui/componentes/VersionApp";
+import { BotonTema } from "@/ui/componentes/BotonTema";
+import { APP_VERSION, versionActual } from "@/modulos/version/version";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,21 +19,35 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f1b33",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0f1b33" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1222" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className="relative isolate min-h-screen">
         <FondoDecorativo />
         <SaltoContenido />
         <header className="border-b-2 border-oro-400 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-2">
-            <EnlaceBoton href="/" descripcion="Ir al inicio de Círculo Nueve." className="px-0 py-0">
-              <Logotipo />
-            </EnlaceBoton>
+            <div className="flex flex-wrap items-center gap-2">
+              <EnlaceBoton href="/" descripcion="Ir al inicio de Círculo Nueve." className="px-0 py-0">
+                <Logotipo />
+              </EnlaceBoton>
+              <VersionApp despliegue={versionActual()} numero={APP_VERSION} />
+            </div>
             <nav aria-label="Principal" className="flex flex-wrap items-center gap-2">
+              <EnlaceBoton
+                href="/consulta"
+                variante="principal"
+                className="!px-3 !py-1.5 text-sm"
+                descripcion="Empieza una consulta nueva: pega o dicta la plática, confirma los datos y descarga una sola carta PDF con todo."
+              >
+                ✨ Nueva consulta
+              </EnlaceBoton>
               <EnlaceBoton
                 href="/"
                 className="inline-flex items-center gap-1.5"
@@ -44,11 +59,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <EnlaceBoton
                 href="/ayuda"
                 className="inline-flex items-center gap-1.5"
-                descripcion="Abre el Centro de ayuda con todas las secciones y el asistente."
+                descripcion="🆘 Ayúdame: abre el Centro de ayuda con el uso paso a paso, la guía de todos los botones y el asistente."
               >
-                <Emblema />
-                Ayuda
+                🆘 Ayúdame
               </EnlaceBoton>
+              <BotonTema />
               <SesionCabecera />
             </nav>
           </div>
@@ -59,7 +74,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <footer className="mx-auto max-w-4xl px-4 pb-8 text-xs text-slate-600">
           En construcción · la demostración usa datos ficticios · uso personal no comercial.
         </footer>
-        <AvisoVersion version={versionActual()} />
       </body>
     </html>
   );

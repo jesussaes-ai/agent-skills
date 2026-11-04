@@ -5,6 +5,7 @@ import {
   ACEPTA_IMAGENES,
   MAXIMO_ARCHIVOS_POR_TANDA,
   aceptaDe,
+  esAudioOVideo,
   esImagen,
   tamanoLegible,
   validarArchivo,
@@ -231,7 +232,7 @@ export function SelectorArchivos({ destino, cola, ocupado, nota }: Props) {
                   <div className="min-w-0">
                     <p className="break-all text-sm font-medium text-slate-900">{a.archivo.name}</p>
                     <p className="text-xs text-slate-600">
-                      {esImagen(a.archivo.name) ? "Foto o imagen" : "Documento"} · {tamanoLegible(a.archivo.size)} ·{" "}
+                      {esImagen(a.archivo.name) ? "Foto o imagen" : esAudioOVideo(a.archivo.name) ? "Audio o video" : "Documento"} · {tamanoLegible(a.archivo.size)} ·{" "}
                       <span data-testid="estado-archivo">{NOMBRE_ESTADO[a.estado]}</span>
                     </p>
                   </div>

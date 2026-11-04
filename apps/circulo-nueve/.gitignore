@@ -13,3 +13,7 @@ npm-debug.log*
 test-results/
 playwright-report/
 .cache/
+
+# Worker de la DGX Spark: secreto y caché de modelos
+worker-spark/.env
+worker-spark/cache/

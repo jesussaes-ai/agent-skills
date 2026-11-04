@@ -6,4 +6,5 @@ export { PENSAMIENTOS, pensamientoDe } from "./contenido/pensamientos";
 export { calcularProporcion } from "./proporcion";
 export { reporteDeNumerologia } from "./adaptadores/numerologia";
 export { reporteDeCartaNatal } from "./adaptadores/carta-natal";
+export { reporteIntegral } from "./adaptadores/integral";
 export { COLORES, TIPOGRAFIA } from "./tema";

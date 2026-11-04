@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type MouseEvent, type ReactNode } from "react";
 
 export interface PropsDisparador {
   "aria-describedby": string;
@@ -8,6 +8,10 @@ export interface PropsDisparador {
   onFocus: (e: FocusEvent<HTMLElement>) => void;
   onBlur: () => void;
   onPointerDown: (e: { pointerType: string }) => void;
+  onPointerUp: () => void;
+  onPointerCancel: () => void;
+  onClickCapture: (e: MouseEvent<HTMLElement>) => void;
+  onContextMenu: (e: MouseEvent<HTMLElement>) => void;
 }
 
 interface Props {
@@ -18,6 +22,8 @@ interface Props {
 }
 
 const DURACION_TOQUE_MS = 2500;
+/** En pantallas táctiles, mantener pulsado este tiempo muestra la explicación y anula el toque. */
+const PULSACION_LARGA_MS = 550;
 
 /**
  * Ventana explicativa accesible: se abre con el ratón, con el foco del teclado
@@ -31,6 +37,9 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
   const id = useId();
   const [abierta, setAbierta] = useState(false);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pulsacion = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tras una pulsación larga, el clic que sigue al soltar no debe accionar el botón.
+  const anularClic = useRef(false);
 
   const limpiar = () => {
     if (temporizador.current) clearTimeout(temporizador.current);
@@ -51,7 +60,15 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
     return () => document.removeEventListener("keydown", alPulsar);
   }, [abierta, cerrar]);
 
-  useEffect(() => limpiar, []);
+  const soltar = () => {
+    if (pulsacion.current) clearTimeout(pulsacion.current);
+    pulsacion.current = null;
+  };
+
+  useEffect(() => () => {
+    limpiar();
+    soltar();
+  }, []);
 
   // Centrada bajo el control, la ventana se saldría de la pantalla junto a los bordes (p. ej. en el menú del celular).
   const ventana = useRef<HTMLSpanElement>(null);
@@ -80,9 +97,27 @@ export function Explicacion({ descripcion, children, className = "" }: Props) {
         onPointerDown: (e) => {
           // Con ratón, al pulsar se cierra: la acción puede mostrar contenido nuevo debajo.
           if (e.pointerType !== "touch") return cerrar();
-          limpiar();
-          setAbierta(true);
-          temporizador.current = setTimeout(() => setAbierta(false), DURACION_TOQUE_MS);
+          // Toque corto: acciona el botón. Mantener pulsado: solo explica qué hace.
+          anularClic.current = false;
+          soltar();
+          pulsacion.current = setTimeout(() => {
+            anularClic.current = true;
+            limpiar();
+            setAbierta(true);
+            temporizador.current = setTimeout(() => setAbierta(false), DURACION_TOQUE_MS);
+          }, PULSACION_LARGA_MS);
+        },
+        onPointerUp: soltar,
+        onPointerCancel: soltar,
+        onClickCapture: (e) => {
+          if (!anularClic.current) return;
+          anularClic.current = false;
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        onContextMenu: (e) => {
+          // El menú del sistema al mantener pulsado taparía la explicación.
+          if (anularClic.current || pulsacion.current) e.preventDefault();
         },
       })}
       <span

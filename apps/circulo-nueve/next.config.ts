@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingIncludes: {
     "/*": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*", "public/datos/**/*"],
+    // Carta de «Nueva consulta»: fuentes del PDF y catálogo de lugares (ruta de varios niveles).
+    "/api/consulta/pdf": ["src/reportes/fuentes/**/*", "src/reportes/marca/**/*", "public/datos/**/*"],
     // transformers.js carga onnxruntime-node con createRequire y el trazado no lo ve. Solo Linux x64 (Vercel).
     ...Object.fromEntries(
       ["/biblioteca", "/biblioteca/**"].map((ruta) => [

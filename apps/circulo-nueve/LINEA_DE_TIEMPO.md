@@ -136,9 +136,34 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
   - `AvisoVersion` y `/api/version` (id del despliegue). Al volver a primer plano, la app recarga sola si hay una versión nueva; si hay un formulario a medio escribir, muestra «Hay una versión nueva» con un botón. No recarga en bucle y da de baja cualquier service worker que el navegador conserve.
   - Pruebas: unitarias de `version.ts` y e2e `12-subir-visible` a 390 y 768 px, que también cubre la recarga sin bucle.
 
+## 2 nov 2026 — Claude retoma el proyecto
+- **Diagnóstico:** inspección de línea base (`INSPECCION.md`): faltaban cábala, análisis de la plática, interpretación con fuentes, versión visible, tema oscuro e iconos; el asistente de `/ayuda` gastaba IA de pago sin sesión; el hash de la clave de alta se corrompía por los `$`; subir una foto pedía 12 campos.
+- **Requisitos comprobables** en `REQUISITOS.md` (los 12 mensajes de Jesús + sus reglas globales) y **comparativa** con 19 apps y 37 fuentes libres en `docs/investigacion-competencia.md`.
+- **Cábala** (`src/modulos/calculo/cabala`): gematría hebrea (Hejrají, Gadol, Katán) con transliteración propuesta y aprobada por la persona, reducción visible y correspondencia con las 10 sefirot; 15 pruebas.
+- **Numerología avanzada:** año, mes y día personal; pináculos, desafíos y ciclos; madurez, actitud, tabla de inclusión, kármicos y compatibilidad entre dos personas; 30 pruebas.
+- **Astrología avanzada:** tránsitos, calendario de tránsitos exactos, sinastría, revolución solar, progresiones y arco solar; 23 pruebas.
+- **Biblioteca:** enlaces de YouTube (videos, listas y canales), podcasts (RSS y Apple Podcasts, eligiendo episodios) y audios por enlace; videos y audios grandes se convierten en el navegador a audio ligero; aprobación automática; formulario reducido a lo esencial. Worker para la DGX Spark (yt-dlp, ffmpeg, Whisper) con credencial temporal propia.
+- Migraciones `20261102000100` y `20261102000200` aplicadas en producción con autorización de Jesús (3 nov 2026).
+
+## 3 nov 2026 — v0.2.0 · Worker en la DGX Spark, tema oscuro y versión visible
+- Worker instalado en la Spark (`~/circulo-nueve`, contenedor `circulo-nueve-worker`, se reinicia solo); su huella quedó registrada en `worker_credenciales` con autorización de Jesús.
+- Probado sin escribir en la base: video de YouTube por subtítulos (6 s, enlaces al segundo), lista de YouTube expandida y episodio de podcast de 26 min transcrito en 184 s.
+- Corregido: Whisper siempre transcribía en español y «traducía» los audios en otro idioma. Ahora usa el idioma del feed del podcast o del video (`idiomaWhisper`).
+- **Versión visible arriba** (v0.2.0, desde `package.json`) en todas las pantallas; al pulsarla abre esta línea del tiempo (`/linea-del-tiempo`). Si hay una versión publicada más nueva aparece «⬆️ Actualizar a la vX» y un aviso con «Más tarde»; ya no se recarga sola.
+- **Tema claro y oscuro** con botón 🌙/☀️ arriba; se recuerda en el equipo y por defecto sigue al sistema.
+- **🆘 Ayúdame** en la cabecera y **Guía de todos los botones** en el Centro de ayuda, generada desde el código (`scripts/generar-guia-botones.mts`).
+- La línea del tiempo pasa a `LINEA_DE_TIEMPO.md`, en la raíz de la app, y se muestra igual dentro de la app.
+- **✨ Nueva consulta** (`/consulta`): se pega o dicta la plática y se detectan nombre, fecha, hora y lugar (`src/modulos/consulta/platica.ts`, 18 pruebas); se confirman los datos; se aprueba el nombre en hebreo con teclado en pantalla; se calcula todo junto (numerología, año/mes/día personal, pináculos y desafíos, cábala con sefirot y carta natal) y se descarga **una sola carta PDF** (`/api/consulta/pdf`), fechada en el día local y con el aviso de privacidad al final. El servidor recalcula y no guarda nada.
+- **Iconos completos** y script `scripts/generar-iconos.mts` (favicon SVG/ICO/PNG 16-32, PWA 192/512 normales y maskable, apple 180, .ico de escritorio).
+- Ayuda: secciones nuevas de la consulta; la de cábala deja de decir «pendiente».
+- **Correcciones del inspector (N1–N9):** el tema se recuerda al recargar (la CSP bloqueaba el script en línea); en el teléfono, mantener pulsado un botón solo lo explica y no lo acciona; la guía de botones muestra el nombre de cada botón; sin desborde en la línea del tiempo a 375 px; botones deshabilitados legibles en tema oscuro; mensajes de error del PDF en español; la portada solo nombra lo que incluye; el lugar detectado en la plática se busca solo.
+- **Seguridad (D7):** la IA de pago del asistente de ayuda solo se ofrece con sesión iniciada; sin sesión queda en modo demo.
+
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
-- Proyecto Supabase remoto (requiere la cuenta de la persona propietaria) y tarea programada para `retencion:purgar`.
-- `Content-Security-Policy` con *nonce* al desplegar con el dominio definitivo; revisión manual con lector de pantalla.
+- Tarea programada para `retencion:purgar` en el proyecto Supabase de producción.
+- Revisión manual con lector de pantalla.
 - Texto del aviso de privacidad (lo redacta la persona responsable en `/admin/ajustes`).
-- Cábala (tradición y tabla); interpretaciones redactadas con fuentes de la biblioteca en las lecturas.
+- Interpretaciones redactadas con citas de la biblioteca (80/20) dentro de la carta: falta cargar los libros.
+- Guardar la consulta en un expediente; integrar en pantalla la astrología avanzada (tránsitos, sinastría, revolución solar).
+- Publicar la v0.2.0 e instalarla en todos los equipos.

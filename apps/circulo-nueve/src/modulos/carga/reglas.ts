@@ -11,22 +11,35 @@ const MB = 1024 * 1024;
 
 export const EXTENSIONES_IMAGEN = ["jpg", "jpeg", "png", "webp"] as const;
 
+/** Se convierten en el navegador a audio WebM/Opus antes de subir (ver comprimir-audio.ts). */
+export const CONVERTIDAS_EN_NAVEGADOR = ["mov", "mkv", "aac", "flac"] as const;
+
 export const REGLAS_CARGA = {
   biblioteca: {
     extensiones: [
       "pdf", "epub", "docx", "txt", "md", "markdown", "csv", "xlsx", "ods", "pptx",
       ...EXTENSIONES_IMAGEN,
       "mp3", "wav", "ogg", "oga", "opus", "m4a", "mp4", "m4v", "webm",
+      ...CONVERTIDAS_EN_NAVEGADOR,
     ],
     bytesMaximo: 50 * MB,
+    /** Audio y video: se convierten a audio ligero en el navegador si pasan de 45 MB. */
+    bytesMedio: 8 * 1024 * MB,
     bytesImagen: 10 * MB,
   },
   expediente: {
     extensiones: ["pdf", ...EXTENSIONES_IMAGEN],
     bytesMaximo: 25 * MB,
     bytesImagen: 10 * MB,
+    bytesMedio: 0,
   },
-} as const satisfies Record<DestinoCarga, { extensiones: readonly string[]; bytesMaximo: number; bytesImagen: number }>;
+} as const satisfies Record<DestinoCarga, { extensiones: readonly string[]; bytesMaximo: number; bytesImagen: number; bytesMedio: number }>;
+
+const MEDIOS = new Set(["mp3", "wav", "ogg", "oga", "opus", "m4a", "aac", "flac", "mp4", "m4v", "mov", "webm", "mkv"]);
+
+export function esAudioOVideo(nombre: string): boolean {
+  return MEDIOS.has(extensionDe(nombre));
+}
 
 /** Archivos por tanda: evita que una selección accidental de cientos de fotos sature la cola. */
 export const MAXIMO_ARCHIVOS_POR_TANDA = 20;
@@ -55,6 +68,10 @@ const MIME_POR_EXTENSION: Record<string, string> = {
   mp4: "video/mp4",
   m4v: "video/mp4",
   webm: "video/webm",
+  mov: "video/quicktime",
+  mkv: "video/x-matroska",
+  aac: "audio/aac",
+  flac: "audio/flac",
 };
 
 export function extensionDe(nombre: string): string {
@@ -94,7 +111,7 @@ export function validarArchivo(destino: DestinoCarga, archivo: { name: string; s
   if (!(reglas.extensiones as readonly string[]).includes(ext)) {
     return `El tipo «${ext ? `.${ext}` : "sin extensión"}» no se admite aquí.`;
   }
-  const maximo = esImagen(archivo.name) ? reglas.bytesImagen : reglas.bytesMaximo;
+  const maximo = esImagen(archivo.name) ? reglas.bytesImagen : esAudioOVideo(archivo.name) && reglas.bytesMedio ? reglas.bytesMedio : reglas.bytesMaximo;
   if (archivo.size > maximo) return `Pesa ${tamanoLegible(archivo.size)}; el máximo es ${tamanoLegible(maximo)}.`;
   return null;
 }

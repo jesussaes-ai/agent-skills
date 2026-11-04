@@ -20,6 +20,9 @@ export async function POST(request: NextRequest) {
   if (origen && origen !== request.nextUrl.origin && origen !== process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "")) {
     return error(403, "origen", "Solicitud de otro sitio.");
   }
+  // La IA cuesta dinero: solo la usan personas con sesión. Sin sesión el asistente busca en la ayuda (modo demo).
+  const sesion = await obtenerSesion().catch(() => null);
+  if (!sesion) return error(401, "sin_sesion", "Inicia sesión para preguntar a la IA. Sin sesión el asistente busca en la ayuda.");
   const limite = await consumirLimite("asistente", ipDe(request.headers));
   if (!limite.permitido) {
     return error(429, "limite_cliente", `Demasiadas preguntas seguidas. Espera ${limite.reintentarEnSegundos} s.`);
@@ -34,9 +37,8 @@ export async function POST(request: NextRequest) {
   const leido = esquemaPreguntaAsistente.safeParse(cuerpo);
   if (!leido.success) return error(400, "solicitud", "La pregunta debe tener entre 1 y 300 caracteres y elegir un proveedor aceptado.");
 
-  const sesion = await obtenerSesion().catch(() => null);
   const resultado = await responderAyudaConProveedor(
-    { ...leido.data, usuarioId: sesion?.usuarioId ?? null },
+    { ...leido.data, usuarioId: sesion.usuarioId },
     SECCIONES_AYUDA,
     dependenciasServidor(),
   );

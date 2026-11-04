@@ -1,0 +1,15 @@
+# docker compose -f worker-spark/compose.yaml up -d --build   (desde apps/circulo-nueve)
+services:
+  worker:
+    build:
+      context: ..
+      dockerfile: worker-spark/Dockerfile
+    image: circulo-nueve-worker
+    container_name: circulo-nueve-worker
+    restart: unless-stopped
+    env_file: ./.env
+    volumes:
+      - ./cache:/cache
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ETIQUETA_ESTADO, SECCIONES_AYUDA, VERSION_AYUDA } from "@/content/ayuda";
 import { AsistenteAyuda } from "@/ui/asistente/AsistenteAyuda";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
+import { Desplegable } from "@/ui/componentes/Desplegable";
+import guiaBotones from "@/content/ayuda/guia-botones.json";
 import { Etiqueta } from "@/ui/componentes/Seccion";
 
 export const metadata: Metadata = { title: "Centro de ayuda · Círculo Nueve" };
@@ -29,6 +31,26 @@ export default function CentroDeAyuda() {
       </nav>
 
       <AsistenteAyuda />
+
+      <section id="guia-botones" aria-labelledby="titulo-guia" className="tarjeta-cristal scroll-mt-6 p-5 sm:p-6">
+        <h2 id="titulo-guia" className="text-xl font-semibold text-slate-900">Guía de todos los botones</h2>
+        <p className="mb-4 mt-1 text-sm text-slate-700">
+          Lo que hace cada botón, agrupado por pantalla. Es la misma explicación que aparece al pasar el ratón por encima o al tocarlo en el teléfono.
+        </p>
+        <div className="space-y-2">
+          {guiaBotones.map((g) => (
+            <Desplegable key={g.pantalla} titulo={`${g.pantalla} (${g.botones.length})`} descripcion={`Muestra qué hace cada botón de la pantalla «${g.pantalla}».`}>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700 [overflow-wrap:anywhere]">
+                {g.botones.map((b) => (
+                  <li key={`${b.nombre}|${b.descripcion}`}>
+                    <strong className="text-slate-900">{b.nombre}:</strong> {b.descripcion}
+                  </li>
+                ))}
+              </ul>
+            </Desplegable>
+          ))}
+        </div>
+      </section>
 
       {SECCIONES_AYUDA.map((s) => (
         <article key={s.id} id={s.id} className="tarjeta-cristal scroll-mt-6 p-5 sm:p-6">

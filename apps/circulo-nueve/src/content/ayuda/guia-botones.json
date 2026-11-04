@@ -1,0 +1,493 @@
+[
+  {
+    "pantalla": "Administración",
+    "botones": [
+      {
+        "nombre": "Cerrar",
+        "descripcion": "Cierra el formulario sin guardar."
+      },
+      {
+        "nombre": "Editar",
+        "descripcion": "Edita la configuración de «…»."
+      },
+      {
+        "nombre": "Cancelar",
+        "descripcion": "No borrar."
+      },
+      {
+        "nombre": "Borrar",
+        "descripcion": "Borra «…». Pide confirmación."
+      },
+      {
+        "nombre": "Añadir proveedor",
+        "descripcion": "Abre el formulario para dar de alta un proveedor desde una plantilla (OpenRouter, FreeLLMAPI o compatible con OpenAI)."
+      }
+    ]
+  },
+  {
+    "pantalla": "Ayuda y asistente",
+    "botones": [
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Pregunta: «…»"
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Abre la sección «…» del Centro de ayuda."
+      },
+      {
+        "nombre": "Probar voz",
+        "descripcion": "Lee una frase fija de prueba con la voz elegida. No incluye datos tuyos."
+      },
+      {
+        "nombre": "Detener",
+        "descripcion": "Detiene la lectura en voz alta."
+      },
+      {
+        "nombre": "Permitir micrófono y dictar",
+        "descripcion": "Acepta el aviso, pide permiso al navegador para usar el micrófono y empieza a dictar."
+      },
+      {
+        "nombre": "Cancelar",
+        "descripcion": "Cierra el aviso sin activar el micrófono."
+      },
+      {
+        "nombre": "Detener dictado",
+        "descripcion": "Deja de escuchar el micrófono."
+      },
+      {
+        "nombre": "Dictar pregunta",
+        "descripcion": "Dicta tu pregunta con el micrófono. Antes se muestra un aviso y se pide tu permiso."
+      }
+    ]
+  },
+  {
+    "pantalla": "Biblioteca",
+    "botones": [
+      {
+        "nombre": "← Biblioteca",
+        "descripcion": "Vuelve al catálogo de la biblioteca."
+      },
+      {
+        "nombre": "Subir archivos o fotos",
+        "descripcion": "Lleva al Centro de carga: elige archivos, toma fotos con la cámara o elige de la galería, también desde el teléfono o la tableta."
+      },
+      {
+        "nombre": "Preguntar a la biblioteca",
+        "descripcion": "Abre el bot de la biblioteca para hacer preguntas con citas."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Abre la ficha y la revisión de «…»."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "… el pasaje exacto de la fuente que sustenta esta parte de la respuesta."
+      },
+      {
+        "nombre": "Ver figura",
+        "descripcion": "Abre la imagen original de la figura (enlace temporal). La imagen es la fuente de verdad; la descripción es automática."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Busca en la biblioteca (texto y significado) solo entre las fuentes que puedes consultar y responde con citas verificables."
+      },
+      {
+        "nombre": "Buscar también en complementarias",
+        "descripcion": "Autorizas buscar también en las fuentes complementarias para esta pregunta."
+      },
+      {
+        "nombre": "Marcar todos",
+        "descripcion": "Marca todos los episodios de la lista."
+      },
+      {
+        "nombre": "Quitar todos",
+        "descripcion": "Quita la marca de todos los episodios."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Sube los archivos elegidos. Cada uno se comprueba, se extrae su texto (o se transcribe) y, con la aprobación automática, queda listo para consultar."
+      }
+    ]
+  },
+  {
+    "pantalla": "Carta natal",
+    "botones": [
+      {
+        "nombre": "Restablecer ajustes",
+        "descripcion": "Vuelve a los valores por defecto: tropical, Placidus con respaldo Porfirio, nodo verdadero y orbes estándar."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Abre la ficha de este lugar en GeoNames (sitio externo) para comprobar las coordenadas."
+      },
+      {
+        "nombre": "Cambiar lugar",
+        "descripcion": "Quita este lugar para buscar otro."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Busca la ciudad en el catálogo GeoNames descargado en tu navegador. El nombre que escribes no se envía a nadie."
+      },
+      {
+        "nombre": ", ·",
+        "descripcion": "Usa … (…) como lugar de nacimiento."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Permite escribir latitud, longitud y zona horaria si el lugar no aparece o conoces datos más precisos."
+      },
+      {
+        "nombre": "Usar estas coordenadas",
+        "descripcion": "Usa estas coordenadas y esta zona horaria para la carta."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "… la rueda, las posiciones, las casas, los aspectos y los pasos de esta carta guardada."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Muestra el motor, las efemérides, la zona horaria y cada paso del cálculo para poder reproducirlo."
+      },
+      {
+        "nombre": "Usar el lugar de la demostración",
+        "descripcion": "Usa la Ciudad de México (coordenadas de GeoNames) como lugar de la persona ficticia."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Muestra u oculta el zodiaco, la ayanamsa, el sistema de casas, el nodo y los orbes de los aspectos."
+      },
+      {
+        "nombre": "ocurrencia ( )",
+        "descripcion": "Usa la … vez que el reloj marcó esa hora (…)."
+      }
+    ]
+  },
+  {
+    "pantalla": "Cuenta y acceso",
+    "botones": [
+      {
+        "nombre": "Cambiar contraseña",
+        "descripcion": "Elige una contraseña nueva para tu cuenta."
+      },
+      {
+        "nombre": "Activar verificación en dos pasos",
+        "descripcion": "Añade un código de tu aplicación de autenticación al iniciar sesión. Opcional y recomendado."
+      },
+      {
+        "nombre": "¿Olvidaste tu contraseña?",
+        "descripcion": "Qué hacer si no recuerdas tu contraseña: la restablece la administración."
+      },
+      {
+        "nombre": "Volver a entrar",
+        "descripcion": "Vuelve a la página para entrar."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Genera un código QR y una clave secreta para registrar Círculo Nueve en tu aplicación de autenticación."
+      },
+      {
+        "nombre": "Subir archivos",
+        "descripcion": "Para subir libros, documentos o fotos primero entra con tu cuenta; después se abre el Centro de carga."
+      },
+      {
+        "nombre": "Entrar",
+        "descripcion": "Inicia sesión con la cuenta que te dio la administración. Sin entrar solo se ve la demostración."
+      },
+      {
+        "nombre": "Elegir contraseña",
+        "descripcion": "Tu contraseña es provisional. Elige una nueva para usar la app; después se abre el Centro de carga."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Tu cuenta: datos, contraseña y verificación en dos pasos."
+      },
+      {
+        "nombre": "Expedientes",
+        "descripcion": "Expedientes a los que tienes acceso: perfiles, consentimientos, lecturas y documentos."
+      },
+      {
+        "nombre": "Preguntar",
+        "descripcion": "Pregunta a la biblioteca de fuentes y recibe respuestas con citas verificables."
+      },
+      {
+        "nombre": "Biblioteca",
+        "descripcion": "Administra las fuentes: centro de carga, páginas web, revisión, versiones y retiro."
+      },
+      {
+        "nombre": "Subir archivos",
+        "descripcion": "Sube libros, documentos o fotos a la biblioteca desde el teléfono, la tableta o la computadora. Para el expediente de una persona, usa el botón dentro de su expediente."
+      },
+      {
+        "nombre": "Usuarios",
+        "descripcion": "Crea cuentas con usuario y contraseña, decide qué puede hacer cada asistente y restablece o suspende accesos."
+      },
+      {
+        "nombre": "Ajustes",
+        "descripcion": "Retención de documentos, vigencia de los enlaces de descarga y aviso de privacidad."
+      },
+      {
+        "nombre": "Proveedores IA",
+        "descripcion": "Proveedores de IA: modelos, llaves (solo el nombre del secreto), límites, política de datos y consumo."
+      }
+    ]
+  },
+  {
+    "pantalla": "En todas las pantallas",
+    "botones": [
+      {
+        "nombre": "Intentar de nuevo",
+        "descripcion": "Vuelve a cargar esta sección sin salir de la página."
+      },
+      {
+        "nombre": "Ir al inicio",
+        "descripcion": "Vuelve a la página de inicio."
+      },
+      {
+        "nombre": "Intentar de nuevo",
+        "descripcion": "Vuelve a cargar la aplicación."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Ir al inicio de Círculo Nueve."
+      },
+      {
+        "nombre": "✨ Nueva consulta",
+        "descripcion": "Empieza una consulta nueva: pega o dicta la plática, confirma los datos y descarga una sola carta PDF con todo."
+      },
+      {
+        "nombre": "Inicio",
+        "descripcion": "Vuelve al recorrido de demostración: presentación, consentimiento, perfil y resultados."
+      },
+      {
+        "nombre": "🆘 Ayúdame",
+        "descripcion": "🆘 Ayúdame: abre el Centro de ayuda con el uso paso a paso, la guía de todos los botones y el asistente."
+      },
+      {
+        "nombre": "Centro de ayuda",
+        "descripcion": "Abre el Centro de ayuda."
+      },
+      {
+        "nombre": "Ir a mi cuenta",
+        "descripcion": "Vuelve a tu cuenta."
+      },
+      {
+        "nombre": "?",
+        "descripcion": "… la ayuda de «…»: de qué trata, qué datos usa y cómo se usa."
+      },
+      {
+        "nombre": "Ver en el Centro de ayuda",
+        "descripcion": "Abre esta sección en el Centro de ayuda."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Cambia entre tema claro y oscuro (ahora: …). Se recuerda en este equipo; si nunca lo pulsas, sigue el tema de tu sistema."
+      },
+      {
+        "nombre": "Saltar al contenido",
+        "descripcion": "Salta el menú y lleva el foco directo al contenido de esta página."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Abre la lista completa de zonas horarias, agrupadas por región y con México primero."
+      },
+      {
+        "nombre": "⬆️ Actualizar a la v",
+        "descripcion": "Recarga Círculo Nueve con la v…. Guarda antes lo que estés escribiendo en esta pantalla."
+      },
+      {
+        "nombre": "Actualizar",
+        "descripcion": "Recarga la página con la v…."
+      },
+      {
+        "nombre": "Más tarde",
+        "descripcion": "Oculta este aviso. El botón «⬆️ Actualizar» de arriba se queda para cuando quieras."
+      }
+    ]
+  },
+  {
+    "pantalla": "Enlaces compartidos",
+    "botones": [
+      {
+        "nombre": "Descargar PDF",
+        "descripcion": "Descarga el PDF con un enlace temporal que caduca en segundos. La descarga queda registrada."
+      }
+    ]
+  },
+  {
+    "pantalla": "Expedientes",
+    "botones": [
+      {
+        "nombre": "← Expedientes",
+        "descripcion": "Vuelve a la lista de expedientes."
+      },
+      {
+        "nombre": "Subir documentos o fotos",
+        "descripcion": "Lleva a «Subir documentos o fotos»: elige archivos, toma una foto con la cámara o elige de la galería."
+      },
+      {
+        "nombre": "Exportar expediente (JSON)",
+        "descripcion": "Descarga en JSON el perfil, los consentimientos, las lecturas y la lista de documentos de este expediente. Queda registrado."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Abre el expediente «…»."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Copia el enlace al portapapeles para enviarlo por el medio que prefieras."
+      },
+      {
+        "nombre": "Descargar",
+        "descripcion": "Comprueba tu permiso en el servidor, registra la descarga en la auditoría y abre un enlace temporal que caduca en segundos."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "… las operaciones de …."
+      },
+      {
+        "nombre": "Calcular sin guardar",
+        "descripcion": "Modo efímero: calcula en este navegador y muestra el resultado sin guardarlo en ninguna parte."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Sube los archivos de la lista al almacenamiento privado del expediente. Se comprueba el tipo real de cada uno y queda registrado en la actividad."
+      }
+    ]
+  },
+  {
+    "pantalla": "Inicio y demostración",
+    "botones": [
+      {
+        "nombre": "Entrar para subir archivos",
+        "descripcion": "Entra con tu usuario y contraseña; después se abre el Centro de carga para subir libros, documentos o fotos."
+      },
+      {
+        "nombre": "Subir archivos o fotos",
+        "descripcion": "Centro de carga de la biblioteca: elegir archivos, tomar una foto o elegir de la galería."
+      },
+      {
+        "nombre": "Subir a un expediente",
+        "descripcion": "Abre el expediente de una persona y pulsa «Subir documentos o fotos», debajo de su nombre."
+      },
+      {
+        "nombre": "Empezar una consulta",
+        "descripcion": "Abre la pantalla «Nueva consulta», que hace todo en cuatro pasos."
+      },
+      {
+        "nombre": "Comenzar",
+        "descripcion": "Pasa al aviso de privacidad y a elegir tus permisos."
+      },
+      {
+        "nombre": "Atrás",
+        "descripcion": "Vuelve a la presentación del recorrido."
+      },
+      {
+        "nombre": "Cargar persona ficticia",
+        "descripcion": "Rellena el formulario con una persona inventada para probar la app."
+      },
+      {
+        "nombre": "Vaciar formulario",
+        "descripcion": "Vacía todos los campos del formulario."
+      },
+      {
+        "nombre": "Atrás",
+        "descripcion": "Vuelve al aviso y a los permisos."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "… cada operación usada para obtener …."
+      },
+      {
+        "nombre": "Editar perfil",
+        "descripcion": "Vuelve al formulario para corregir datos o cambiar las reglas."
+      },
+      {
+        "nombre": "Borrar datos de la sesión",
+        "descripcion": "Borra el perfil, los permisos y los resultados de esta sesión y vuelve al inicio."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Muestra el motor, la versión, las reglas y las entradas normalizadas para poder reproducir el cálculo."
+      }
+    ]
+  },
+  {
+    "pantalla": "Nueva consulta",
+    "botones": [
+      {
+        "nombre": "Analizar la plática",
+        "descripcion": "Busca en la plática el nombre completo, la fecha, la hora y el lugar de nacimiento. Después podrás corregirlos."
+      },
+      {
+        "nombre": "Prefiero escribir los datos",
+        "descripcion": "Salta la plática y escribe los datos a mano."
+      },
+      {
+        "nombre": "Continuar",
+        "descripcion": "Sigue al paso del nombre en letras hebreas, para la cábala."
+      },
+      {
+        "nombre": "Atrás",
+        "descripcion": "Vuelve a la plática para corregirla o volver a analizarla."
+      },
+      {
+        "nombre": "Calcular todo",
+        "descripcion": "Calcula numerología, ciclo personal, pináculos, cábala y carta natal con los datos confirmados."
+      },
+      {
+        "nombre": "Seguir sin cábala",
+        "descripcion": "Calcula todo menos la cábala, sin usar la escritura en hebreo."
+      },
+      {
+        "nombre": "Atrás",
+        "descripcion": "Vuelve a los datos de nacimiento."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Genera una sola carta PDF con todos los cálculos, sus pasos, la rueda de la carta natal y el aviso de privacidad al final. No se guarda en el servidor."
+      },
+      {
+        "nombre": "Corregir datos",
+        "descripcion": "Vuelve a los datos para corregir algo y recalcular."
+      },
+      {
+        "nombre": "Nueva consulta",
+        "descripcion": "Borra todo lo de esta consulta y empieza otra."
+      },
+      {
+        "nombre": "(nombre variable)",
+        "descripcion": "Añade la letra … (…). Valor …."
+      },
+      {
+        "nombre": "Espacio",
+        "descripcion": "Añade un espacio entre palabras del nombre."
+      },
+      {
+        "nombre": "⌫ Borrar letra",
+        "descripcion": "Borra la última letra escrita."
+      }
+    ]
+  },
+  {
+    "pantalla": "Subir archivos",
+    "botones": [
+      {
+        "nombre": "Elegir archivos",
+        "descripcion": "Abre tus archivos o documentos (PDF, Word, EPUB, hojas, imágenes…). Puedes elegir varios a la vez."
+      },
+      {
+        "nombre": "Tomar foto",
+        "descripcion": "Abre la cámara del teléfono o la tableta para fotografiar una página o un documento. Repite para añadir más páginas."
+      },
+      {
+        "nombre": "Galería",
+        "descripcion": "Elige una o varias fotos que ya están en la galería del teléfono o la tableta."
+      },
+      {
+        "nombre": "Quitar",
+        "descripcion": "Quita este archivo de la lista; no se sube."
+      }
+    ]
+  }
+]

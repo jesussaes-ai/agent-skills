@@ -13,7 +13,7 @@
       "comoSeUsa": [
         "Recorre el flujo de la página de inicio: bienvenida, consentimiento, perfil y resultados.",
         "Usa el botón «?» de cada sección para ver su ayuda, o abre el Centro de ayuda.",
-        "Consulta la línea del tiempo del proyecto (docs/LINEA-DEL-TIEMPO.md) para ver hitos y pendientes."
+        "Consulta la línea del tiempo del proyecto (botón con el número de versión, arriba) para ver hitos y pendientes."
       ],
       "estado": "demo",
       "palabrasClave": [
@@ -31,6 +31,134 @@
         "hitos",
         "cronología",
         "línea del tiempo"
+      ]
+    },
+    {
+      "id": "version-tema",
+      "titulo": "Versión, tema claro u oscuro y 🆘 Ayúdame",
+      "resumen": "Qué son el número de versión, el botón 🌙/☀️ y el botón 🆘 Ayúdame de la parte de arriba.",
+      "deQueTrata": "Arriba, en todas las pantallas, está el número de versión (por ejemplo v0.2.0). Si se publicó una versión más nueva aparece el botón «⬆️ Actualizar a la vX» y un aviso abajo; la app nunca se recarga sola para no perder lo que estés escribiendo. El botón 🌙/☀️ cambia entre tema claro y oscuro con un toque y se recuerda en este equipo; si nunca lo pulsas, sigue el tema de tu sistema. 🆘 Ayúdame abre este Centro de ayuda, con la guía de todos los botones.",
+      "datosQueUsa": [
+        "El tema elegido se guarda solo en este navegador (almacenamiento local), no en tu cuenta.",
+        "Para saber si hay versión nueva, la app pregunta al servidor el número publicado; no envía datos tuyos."
+      ],
+      "comoSeUsa": [
+        "Pulsa el número de versión para ver la línea del tiempo de cambios.",
+        "Si ves «⬆️ Actualizar a la vX», guarda lo que estés escribiendo y púlsalo.",
+        "Pulsa 🌙 para tema oscuro o ☀️ para tema claro.",
+        "Pulsa 🆘 Ayúdame cuando no sepas qué hace algo; también puedes pasar el ratón por cualquier botón o tocarlo en el teléfono."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "versión",
+        "actualizar",
+        "nueva versión",
+        "tema",
+        "oscuro",
+        "claro",
+        "modo noche",
+        "ayúdame",
+        "ayuda",
+        "línea del tiempo",
+        "botones"
+      ]
+    },
+    {
+      "id": "consulta-platica",
+      "titulo": "Nueva consulta: la plática",
+      "resumen": "Pega o dicta la plática y la app detecta nombre, fecha, hora y lugar.",
+      "deQueTrata": "El primer paso de «Nueva consulta». Escribes, pegas o dictas lo que platicaste con la persona. La app busca frases como «me llamo…», «nací el 15 de julio de 1990», «como a las 8 de la mañana» o «nací en Guadalajara» y propone los datos. No adivina: si algo no aparece, lo marca como faltante para que lo escribas.",
+      "datosQueUsa": [
+        "El texto de la plática se analiza solo en tu navegador; no se envía ni se guarda.",
+        "El dictado usa el reconocimiento de voz del navegador, y solo se activa después de aceptar el aviso."
+      ],
+      "comoSeUsa": [
+        "Pega o dicta la plática en el cuadro.",
+        "Pulsa «Analizar la plática».",
+        "Si prefieres, pulsa «Prefiero escribir los datos» y llénalos a mano."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "plática",
+        "platica",
+        "conversación",
+        "dictar",
+        "analizar",
+        "detectar datos",
+        "nueva consulta"
+      ]
+    },
+    {
+      "id": "consulta-datos",
+      "titulo": "Nueva consulta: confirmar los datos",
+      "resumen": "Revisa y corrige el nombre, la fecha, la hora y el lugar antes de calcular.",
+      "deQueTrata": "Aquí ves lo que la app encontró en la plática, con el fragmento exacto donde lo encontró, y lo puedes corregir. Los datos marcados «revísalo» tienen menos certeza. El lugar se elige del catálogo de GeoNames (o a mano con coordenadas) para que la carta natal sea exacta.",
+      "datosQueUsa": [
+        "Nombre completo de nacimiento, fecha, hora y su precisión, y lugar.",
+        "Nada se guarda: todo vive en esta pestaña."
+      ],
+      "comoSeUsa": [
+        "Corrige lo que haga falta.",
+        "Si no sabes la hora, elige «No sé la hora»: no se calculan casas ni Ascendente.",
+        "Busca el lugar y elígelo en la lista.",
+        "Pulsa «Continuar»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "confirmar",
+        "datos",
+        "fecha",
+        "hora",
+        "lugar",
+        "corregir"
+      ]
+    },
+    {
+      "id": "consulta-hebreo",
+      "titulo": "Nueva consulta: el nombre en letras hebreas",
+      "resumen": "Revisa, corrige y aprueba cómo se escribe el nombre en hebreo para la cábala.",
+      "deQueTrata": "La gematría de la cábala suma los valores de las letras hebreas. Como un nombre en español se puede escribir de varias maneras en hebreo, la app propone una escritura y muestra letra por letra qué regla usó. Tú decides: la corriges con el teclado hebreo y la apruebas. Sin tu aprobación no se calcula la cábala.",
+      "datosQueUsa": [
+        "El nombre completo que confirmaste en el paso anterior."
+      ],
+      "comoSeUsa": [
+        "Revisa la escritura propuesta y abre «Cómo se propuso cada palabra» si quieres ver las reglas.",
+        "Corrige con el teclado hebreo o escribiendo en el cuadro.",
+        "Marca «Apruebo esta escritura» y pulsa «Calcular todo», o «Seguir sin cábala»."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "hebreo",
+        "nombre en hebreo",
+        "teclado hebreo",
+        "transliteración",
+        "escritura",
+        "aprobar escritura"
+      ]
+    },
+    {
+      "id": "consulta-resultados",
+      "titulo": "Nueva consulta: resultados y carta PDF",
+      "resumen": "Todos los cálculos juntos y una sola carta PDF para descargar.",
+      "deQueTrata": "Muestra la numerología (camino de vida, expresión, alma y personalidad), el año, mes y día personal de hoy, los pináculos y desafíos, la cábala (Mispar Hejrají, Gadol y Katán, reducción y sefirot) y la carta natal con su rueda. «Descargar la carta PDF» genera una sola carta con todos los cálculos y sus pasos, fechada en tu día local y con el aviso de privacidad al final. El servidor vuelve a calcular todo con los datos confirmados y no guarda nada.",
+      "datosQueUsa": [
+        "Los datos confirmados y la escritura en hebreo aprobada.",
+        "Para el PDF se envían al servidor solo esos datos; el PDF se entrega y no se guarda."
+      ],
+      "comoSeUsa": [
+        "Revisa los resultados.",
+        "Pulsa «📄 Descargar la carta PDF».",
+        "Pulsa «Corregir datos» para cambiar algo o «Nueva consulta» para empezar otra."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "resultados",
+        "pdf",
+        "carta",
+        "descargar",
+        "lectura integral",
+        "pináculos",
+        "año personal"
       ]
     },
     {
@@ -281,16 +409,19 @@
     },
     {
       "id": "cabala",
-      "titulo": "Cábala (pendiente)",
-      "resumen": "Se implementará cuando se confirme la tradición y la tabla.",
-      "deQueTrata": "Antes de calcular nada hay que confirmar la tradición o enfoque y la tabla de gematría, a partir de los libros que aporte la persona propietaria. Los nombres no se transliteran sin aprobación y no se mezclan tradiciones sin avisar.",
+      "titulo": "Cábala",
+      "resumen": "Gematría hebrea del nombre (Hejrají, Gadol y Katán) y su relación con las 10 sefirot.",
+      "deQueTrata": "La cábala de Círculo Nueve calcula la gematría hebrea del nombre: Mispar Hejrají (valor estándar de cada letra), Mispar Gadol (las cinco letras finales valen 500 a 900) y Mispar Katán (valor reducido), con todos los pasos a la vista. Después reduce el total y relaciona los números de la numerología con las 10 sefirot del Árbol de la Vida, indicando su significado y su pilar. El nombre en español se pasa a letras hebreas con reglas documentadas (versión translit-es-1) y nunca se calcula sin que lo apruebes. Las interpretaciones salen de la biblioteca de fuentes; no se mezclan tradiciones sin avisar.",
       "datosQueUsa": [
-        "Ninguno todavía."
+        "El nombre completo y su escritura en hebreo aprobada por ti.",
+        "Los números de la numerología, para la correspondencia con las sefirot."
       ],
       "comoSeUsa": [
-        "Todavía no está disponible."
+        "Abre «✨ Nueva consulta» y llega al paso «Nombre en hebreo».",
+        "Revisa, corrige y aprueba la escritura.",
+        "Mira los totales, la reducción y las sefirot en «Resultados»; también salen en la carta PDF."
       ],
-      "estado": "pendiente",
+      "estado": "disponible",
       "palabrasClave": [
         "cábala",
         "kabbalah",
@@ -873,6 +1004,37 @@
         "varios",
         "arrastrar",
         "progreso"
+      ]
+    },
+    {
+      "id": "biblioteca-enlaces",
+      "titulo": "Agregar un enlace: YouTube, podcasts, audios y páginas",
+      "resumen": "Pega un enlace y la app lo transcribe o lo lee y lo deja en tu biblioteca.",
+      "deQueTrata": "Acepta videos de YouTube (también Shorts y directos ya grabados), listas y canales completos (cada video, hasta 300, se vuelve una fuente), podcasts (su RSS o su página de Apple Podcasts: eliges los episodios), audios por enlace (MP3, M4A…) y páginas web. Lo procesa la DGX Spark de la casa: de YouTube usa los subtítulos del autor o, si no hay, los automáticos del idioma original; si el video no tiene, descarga solo el audio y lo transcribe con Whisper. Los podcasts y audios se descargan y se transcriben con marcas de tiempo (hasta 4 horas por episodio). Cada fragmento lleva el minuto exacto y, en YouTube, un enlace que abre el video en ese segundo. No se guarda el audio ni el video, solo la transcripción. Spotify no permite descargar episodios: busca el mismo podcast en Apple Podcasts o en su página.",
+      "datosQueUsa": [
+        "El enlace que pegas, el título y la autoría si los escribes, y los episodios que marcas."
+      ],
+      "comoSeUsa": [
+        "Pega el enlace en «Agregar un enlace» y pulsa «Revisar enlace».",
+        "Si es un podcast, marca los episodios (al principio vienen marcados los 5 más recientes).",
+        "Confirma que puedes usar el material y pulsa «Agregar a la biblioteca». Verás el avance en la lista de fuentes."
+      ],
+      "estado": "disponible",
+      "palabrasClave": [
+        "youtube",
+        "video",
+        "lista",
+        "canal",
+        "podcast",
+        "rss",
+        "apple",
+        "spotify",
+        "audio",
+        "mp3",
+        "enlace",
+        "transcribir",
+        "subtítulos",
+        "whisper"
       ]
     },
     {

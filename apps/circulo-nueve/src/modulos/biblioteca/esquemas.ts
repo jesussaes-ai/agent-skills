@@ -21,15 +21,27 @@ export const GRUPOS = [
 export const esquemaMetadatos = z.object({
   titulo: z.string().trim().min(1, "Escribe el título.").max(300),
   autor: opcional(200),
-  referencia: z.string().trim().min(1, "Escribe la referencia (editorial, archivo, URL…).").max(500),
+  // Opcionales: si se dejan vacíos se rellenan con un texto que lo dice (subir no debe costar).
+  referencia: z
+    .string()
+    .trim()
+    .max(500)
+    .default("")
+    .transform((v) => v || "Material aportado por la persona propietaria"),
   edicion: opcional(120),
   idioma: z.string().trim().min(2).max(10).default("es"),
   tradicion: opcional(120),
   grupo: z.enum(["aportada", "complementaria"]),
-  licencia: z.string().trim().min(1, "Indica la licencia o el permiso de uso.").max(300),
+  licencia: z
+    .string()
+    .trim()
+    .max(300)
+    .default("")
+    .transform((v) => v || "Uso personal autorizado por la persona propietaria"),
   notasDerechos: opcional(1000),
-  nivelAcceso: z.enum(["consultores", "publico", "admin"]),
+  nivelAcceso: z.enum(["consultores", "publico", "admin"]).default("consultores"),
   esDemo: z.enum(["on"]).optional(),
+  aprobarAutomatico: z.enum(["on"]).optional(),
   derechos: z.literal("on", { message: "Confirma que tienes derecho a usar esta fuente." }),
 });
 

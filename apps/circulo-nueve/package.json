@@ -1,6 +1,6 @@
 {
   "name": "circulo-nueve",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Aplicación en español para explorar numerología, carta natal y cábala (etapa 1: demo).",
   "license": "UNLICENSED",
@@ -40,6 +40,7 @@
     "jszip": "^3.10.2",
     "linkedom": "^0.18.13",
     "mammoth": "^1.13.0",
+    "mediabunny": "^1.65.0",
     "next": "16.3.8",
     "papaparse": "^5.5.3",
     "pngjs": "^7.0.0",

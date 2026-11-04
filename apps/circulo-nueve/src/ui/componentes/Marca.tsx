@@ -9,7 +9,7 @@ export function Logotipo() {
       alt="Círculo Nueve: emblema circular azul marino con nueve esferas doradas junto al nombre de la aplicación"
       priority
       sizes="204px"
-      className="h-14 w-auto"
+      className="logo-marca h-14 w-auto"
     />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { SelectorZonaHoraria } from "@/ui/componentes/SelectorZonaHoraria";
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import {
   RUTA_CATALOGO,
   aLugarNacimiento,
@@ -38,9 +38,11 @@ interface Props {
   consultaInicial: string;
   lugar: LugarNacimiento | null;
   onElegir: (l: LugarNacimiento | null) => void;
+  /** Si es true y hay consulta inicial, busca en cuanto aparece (p. ej. el lugar detectado en la plática). */
+  buscarAlAbrir?: boolean;
 }
 
-export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
+export function BuscadorLugar({ consultaInicial, lugar, onElegir, buscarAlAbrir = false }: Props) {
   const idConsulta = useId();
   const [consulta, setConsulta] = useState(consultaInicial);
   const [estado, setEstado] = useState<"inicial" | "cargando" | "listo" | "error">("inicial");
@@ -50,8 +52,8 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
   const [m, setM] = useState({ nombre: "", lat: "", lon: "", zona: "" });
   const [errorManual, setErrorManual] = useState("");
 
-  const buscar = async (e: FormEvent) => {
-    e.preventDefault();
+  const buscar = async (e?: FormEvent) => {
+    e?.preventDefault();
     setEstado("cargando");
     try {
       const c = catalogo ?? (await cargarCatalogo());
@@ -62,6 +64,12 @@ export function BuscadorLugar({ consultaInicial, lugar, onElegir }: Props) {
       setEstado("error");
     }
   };
+
+  useEffect(() => {
+    if (buscarAlAbrir && consultaInicial.trim() && !lugar) void buscar();
+    // Solo al abrir: después busca la persona con el botón.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const guardarManual = (e: FormEvent) => {
     e.preventDefault();

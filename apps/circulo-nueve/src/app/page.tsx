@@ -49,9 +49,27 @@ async function AccesoRapido() {
   );
 }
 
+function EmpezarConsulta() {
+  return (
+    <aside data-testid="empezar-consulta" className="tarjeta-cristal mb-6 p-5">
+      <h2 className="text-xl font-semibold text-slate-900">✨ Nueva consulta</h2>
+      <p className="mt-1 text-sm text-slate-700">
+        Pega o dicta la plática, confirma nombre, fecha, hora y lugar, aprueba el nombre en hebreo y descarga una sola carta PDF con numerología, cábala y
+        carta natal.
+      </p>
+      <div className="mt-3">
+        <EnlaceBoton href="/consulta" variante="principal" descripcion="Abre la pantalla «Nueva consulta», que hace todo en cuatro pasos.">
+          Empezar una consulta
+        </EnlaceBoton>
+      </div>
+    </aside>
+  );
+}
+
 export default function Inicio() {
   return (
     <>
+      <EmpezarConsulta />
       <AccesoRapido />
       <AppDemo />
     </>

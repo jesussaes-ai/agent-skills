@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
+import { idiomaWhisper } from "./enlaces";
 import { LIMITES } from "./formatos";
 import type { DocumentoExtraido, Segmento } from "./tipos";
 
@@ -89,14 +90,15 @@ export function agruparTranscripcion(trozos: TrozoWhisper[], duracion: number): 
   return segmentos;
 }
 
-export async function extraerAudioVideo(bytes: Uint8Array, esVideo: boolean): Promise<DocumentoExtraido> {
+/** `idioma`: código ISO de 2 letras del audio (por defecto español). Whisper traduce mal si se le da otro idioma. */
+export async function extraerAudioVideo(bytes: Uint8Array, esVideo: boolean, idioma = "es"): Promise<DocumentoExtraido> {
   const audio = await decodificarAudio(bytes);
   const duracion = audio.length / MUESTREO;
   if (duracion > LIMITES.segundosAudio) throw new Error(`La grabación supera el límite de ${LIMITES.segundosAudio / 60} minutos.`);
   if (duracion < 0.5) throw new Error("La grabación no tiene audio.");
   const modelo = process.env.TRANSCRIPCION_MODELO?.trim() || MODELO_TRANSCRIPCION;
   const asr = await transcriptor(modelo);
-  const r = await asr(audio, { language: "spanish", task: "transcribe", return_timestamps: true, chunk_length_s: 30, stride_length_s: 5 });
+  const r = await asr(audio, { language: idiomaWhisper(idioma), task: "transcribe", return_timestamps: true, chunk_length_s: 30, stride_length_s: 5 });
   const segmentos = agruparTranscripcion(r.chunks ?? [{ timestamp: [0, duracion], text: r.text }], duracion);
   const advertencias = [
     `Transcripción automática (${modelo}); puede contener errores. Revísala antes de aprobar.`,

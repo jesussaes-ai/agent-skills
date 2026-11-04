@@ -14,7 +14,10 @@ export const LIMITES = {
   bytesArchivo: 25 * 1024 * 1024,
   /** Carga directa a Storage con URL firmada (límite por archivo del plan gratuito de Supabase). */
   bytesCargaDirecta: 50 * 1024 * 1024,
-  segundosAudio: 60 * 60,
+  /** 4 horas: el worker de la DGX Spark transcribe podcasts y videos largos. */
+  segundosAudio: 4 * 60 * 60,
+  /** Descarga de un audio de podcast o un enlace de audio. */
+  bytesAudioRemoto: 600 * 1024 * 1024,
   figurasPorDocumento: 40,
   bytesImagen: 10 * 1024 * 1024,
   paginasPdf: 1000,

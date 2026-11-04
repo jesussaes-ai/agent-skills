@@ -2,9 +2,19 @@
 
 Aplicación web en español, para teléfono y computadora, que ayuda a explorar **numerología**, **carta natal** y **cábala** como sistemas simbólicos de reflexión personal. No son hechos científicos, diagnósticos ni predicciones.
 
-Uso personal, no comercial y gratuito.
+Uso personal, no comercial y gratuito. Versión actual: **v0.2.0** (se ve arriba en todas las pantallas).
 
-> **Estado: demo, cuentas, expedientes, PDF, enlaces para compartir y endurecimiento (accesibilidad, límites, lista de seguridad), probados con Supabase local.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas con usuario y contraseña (las crea la administración; sin correo), el alta de administración, la verificación en dos pasos opcional, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Todavía no hay proyecto Supabase remoto. Hitos y pendientes: [docs/LINEA-DEL-TIEMPO.md](docs/LINEA-DEL-TIEMPO.md).
+## Uso rápido
+
+1. Pulsa **✨ Nueva consulta** (arriba o en el inicio).
+2. Pega o dicta la plática con la persona y pulsa «Analizar la plática»: la app detecta nombre, fecha, hora y lugar, y muestra dónde los encontró.
+3. Confirma o corrige los datos y elige el lugar en la lista.
+4. Revisa, corrige (teclado hebreo) y aprueba el nombre en letras hebreas, o sigue sin cábala.
+5. Mira los resultados y pulsa «📄 Descargar la carta PDF»: una sola carta con numerología, año/mes/día personal, pináculos y desafíos, cábala y carta natal, fechada en tu día local y con el aviso de privacidad al final. No se guarda nada.
+
+Arriba también están la versión (púlsala para ver la línea del tiempo; si hay una nueva aparece «⬆️ Actualizar a la vX»), **🆘 Ayúdame** (Centro de ayuda y guía de todos los botones) y el botón **🌙/☀️** de tema claro u oscuro.
+
+> **Estado: v0.2.0 (en preparación; en producción sigue la versión anterior). Se publica en Vercel con Supabase en la nube (proyecto `dsjtbtcyyliqqzkxxbjs`) y worker de ingesta en la DGX Spark; «Nueva consulta», cábala, cuentas, expedientes, PDF, biblioteca y enlaces para compartir.** Sin variables de Supabase, la app funciona en modo demo (sin cuentas; datos ficticios que no salen del navegador). Con Supabase local se activan las cuentas con usuario y contraseña (las crea la administración; sin correo), el alta de administración, la verificación en dos pasos opcional, el panel de usuarios y los expedientes con lecturas guardadas y reportes PDF privados. Hitos y pendientes: [LINEA_DE_TIEMPO.md](LINEA_DE_TIEMPO.md).
 
 ## Qué incluye
 
@@ -13,7 +23,11 @@ Uso personal, no comercial y gratuito.
 | Flujo de demo: presentación → consentimiento granular → perfil → resultados | Demo con datos ficticios |
 | Numerología pitagórica configurable con pasos visibles | Disponible ([reglas](docs/numerologia-reglas.md)) |
 | Carta natal determinista: efemérides MIT (`astronomy-engine`), zona horaria histórica IANA, lugares GeoNames, casas configurables, ayanamsas, aspectos, precisión según los datos | Demo ([motor y casos de referencia](docs/astrologia-motor.md)) |
-| Cábala | Pendiente (se muestra como tal) |
+| **Nueva consulta** `/consulta`: plática → datos → nombre en hebreo → resultados y una sola carta PDF (`/api/consulta/pdf`, recalcula en el servidor y no guarda) | Disponible |
+| Cábala: gematría hebrea (Hejrají, Gadol, Katán), transliteración propuesta y aprobada por la persona con teclado hebreo, reducción y correspondencia con las 10 sefirot | Disponible (`src/modulos/calculo/cabala`) |
+| Numerología avanzada (año/mes/día personal, pináculos, desafíos, ciclos, compatibilidad) y astrología avanzada (tránsitos, sinastría, revolución solar, progresiones) | Motores con pruebas; en pantalla: ciclo personal y pináculos |
+| Versión visible arriba (v0.2.0) con aviso «⬆️ Actualizar a la vX», línea del tiempo `/linea-del-tiempo`, tema claro/oscuro 🌙/☀️, 🆘 Ayúdame y guía de todos los botones | Disponible |
+| Biblioteca: YouTube (videos, listas, canales), podcasts (RSS y Apple) y audios por enlace, transcritos en el worker de la DGX Spark | Disponible ([biblioteca](docs/biblioteca.md)) |
 | Centro de ayuda `/ayuda` y botón «?» en cada sección | Disponible |
 | Ventana explicativa (tooltip) en todos los botones y enlaces | Disponible |
 | Interfaz cálida: tarjetas translúcidas y motivos SVG propios por sección (cuadrado de números, rueda zodiacal, Árbol de la Vida, constelaciones, emblema de nueve esferas), decorativos y sin movimiento si el sistema lo pide; lenguaje inclusivo | Disponible |
@@ -38,7 +52,7 @@ Uso personal, no comercial y gratuito.
 | Subir desde el teléfono o la tableta: botones «Elegir archivos», «Tomar foto» (cámara) y «Galería», varios archivos, barra de avance y arrastrar y soltar, en la Biblioteca (arriba, y «Subir archivos» en el menú) y en cada expediente («Subir documentos o fotos»); validación de tipo y tamaño en el servidor | Funciona con Supabase local y en producción ([biblioteca](docs/biblioteca.md), [expedientes](docs/expedientes.md#subir-documentos-o-fotos)) |
 | Biblioteca multimedia: figuras de PDF (leyenda, OCR, descripción etiquetada; visión opcional), hojas (XLSX/ODS/CSV con hoja y celdas), PPTX, audio y video con transcripción local (Whisper) y marcas de tiempo, carga directa a Storage, ClamAV opcional | Funciona con Supabase local ([detalle](docs/biblioteca.md)) |
 | Despliegue gratuito: Supabase Free (`us-east-1`), Vercel Hobby, worker y ping en GitHub Actions, respaldos cifrados | Guía lista ([despliegue](docs/despliegue.md)) |
-| Supabase remoto, cábala | Pendiente de las cuentas de la persona propietaria / etapas posteriores |
+| Interpretaciones con citas de la biblioteca dentro de la carta (80/20) | Pendiente: la biblioteca aún no tiene libros cargados |
 
 ## Requisitos
 
@@ -169,9 +183,10 @@ Atribución: datos de lugares de [GeoNames](https://www.geonames.org/), licencia
 ## Marca
 
 - Logotipo horizontal en la cabecera (`src/assets/marca/`, servido optimizado con `next/image` y texto alternativo descriptivo).
-- El **emblema circular sin letras** es el icono oficial: `src/app/favicon.ico` (16/32/48), `src/app/icon.png`, `src/app/apple-icon.png` (fondo blanco), iconos PWA en `public/iconos/` (192, 512 y *maskable*) y el icono de la navegación interna (componente `Emblema`).
+- El **emblema circular sin letras** es el icono oficial: `src/app/favicon.ico` (16/32/48/256), `src/app/icon.png`, `src/app/icon.svg`, `src/app/apple-icon.png` (fondo marino), iconos PWA en `public/iconos/` (192, 512 y *maskable*) y el icono de la navegación interna (componente `Emblema`).
 - Paleta: azul marino `#0f1b33` y dorado `#d4a94f` (`src/app/globals.css`). El dorado es decorativo; los textos usan combinaciones con contraste AA o superior.
-- Falta la versión SVG del logotipo; cuando exista, sustituirá al PNG.
+- Todos los iconos se regeneran a partir de `public/iconos/emblema-512.png` con `npx tsx scripts/generar-iconos.mts`: `favicon.ico` (16/32/48/256), `icon.svg`, `icon.png` 256, `apple-icon.png` 180, PWA 192/512 normales y *maskable*, `favicon-16/32.png` y `public/iconos/circulo-nueve-escritorio.ico` para el acceso directo de Windows.
+- En tema oscuro, el logotipo va sobre una placa clara para que se lean sus letras azul marino.
 
 ## Cuentas y Supabase local
 

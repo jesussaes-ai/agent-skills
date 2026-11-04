@@ -96,10 +96,11 @@ describe("lista de seguridad (revisión automática del código)", () => {
   });
 
   it("los archivos de entorno locales no se suben al repositorio", () => {
-    const ignorados = leer(join(RAIZ, ".gitignore"));
+    // En Windows (core.autocrlf) los archivos llegan con CRLF: se normalizan antes de comparar.
+    const ignorados = leer(join(RAIZ, ".gitignore")).replace(/\r\n/g, "\n");
     expect(ignorados).toMatch(/^\.env$/m);
     expect(ignorados).toMatch(/^\.env\*\.local$/m);
-    for (const linea of leer(join(RAIZ, ".env.example")).split("\n")) {
+    for (const linea of leer(join(RAIZ, ".env.example")).split(/\r?\n/)) {
       if (/^(SUPABASE_SERVICE_ROLE_KEY|ADMIN_SETUP_KEY_HASH|LLM_KEY_\w+|LLM_API_KEY)=/.test(linea)) expect(linea).toMatch(/=$/);
     }
   });

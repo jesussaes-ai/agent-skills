@@ -3,6 +3,7 @@ import { EXTENSIONES, LIMITES } from "@/modulos/biblioteca/formatos";
 import { REGLAS_FRECUENCIA } from "@/modulos/seguridad/reglas";
 import {
   ACEPTA_IMAGENES,
+  CONVERTIDAS_EN_NAVEGADOR,
   REGLAS_CARGA,
   aceptaDe,
   mimeDe,
@@ -16,9 +17,16 @@ const MB = 1024 * 1024;
 
 describe("reglas de carga", () => {
   it("la biblioteca acepta exactamente las extensiones y límites del pipeline de ingesta", () => {
-    expect([...REGLAS_CARGA.biblioteca.extensiones].sort()).toEqual(Object.values(EXTENSIONES).flat().sort());
+    // Más los formatos que el navegador convierte a WebM/Opus antes de subir.
+    expect([...REGLAS_CARGA.biblioteca.extensiones].sort()).toEqual([...Object.values(EXTENSIONES).flat(), ...CONVERTIDAS_EN_NAVEGADOR].sort());
     expect(REGLAS_CARGA.biblioteca.bytesMaximo).toBe(LIMITES.bytesCargaDirecta);
     expect(REGLAS_CARGA.biblioteca.bytesImagen).toBe(LIMITES.bytesImagen);
+  });
+
+  it("acepta videos y audios grandes (se convierten antes de subir) pero no documentos grandes", () => {
+    expect(validarArchivo("biblioteca", { name: "taller.mov", size: 2048 * MB })).toBeNull();
+    expect(validarArchivo("biblioteca", { name: "podcast.mp3", size: 300 * MB })).toBeNull();
+    expect(validarArchivo("biblioteca", { name: "libro.pdf", size: 60 * MB })).toMatch(/máximo/);
   });
 
   it("el expediente solo acepta PDF y fotos, como el bucket privado (25 MB)", () => {

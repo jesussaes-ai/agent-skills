@@ -16,6 +16,7 @@ import { fragmentar } from "./fragmentar";
 import { detectarInyeccion } from "./inyeccion";
 import type { DocumentoExtraido } from "./tipos";
 import { ErrorWeb, obtenerPaginaWeb } from "./web";
+import { expandirListaYoutube, extraerAudioRemoto, extraerYoutube } from "./medios-remotos";
 
 const ejecutar = promisify(execFile);
 
@@ -49,7 +50,7 @@ export interface ResultadoTrabajo {
   trabajoId: string;
   fuenteId: string;
   etapa: string;
-  estado: "requiere_revision" | "indexado" | "fallido" | "cedido_al_worker";
+  estado: "requiere_revision" | "indexado" | "fallido" | "cedido_al_worker" | "expandido";
   mensaje: string;
 }
 
@@ -129,7 +130,35 @@ async function extraer(db: SupabaseClient, t: Trabajo, permitirOcr: boolean): Pr
   let formato: Formato | "web";
   const advertencias: string[] = [];
 
-  if (t.url) {
+  if (t.url && fuente.origen === "youtube" && fuente.formato === "youtube-lista") {
+    return expandirLista(db, t, fuente);
+  }
+  if (t.url && (fuente.origen === "youtube" || fuente.origen === "podcast" || fuente.origen === "audio-url")) {
+    formato = "web";
+    const opcionesRed = { permitirLocales: process.env.INGESTA_PERMITIR_HOSTS_LOCALES === "1" };
+    try {
+      if (fuente.origen === "youtube") {
+        const r = await extraerYoutube(t.url);
+        documento = r.documento;
+        await db
+          .from("sources")
+          .update({
+            titulo: fuente.titulo === t.url ? (r.meta.titulo ?? fuente.titulo).slice(0, 300) : fuente.titulo,
+            autor: fuente.autor ?? r.meta.autor ?? null,
+            canal: r.meta.canal ?? null,
+            fecha_publicacion: fuente.fecha_publicacion ?? r.meta.fechaPublicacion ?? null,
+            duracion_segundos: r.meta.duracionSegundos ?? null,
+            fecha_consulta: new Date().toISOString().slice(0, 10),
+          })
+          .eq("id", t.source_id);
+      } else {
+        documento = await extraerAudioRemoto(t.url, opcionesRed, fuente.idioma);
+        await db.from("sources").update({ fecha_consulta: new Date().toISOString().slice(0, 10) }).eq("id", t.source_id);
+      }
+    } catch (e) {
+      throw new ErrorIngesta(e instanceof Error ? e.message : "No se pudo obtener el audio.");
+    }
+  } else if (t.url) {
     formato = "web";
     try {
       documento = await obtenerPaginaWeb(t.url, { permitirLocales: process.env.INGESTA_PERMITIR_HOSTS_LOCALES === "1" });
@@ -249,14 +278,76 @@ async function extraer(db: SupabaseClient, t: Trabajo, permitirOcr: boolean): Pr
       terminado_at: new Date().toISOString(),
     })
     .eq("id", t.id);
-  await db.from("sources").update({ estado: "requiere_revision", formato }).eq("id", t.source_id);
   const sospechosos = fragmentos.filter((f) => f.sospechoso).length;
+  // Las fuentes remotas conservan su formato («youtube», «audio»); las demás guardan el detectado.
+  const formatoFuente = fuente.origen === "archivo" || fuente.origen === "web" ? { formato } : {};
+  if (fuente.aprobar_automatico && !sospechosos) {
+    // Sin señales de instrucciones incrustadas: se aprueba sola y pasa a indexarse.
+    await db.from("sources").update({ estado: "procesando", ...formatoFuente }).eq("id", t.source_id);
+    await db.from("ingestion_jobs").insert({ source_id: t.source_id, source_version_id: versionId, etapa: "indexar", created_by: fuente.created_by ?? null });
+    return {
+      trabajoId: t.id,
+      fuenteId: t.source_id,
+      etapa: t.etapa,
+      estado: "requiere_revision",
+      mensaje: `${fragmentos.length + figuras.total} fragmentos extraídos y aprobados automáticamente; se están indexando.`,
+    };
+  }
+  await db.from("sources").update({ estado: "requiere_revision", ...formatoFuente }).eq("id", t.source_id);
   return {
     trabajoId: t.id,
     fuenteId: t.source_id,
     etapa: t.etapa,
     estado: "requiere_revision",
     mensaje: `${fragmentos.length + figuras.total} fragmentos listos para revisión${figuras.total ? `, ${figuras.total} de figuras` : ""}${sospechosos ? ` (${sospechosos} marcados como posible instrucción incrustada)` : ""}.`,
+  };
+}
+
+/** Una lista, canal o «@usuario» de YouTube se convierte en una fuente por video (máx. 300). */
+async function expandirLista(db: SupabaseClient, t: Trabajo, fuente: Record<string, unknown>): Promise<ResultadoTrabajo> {
+  let info;
+  try {
+    info = await expandirListaYoutube(t.url!);
+  } catch (e) {
+    throw new ErrorIngesta(e instanceof Error ? e.message : "No se pudo leer la lista.");
+  }
+  const { data: existentes } = await db.from("sources").select("url").eq("origen", "youtube");
+  const ya = new Set((existentes ?? []).map((x) => x.url));
+  const nuevas = info.entradas.filter((e) => !ya.has(`https://www.youtube.com/watch?v=${e.id}`));
+  for (const e of nuevas) {
+    const id = randomUUID();
+    const url = `https://www.youtube.com/watch?v=${e.id}`;
+    const { error } = await db.from("sources").insert({
+      id,
+      titulo: e.titulo.slice(0, 300),
+      autor: fuente.autor ?? info.canal,
+      canal: info.canal,
+      referencia: `${info.titulo} (YouTube)`.slice(0, 500),
+      idioma: fuente.idioma,
+      tradicion: fuente.tradicion,
+      grupo: fuente.grupo,
+      licencia: fuente.licencia,
+      notas_derechos: fuente.notas_derechos,
+      nivel_acceso: fuente.nivel_acceso,
+      es_demo: fuente.es_demo,
+      origen: "youtube",
+      formato: "youtube",
+      url,
+      duracion_segundos: e.duracionSegundos,
+      aprobar_automatico: fuente.aprobar_automatico,
+      created_by: fuente.created_by,
+    });
+    if (error) throw new ErrorIngesta(`No se pudo crear la fuente de «${e.titulo}»: ${error.message}`);
+    await db.from("ingestion_jobs").insert({ source_id: id, etapa: "extraer", url, requiere_worker: true, created_by: fuente.created_by });
+  }
+  // La ficha de la lista ya no hace falta: cada video tiene la suya.
+  await db.from("sources").delete().eq("id", t.source_id);
+  return {
+    trabajoId: t.id,
+    fuenteId: t.source_id,
+    etapa: t.etapa,
+    estado: "expandido",
+    mensaje: `«${info.titulo}»: ${nuevas.length} videos en cola${info.entradas.length - nuevas.length ? ` (${info.entradas.length - nuevas.length} ya estaban)` : ""}.`,
   };
 }
 

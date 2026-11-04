@@ -3,11 +3,14 @@ import { exigirPermiso } from "@/modulos/auth/sesion";
 import { clienteSupabaseServidor } from "@/modulos/auth/supabase-servidor";
 import { EnlaceBoton } from "@/ui/componentes/EnlaceBoton";
 import { Etiqueta, Seccion } from "@/ui/componentes/Seccion";
-import { BotonProcesar, FormularioCarga, FormularioWeb } from "@/ui/biblioteca/Formularios";
+import { BotonProcesar, FormularioCarga } from "@/ui/biblioteca/Formularios";
+import { FormularioEnlace } from "@/ui/biblioteca/FormularioEnlace";
 import { NOMBRE_ESTADO } from "@/modulos/biblioteca/estados";
 import { leerConfigSupabase } from "@/modulos/auth/config";
 
 export const dynamic = "force-dynamic";
+
+const ETIQUETA_ORIGEN: Record<string, string> = { web: "Web", youtube: "YouTube", podcast: "Podcast", "audio-url": "Audio (enlace)" };
 export const metadata: Metadata = { title: "Biblioteca · Círculo Nueve" };
 
 export default async function PaginaBiblioteca({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -42,8 +45,11 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
           Fuente retirada: se borraron sus archivos, fragmentos y vectores.
         </p>
       )}
-      <Seccion titulo="Centro de carga" ayuda="biblioteca-carga" id="centro-de-carga">
+      <Seccion titulo="Subir libros, documentos, audios y videos" ayuda="biblioteca-carga" id="centro-de-carga">
         <FormularioCarga supabaseUrl={leerConfigSupabase().url} clavePublica={leerConfigSupabase().clavePublica} />
+      </Seccion>
+      <Seccion titulo="Agregar un enlace: YouTube, podcast, audio o página web" ayuda="biblioteca-enlaces" id="agregar-enlace">
+        <FormularioEnlace />
       </Seccion>
       <Seccion titulo="Fuentes" ayuda="biblioteca">
         {fuentes?.length ? (
@@ -56,7 +62,7 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
                   </EnlaceBoton>
                   <div className="flex flex-wrap gap-2 text-xs">
                     <Etiqueta tono={f.grupo === "aportada" ? "violeta" : "gris"}>{f.grupo === "aportada" ? "Aportada" : "Complementaria"}</Etiqueta>
-                    <Etiqueta tono="gris">{f.origen === "web" ? "Web" : (f.formato ?? "archivo").toUpperCase()}</Etiqueta>
+                    <Etiqueta tono="gris">{ETIQUETA_ORIGEN[f.origen] ?? (f.formato ?? "archivo").toUpperCase()}</Etiqueta>
                     {f.es_demo && <Etiqueta tono="ambar">DEMO</Etiqueta>}
                   </div>
                   {f.estado === "fallido" && f.motivo_fallo && <p className="text-xs text-red-800">{f.motivo_fallo}</p>}
@@ -73,9 +79,6 @@ export default async function PaginaBiblioteca({ searchParams }: { searchParams:
       </Seccion>
       <Seccion titulo="Procesar la cola de ingesta" ayuda="biblioteca">
         <BotonProcesar pendientes={pendientes ?? 0} />
-      </Seccion>
-      <Seccion titulo="Añadir una página web" ayuda="biblioteca-web">
-        <FormularioWeb />
       </Seccion>
     </div>
   );

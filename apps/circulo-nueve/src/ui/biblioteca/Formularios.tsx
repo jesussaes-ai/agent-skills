@@ -21,9 +21,11 @@ import { GRUPOS, NIVELES_ACCESO } from "@/modulos/biblioteca/esquemas";
 import type { EstadoFormulario } from "@/modulos/auth/esquemas";
 import { BotonEnviar, Campo, ESTADO_INICIAL, MensajeFormulario } from "@/ui/auth/Campos";
 import { Boton } from "@/ui/componentes/Boton";
+import { Desplegable } from "@/ui/componentes/Desplegable";
 import { SelectorArchivos, useColaCarga } from "@/ui/carga/SelectorArchivos";
 import { aceptaDe, tituloParaArchivo } from "@/modulos/carga/reglas";
 import { subirConProgreso } from "@/modulos/carga/subir-firmado";
+import { convertirAAudioLigero, necesitaConversion } from "@/modulos/carga/comprimir-audio";
 import { Casilla, Selector } from "@/ui/expedientes/Selector";
 
 const ACEPTA = aceptaDe("biblioteca");
@@ -40,6 +42,7 @@ export interface ValoresFuente {
   notasDerechos?: string | null;
   nivelAcceso?: string;
   esDemo?: boolean;
+  aprobarAutomatico?: boolean;
 }
 
 function CamposMetadatos({
@@ -70,13 +73,14 @@ function CamposMetadatos({
         notasDerechos: enviados.notasDerechos,
         nivelAcceso: enviados.nivelAcceso,
         esDemo: enviados.esDemo === "on",
+        aprobarAutomatico: enviados.aprobarAutomatico === "on",
       }
     : base;
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
         <Campo
-          etiqueta="Título"
+          etiqueta={tituloOpcional ? "Título (opcional)" : "Título"}
           name="titulo"
           defaultValue={valores.titulo}
           required={!tituloOpcional}
@@ -84,33 +88,43 @@ function CamposMetadatos({
           error={e.titulo}
           nota={tituloOpcional ? "Si lo dejas vacío se usa el nombre de cada archivo. Con varios archivos se numeran: «Título (1 de 3)»." : undefined}
         />
-        <Campo etiqueta="Autoría (persona u organización)" name="autor" defaultValue={valores.autor ?? ""} maxLength={200} />
-        <Campo
-          etiqueta="Referencia"
-          name="referencia"
-          defaultValue={valores.referencia}
-          required
-          maxLength={500}
-          error={e.referencia}
-          nota="Editorial y año, archivo de la persona propietaria o URL. Se cita tal cual."
-        />
-        <Campo etiqueta="Edición" name="edicion" defaultValue={valores.edicion ?? ""} maxLength={120} />
-        <Campo etiqueta="Idioma (código)" name="idioma" defaultValue={valores.idioma ?? "es"} maxLength={10} />
-        <Campo etiqueta="Tradición o escuela" name="tradicion" defaultValue={valores.tradicion ?? ""} maxLength={120} />
+        <Campo etiqueta="Autoría (opcional)" name="autor" defaultValue={valores.autor ?? ""} maxLength={200} />
         <Selector etiqueta="Grupo" name="grupo" defaultValue={valores.grupo ?? "aportada"} opciones={GRUPOS} />
-        <Selector etiqueta="Quién puede consultarla" name="nivelAcceso" defaultValue={valores.nivelAcceso ?? "consultores"} opciones={NIVELES_ACCESO} />
-        <Campo
-          etiqueta="Licencia o permiso de uso"
-          name="licencia"
-          defaultValue={valores.licencia}
-          required
-          maxLength={300}
-          error={e.licencia}
-          nota="P. ej. «Dominio público», «CC BY 4.0», «Autorización escrita del autor»."
-        />
-        <Campo etiqueta="Notas de derechos (opcional)" name="notasDerechos" defaultValue={valores.notasDerechos ?? ""} maxLength={1000} />
+        <Campo etiqueta="Tradición o tema (opcional)" name="tradicion" defaultValue={valores.tradicion ?? ""} maxLength={120} nota="P. ej. numerología, astrología, cábala." />
       </div>
-      <Casilla etiqueta="Es un documento ficticio de demostración" name="esDemo" defaultChecked={valores.esDemo} />
+      <Casilla
+        etiqueta="Aprobar e indexar automáticamente (recomendado). Si algo parece una instrucción escondida, se detiene para que lo revises."
+        name="aprobarAutomatico"
+        defaultChecked={valores.aprobarAutomatico ?? true}
+      />
+      <Desplegable
+        titulo="Más datos (opcional): referencia, edición, idioma, licencia y quién la consulta"
+        descripcion="Abre los datos bibliográficos y de derechos. Si los dejas vacíos se rellenan solos con un texto que lo indica."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Campo
+            etiqueta="Referencia"
+            name="referencia"
+            defaultValue={valores.referencia}
+            maxLength={500}
+            error={e.referencia}
+            nota="Editorial y año, archivo o URL. Se cita tal cual. Vacío: «Material aportado por la persona propietaria»."
+          />
+          <Campo etiqueta="Edición" name="edicion" defaultValue={valores.edicion ?? ""} maxLength={120} />
+          <Campo etiqueta="Idioma (código)" name="idioma" defaultValue={valores.idioma ?? "es"} maxLength={10} />
+          <Selector etiqueta="Quién puede consultarla" name="nivelAcceso" defaultValue={valores.nivelAcceso ?? "consultores"} opciones={NIVELES_ACCESO} />
+          <Campo
+            etiqueta="Licencia o permiso de uso"
+            name="licencia"
+            defaultValue={valores.licencia}
+            maxLength={300}
+            error={e.licencia}
+            nota="P. ej. «Dominio público», «CC BY 4.0». Vacío: «Uso personal autorizado por la persona propietaria»."
+          />
+          <Campo etiqueta="Notas de derechos" name="notasDerechos" defaultValue={valores.notasDerechos ?? ""} maxLength={1000} />
+        </div>
+        <Casilla etiqueta="Es un documento ficticio de demostración" name="esDemo" defaultChecked={valores.esDemo} />
+      </Desplegable>
       {conDerechos && (
         <div>
           <Casilla etiqueta="Confirmo que tengo derecho a usar esta fuente y que no se elude ningún DRM, muro de pago o inicio de sesión." name="derechos" />
@@ -142,11 +156,24 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
     try {
       for (const [i, item] of pendientes.entries()) {
         cola.actualizar(item.id, { estado: "subiendo", progreso: 0, mensaje: undefined });
+        let archivo = item.archivo;
+        if (necesitaConversion(archivo)) {
+          // Videos y audios grandes: se queda solo la voz, en un audio ligero, antes de subir.
+          try {
+            cola.actualizar(item.id, { mensaje: "Convirtiendo a audio ligero (solo la voz)…" });
+            archivo = await convertirAAudioLigero(archivo, (f) => cola.actualizar(item.id, { progreso: f * 0.5 }));
+            cola.actualizar(item.id, { mensaje: `Convertido a ${(archivo.size / 1024 / 1024).toFixed(1)} MB. Subiendo…` });
+          } catch (error) {
+            cola.actualizar(item.id, { estado: "error", progreso: 0, mensaje: error instanceof Error ? error.message : "No se pudo convertir." });
+            continue;
+          }
+        }
+        const convertido = archivo !== item.archivo;
         const datos = new FormData();
         for (const [clave, valor] of base.entries()) datos.append(clave, valor);
         datos.set("titulo", tituloParaArchivo(titulo, item.archivo.name, i, pendientes.length));
-        datos.set("nombreArchivo", item.archivo.name);
-        datos.set("tamanoArchivo", String(item.archivo.size));
+        datos.set("nombreArchivo", archivo.name);
+        datos.set("tamanoArchivo", String(archivo.size));
         const preparada = await accionPrepararCargaDirecta(datos);
         if (!preparada.ok || !preparada.ruta || !preparada.token || !preparada.fuenteId) {
           const motivo = preparada.errores?.archivo ?? preparada.mensaje;
@@ -160,15 +187,15 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
         }
         const subida = await subirConProgreso(
           { supabaseUrl, clavePublica, bucket: "cuarentena", ruta: preparada.ruta, token: preparada.token },
-          item.archivo,
-          (fraccion) => cola.actualizar(item.id, { progreso: fraccion }),
+          archivo,
+          (fraccion) => cola.actualizar(item.id, { progreso: convertido ? 0.5 + fraccion / 2 : fraccion }),
         );
         if (!subida.ok) {
           await accionCancelarCargaDirecta(preparada.fuenteId, subida.mensaje ?? "error de red");
           cola.actualizar(item.id, { estado: "error", mensaje: `No se pudo subir: ${subida.mensaje}` });
           continue;
         }
-        const confirmada = await accionConfirmarCargaDirecta(preparada.fuenteId, item.archivo.name);
+        const confirmada = await accionConfirmarCargaDirecta(preparada.fuenteId, archivo.name);
         if (confirmada.ok) correctos += 1;
         cola.actualizar(item.id, {
           estado: confirmada.ok ? "hecho" : "error",
@@ -179,7 +206,7 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
       setEstado(
         fallidos
           ? { mensaje: `Subidos ${correctos} de ${pendientes.length}. ${fallidos === 1 ? "Un archivo no se pudo subir" : `${fallidos} archivos no se pudieron subir`}: revisa el motivo en la lista.` }
-          : { ok: true, mensaje: `Listo: ${correctos} de ${pendientes.length} en cuarentena. Pulsa «Procesar pendientes ahora» o espera al procesamiento automático; las fotos pasan por OCR.` },
+          : { ok: true, mensaje: `Listo: ${correctos} de ${pendientes.length} subidos. Se procesan solos (los audios, videos y escaneados, en la DGX Spark); verás el avance en la lista de fuentes.` },
       );
       router.refresh();
     } finally {
@@ -193,7 +220,7 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
         destino="biblioteca"
         cola={cola}
         ocupado={subiendo}
-        nota="Documentos (PDF, también escaneados, EPUB, DOCX, TXT, Markdown), hojas (CSV, XLSX, ODS), presentaciones (PPTX), fotos o imágenes (JPG, PNG, WebP; pasan por OCR), audio (MP3, WAV, OGG, M4A) y video (MP4, WebM). Hasta 50 MB por archivo y 10 MB por foto; hasta 20 archivos por tanda. Se comprueba el formato real y se rechazan macros y contenido activo."
+        nota="Libros y documentos (PDF, también escaneados, EPUB, DOCX, TXT, Markdown), hojas (CSV, XLSX, ODS), presentaciones (PPTX), fotos (JPG, PNG, WebP; pasan por OCR), audios y podcasts (MP3, M4A, WAV, OGG, AAC, FLAC) y videos propios (MP4, MOV, MKV, WebM). Documentos hasta 50 MB y fotos hasta 10 MB. Los audios y videos de cualquier tamaño (hasta 4 horas) se convierten aquí mismo a un audio ligero antes de subir. Hasta 20 archivos por tanda."
       />
       {estado.errores?.archivo && <p className="text-sm text-red-700">{estado.errores.archivo}</p>}
       <CamposMetadatos estado={estado} tituloOpcional />
@@ -202,9 +229,9 @@ export function FormularioCarga({ supabaseUrl, clavePublica }: { supabaseUrl: st
         type="submit"
         disabled={subiendo}
         aria-busy={subiendo || undefined}
-        descripcion="Sube los archivos elegidos, comprueba cada uno y lo deja en cuarentena con un trabajo de ingesta pendiente. Nada se indexa sin tu revisión."
+        descripcion="Sube los archivos elegidos. Cada uno se comprueba, se extrae su texto (o se transcribe) y, con la aprobación automática, queda listo para consultar."
       >
-        {subiendo ? "Subiendo…" : "Cargar a cuarentena"}
+        {subiendo ? "Subiendo…" : "Subir a la biblioteca"}
       </Boton>
     </form>
   );

@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { decidirActualizacion, versionActual } from "./version";
+import { APP_VERSION, compararVersiones, hayActualizacion, versionActual } from "./version";
 
 describe("versionActual", () => {
   it("usa el despliegue de Vercel, luego el commit y si no «local»", () => {
@@ -9,19 +11,27 @@ describe("versionActual", () => {
   });
 });
 
-describe("decidirActualizacion", () => {
-  const base = { local: "v1", editando: false, recargadaPara: null };
-  it("no hace nada si la versión coincide o el servidor no responde", () => {
-    expect(decidirActualizacion({ ...base, remota: "v1" })).toBe("nada");
-    expect(decidirActualizacion({ ...base, remota: null })).toBe("nada");
+describe("número de versión", () => {
+  it("sale de package.json con formato X.Y.Z", () => {
+    const paquete = JSON.parse(readFileSync(join(__dirname, "..", "..", "..", "package.json"), "utf8"));
+    expect(APP_VERSION).toBe(paquete.version);
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
   });
-  it("recarga sola si hay versión nueva y no se está llenando un formulario", () => {
-    expect(decidirActualizacion({ ...base, remota: "v2" })).toBe("recargar");
+  it("la línea del tiempo menciona la versión actual", () => {
+    const linea = readFileSync(join(__dirname, "..", "..", "..", "LINEA_DE_TIEMPO.md"), "utf8");
+    expect(linea).toContain(`v${APP_VERSION}`);
   });
-  it("avisa en lugar de recargar si hay un formulario a medio llenar", () => {
-    expect(decidirActualizacion({ ...base, remota: "v2", editando: true })).toBe("avisar");
+  it("compara por números, no como texto", () => {
+    expect(compararVersiones("1.10.0", "1.9.9")).toBeGreaterThan(0);
+    expect(compararVersiones("v0.2.0", "0.2.0")).toBe(0);
+    expect(compararVersiones("0.1.9", "0.2.0")).toBeLessThan(0);
   });
-  it("no recarga en bucle si tras recargar la versión sigue sin coincidir", () => {
-    expect(decidirActualizacion({ ...base, remota: "v2", recargadaPara: "v2" })).toBe("avisar");
+});
+
+describe("hayActualizacion", () => {
+  it("solo si el servidor responde con otro despliegue", () => {
+    expect(hayActualizacion({ local: "v1", remota: "v1" })).toBe(false);
+    expect(hayActualizacion({ local: "v1", remota: null })).toBe(false);
+    expect(hayActualizacion({ local: "v1", remota: "v2" })).toBe(true);
   });
 });

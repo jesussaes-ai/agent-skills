@@ -2,9 +2,11 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SECCIONES_AYUDA } from "@/content/ayuda";
+import guiaBotones from "@/content/ayuda/guia-botones.json";
+import { armarGuia } from "@/modulos/ayuda/guia-botones";
 
 const RAIZ = join(__dirname, "..");
-const PERMITIDOS = new Set(["ui/componentes/Boton.tsx", "ui/componentes/EnlaceBoton.tsx"]);
+const PERMITIDOS = new Set(["ui/componentes/Boton.tsx", "ui/componentes/EnlaceBoton.tsx", "ui/componentes/Desplegable.tsx"]);
 
 function archivosTsx(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -38,6 +40,13 @@ describe("convenciones de la interfaz", () => {
     const usados = archivos.flatMap((a) => [...a.codigo.matchAll(/\b(?:ayuda|seccion)="([^"]+)"/g)].map((m) => m[1]));
     expect(usados.length).toBeGreaterThan(0);
     for (const id of usados) expect(ids.has(id), id).toBe(true);
+  });
+});
+
+describe("guía de todos los botones", () => {
+  it("está al día con el código (si falla: npx tsx scripts/generar-guia-botones.mts)", () => {
+    expect(guiaBotones).toEqual(armarGuia(archivos));
+    expect(guiaBotones.reduce((n, g) => n + g.botones.length, 0)).toBeGreaterThan(50);
   });
 });
 

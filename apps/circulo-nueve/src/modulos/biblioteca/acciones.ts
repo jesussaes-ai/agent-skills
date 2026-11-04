@@ -56,6 +56,7 @@ function metadatosAFila(d: ReturnType<typeof esquemaMetadatos.parse>) {
     notas_derechos: d.notasDerechos,
     nivel_acceso: d.nivelAcceso,
     es_demo: d.esDemo === "on",
+    aprobar_automatico: d.aprobarAutomatico === "on",
   };
 }
 

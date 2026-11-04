@@ -23,6 +23,188 @@
 
 :root {
   color-scheme: light;
+  --fondo-pagina: #f7f5ef;
+  --texto-pagina: #0f172a;
+  --cristal: rgb(255 255 255 / 0.82);
+  --cristal-borde: rgb(255 255 255 / 0.7);
+  --brillo-a: rgb(212 169 79 / 0.16);
+  --brillo-b: rgb(15 27 51 / 0.07);
+}
+
+/* Tema oscuro: la paleta se invierte escalón por escalón (50 ↔ 950, 100 ↔ 900…), así cada
+   pareja «fondo claro + texto oscuro» pasa a «fondo oscuro + texto claro» con el mismo contraste.
+   Se activa con el botón 🌙/☀️ (data-tema) o, si no se eligió, siguiendo al sistema. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --tema-oscuro: 1;
+  }
+}
+:root[data-tema="oscuro"] {
+  --tema-oscuro: 1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --color-slate-50:  oklch(12.9% 0.042 264.695);
+    --color-slate-100:  oklch(20.8% 0.042 265.755);
+    --color-slate-200:  oklch(27.9% 0.041 260.031);
+    --color-slate-300:  oklch(37.2% 0.044 257.287);
+    --color-slate-400:  oklch(44.6% 0.043 257.281);
+    --color-slate-500:  oklch(55.4% 0.046 257.417);
+    --color-slate-600:  oklch(70.4% 0.04 256.788);
+    --color-slate-700:  oklch(86.9% 0.022 252.894);
+    --color-slate-800:  oklch(92.9% 0.013 255.508);
+    --color-slate-900:  oklch(96.8% 0.007 247.896);
+    --color-slate-950:  oklch(98.4% 0.003 247.858);
+    --color-red-50:  oklch(25.8% 0.092 26.042);
+    --color-red-100:  oklch(39.6% 0.141 25.723);
+    --color-red-200:  oklch(44.4% 0.177 26.899);
+    --color-red-300:  oklch(50.5% 0.213 27.518);
+    --color-red-400:  oklch(57.7% 0.245 27.325);
+    --color-red-500:  oklch(63.7% 0.237 25.331);
+    --color-red-600:  oklch(70.4% 0.191 22.216);
+    --color-red-700:  oklch(80.8% 0.114 19.571);
+    --color-red-800:  oklch(88.5% 0.062 18.334);
+    --color-red-900:  oklch(93.6% 0.032 17.717);
+    --color-red-950:  oklch(97.1% 0.013 17.38);
+    --color-amber-50:  oklch(27.9% 0.077 45.635);
+    --color-amber-100:  oklch(41.4% 0.112 45.904);
+    --color-amber-200:  oklch(47.3% 0.137 46.201);
+    --color-amber-300:  oklch(55.5% 0.163 48.998);
+    --color-amber-400:  oklch(66.6% 0.179 58.318);
+    --color-amber-500:  oklch(76.9% 0.188 70.08);
+    --color-amber-600:  oklch(82.8% 0.189 84.429);
+    --color-amber-700:  oklch(87.9% 0.169 91.605);
+    --color-amber-800:  oklch(92.4% 0.12 95.746);
+    --color-amber-900:  oklch(96.2% 0.059 95.617);
+    --color-amber-950:  oklch(98.7% 0.022 95.277);
+    --color-emerald-50:  oklch(26.2% 0.051 172.552);
+    --color-emerald-100:  oklch(37.8% 0.077 168.94);
+    --color-emerald-200:  oklch(43.2% 0.095 166.913);
+    --color-emerald-300:  oklch(50.8% 0.118 165.612);
+    --color-emerald-400:  oklch(59.6% 0.145 163.225);
+    --color-emerald-500:  oklch(69.6% 0.17 162.48);
+    --color-emerald-600:  oklch(76.5% 0.177 163.223);
+    --color-emerald-700:  oklch(84.5% 0.143 164.978);
+    --color-emerald-800:  oklch(90.5% 0.093 164.15);
+    --color-emerald-900:  oklch(95% 0.052 163.051);
+    --color-emerald-950:  oklch(97.9% 0.021 166.113);
+    --color-sky-50:  oklch(29.3% 0.066 243.157);
+    --color-sky-100:  oklch(39.1% 0.09 240.876);
+    --color-sky-200:  oklch(44.3% 0.11 240.79);
+    --color-sky-300:  oklch(50% 0.134 242.749);
+    --color-sky-400:  oklch(58.8% 0.158 241.966);
+    --color-sky-500:  oklch(68.5% 0.169 237.323);
+    --color-sky-600:  oklch(74.6% 0.16 232.661);
+    --color-sky-700:  oklch(82.8% 0.111 230.318);
+    --color-sky-800:  oklch(90.1% 0.058 230.902);
+    --color-sky-900:  oklch(95.1% 0.026 236.824);
+    --color-sky-950:  oklch(97.7% 0.013 236.62);
+    --color-marino-50:  #0a1324;
+    --color-marino-100:  #0f1b33;
+    --color-marino-200:  #17264a;
+    --color-marino-300:  #22345a;
+    --color-marino-600:  #9aa9c6;
+    --color-marino-700:  #c3cddf;
+    --color-marino-800:  #e1e6ef;
+    --color-marino-900:  #f2f4f8;
+    --color-oro-50:  #5e450d;
+    --color-oro-100:  #7a5a12;
+    --color-oro-300:  #b98d33;
+    --color-oro-400:  #d4a94f;
+    --color-oro-500:  #e2c27a;
+    --color-oro-700:  #f5e9c8;
+    --color-oro-800:  #fbf6e9;
+    --color-white: #121b2e;
+    --color-black: #fff;
+    color-scheme: dark;
+    --fondo-pagina: #0b1222;
+    --texto-pagina: #e8ecf3;
+    --cristal: rgb(18 27 46 / 0.86);
+    --cristal-borde: rgb(255 255 255 / 0.08);
+    --brillo-a: rgb(212 169 79 / 0.1);
+    --brillo-b: rgb(120 150 220 / 0.08);
+  }
+}
+:root[data-tema="oscuro"] {
+  --color-slate-50:  oklch(12.9% 0.042 264.695);
+  --color-slate-100:  oklch(20.8% 0.042 265.755);
+  --color-slate-200:  oklch(27.9% 0.041 260.031);
+  --color-slate-300:  oklch(37.2% 0.044 257.287);
+  --color-slate-400:  oklch(44.6% 0.043 257.281);
+  --color-slate-500:  oklch(55.4% 0.046 257.417);
+  --color-slate-600:  oklch(70.4% 0.04 256.788);
+  --color-slate-700:  oklch(86.9% 0.022 252.894);
+  --color-slate-800:  oklch(92.9% 0.013 255.508);
+  --color-slate-900:  oklch(96.8% 0.007 247.896);
+  --color-slate-950:  oklch(98.4% 0.003 247.858);
+  --color-red-50:  oklch(25.8% 0.092 26.042);
+  --color-red-100:  oklch(39.6% 0.141 25.723);
+  --color-red-200:  oklch(44.4% 0.177 26.899);
+  --color-red-300:  oklch(50.5% 0.213 27.518);
+  --color-red-400:  oklch(57.7% 0.245 27.325);
+  --color-red-500:  oklch(63.7% 0.237 25.331);
+  --color-red-600:  oklch(70.4% 0.191 22.216);
+  --color-red-700:  oklch(80.8% 0.114 19.571);
+  --color-red-800:  oklch(88.5% 0.062 18.334);
+  --color-red-900:  oklch(93.6% 0.032 17.717);
+  --color-red-950:  oklch(97.1% 0.013 17.38);
+  --color-amber-50:  oklch(27.9% 0.077 45.635);
+  --color-amber-100:  oklch(41.4% 0.112 45.904);
+  --color-amber-200:  oklch(47.3% 0.137 46.201);
+  --color-amber-300:  oklch(55.5% 0.163 48.998);
+  --color-amber-400:  oklch(66.6% 0.179 58.318);
+  --color-amber-500:  oklch(76.9% 0.188 70.08);
+  --color-amber-600:  oklch(82.8% 0.189 84.429);
+  --color-amber-700:  oklch(87.9% 0.169 91.605);
+  --color-amber-800:  oklch(92.4% 0.12 95.746);
+  --color-amber-900:  oklch(96.2% 0.059 95.617);
+  --color-amber-950:  oklch(98.7% 0.022 95.277);
+  --color-emerald-50:  oklch(26.2% 0.051 172.552);
+  --color-emerald-100:  oklch(37.8% 0.077 168.94);
+  --color-emerald-200:  oklch(43.2% 0.095 166.913);
+  --color-emerald-300:  oklch(50.8% 0.118 165.612);
+  --color-emerald-400:  oklch(59.6% 0.145 163.225);
+  --color-emerald-500:  oklch(69.6% 0.17 162.48);
+  --color-emerald-600:  oklch(76.5% 0.177 163.223);
+  --color-emerald-700:  oklch(84.5% 0.143 164.978);
+  --color-emerald-800:  oklch(90.5% 0.093 164.15);
+  --color-emerald-900:  oklch(95% 0.052 163.051);
+  --color-emerald-950:  oklch(97.9% 0.021 166.113);
+  --color-sky-50:  oklch(29.3% 0.066 243.157);
+  --color-sky-100:  oklch(39.1% 0.09 240.876);
+  --color-sky-200:  oklch(44.3% 0.11 240.79);
+  --color-sky-300:  oklch(50% 0.134 242.749);
+  --color-sky-400:  oklch(58.8% 0.158 241.966);
+  --color-sky-500:  oklch(68.5% 0.169 237.323);
+  --color-sky-600:  oklch(74.6% 0.16 232.661);
+  --color-sky-700:  oklch(82.8% 0.111 230.318);
+  --color-sky-800:  oklch(90.1% 0.058 230.902);
+  --color-sky-900:  oklch(95.1% 0.026 236.824);
+  --color-sky-950:  oklch(97.7% 0.013 236.62);
+  --color-marino-50:  #0a1324;
+  --color-marino-100:  #0f1b33;
+  --color-marino-200:  #17264a;
+  --color-marino-300:  #22345a;
+  --color-marino-600:  #9aa9c6;
+  --color-marino-700:  #c3cddf;
+  --color-marino-800:  #e1e6ef;
+  --color-marino-900:  #f2f4f8;
+  --color-oro-50:  #5e450d;
+  --color-oro-100:  #7a5a12;
+  --color-oro-300:  #b98d33;
+  --color-oro-400:  #d4a94f;
+  --color-oro-500:  #e2c27a;
+  --color-oro-700:  #f5e9c8;
+  --color-oro-800:  #fbf6e9;
+  --color-white: #121b2e;
+  --color-black: #fff;
+  color-scheme: dark;
+  --fondo-pagina: #0b1222;
+  --texto-pagina: #e8ecf3;
+  --cristal: rgb(18 27 46 / 0.86);
+  --cristal-borde: rgb(255 255 255 / 0.08);
+  --brillo-a: rgb(212 169 79 / 0.1);
+  --brillo-b: rgb(120 150 220 / 0.08);
 }
 
 html {
@@ -30,13 +212,13 @@ html {
 }
 
 body {
-  background-color: #f7f5ef;
+  background-color: var(--fondo-pagina);
   background-image:
-    radial-gradient(60rem 40rem at -10% -10%, rgb(212 169 79 / 0.16), transparent 60%),
-    radial-gradient(50rem 36rem at 110% 20%, rgb(15 27 51 / 0.07), transparent 65%),
+    radial-gradient(60rem 40rem at -10% -10%, var(--brillo-a), transparent 60%),
+    radial-gradient(50rem 36rem at 110% 20%, var(--brillo-b), transparent 65%),
     radial-gradient(40rem 30rem at 50% 120%, rgb(212 169 79 / 0.12), transparent 60%);
   background-attachment: fixed;
-  color: #0f172a;
+  color: var(--texto-pagina);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -44,8 +226,8 @@ body {
    aunque detrás haya motivos decorativos. */
 .tarjeta-cristal {
   border-radius: 1rem;
-  border: 1px solid rgb(255 255 255 / 0.7);
-  background: rgb(255 255 255 / 0.82);
+  border: 1px solid var(--cristal-borde);
+  background: var(--cristal);
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.8) inset,
     0 0 0 1px rgb(212 169 79 / 0.18),
@@ -62,6 +244,20 @@ body {
 
 .giro-lento {
   animation: giro-lento 240s linear infinite;
+}
+
+/* El logotipo tiene letras azul marino: en tema oscuro va sobre una placa clara para leerse. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .logo-marca {
+    background: #f7f5ef;
+    border-radius: 0.75rem;
+    padding: 2px 8px;
+  }
+}
+:root[data-tema="oscuro"] .logo-marca {
+  background: #f7f5ef;
+  border-radius: 0.75rem;
+  padding: 2px 8px;
 }
 
 [hidden] {

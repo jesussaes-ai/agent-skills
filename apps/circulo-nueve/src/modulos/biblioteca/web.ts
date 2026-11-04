@@ -65,6 +65,50 @@ async function pedir(url: URL, opciones: OpcionesWeb): Promise<Response> {
   throw new ErrorWeb("Demasiadas redirecciones.");
 }
 
+/**
+ * Descarga binaria con las mismas protecciones (sin redes internas, redirecciones revisadas)
+ * y un tope de bytes. Para audios de podcast, que suelen pasar por varios redireccionadores.
+ */
+export async function descargarSeguro(
+  direccion: string,
+  maxBytes: number,
+  opciones: OpcionesWeb & { tiempoMs?: number; accept?: string } = {},
+): Promise<Uint8Array> {
+  const f = opciones.fetch ?? fetch;
+  let actual = new URL(direccion);
+  for (let i = 0; i <= 8; i++) {
+    await validarDestino(actual, opciones);
+    const respuesta = await f(actual, {
+      redirect: "manual",
+      headers: { "user-agent": AGENTE, accept: opciones.accept ?? "*/*" },
+      signal: AbortSignal.timeout(opciones.tiempoMs ?? 15 * 60_000),
+    });
+    if (respuesta.status >= 300 && respuesta.status < 400 && respuesta.headers.get("location")) {
+      actual = new URL(respuesta.headers.get("location")!, actual);
+      continue;
+    }
+    if (!respuesta.ok) throw new ErrorWeb(`El servidor respondió ${respuesta.status}.`);
+    const megas = Math.round(maxBytes / 1024 / 1024);
+    if (Number(respuesta.headers.get("content-length") ?? 0) > maxBytes) throw new ErrorWeb(`El archivo supera ${megas} MB.`);
+    const lector = respuesta.body?.getReader();
+    if (!lector) return new Uint8Array();
+    const partes: Uint8Array[] = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await lector.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await lector.cancel();
+        throw new ErrorWeb(`El archivo supera ${megas} MB.`);
+      }
+      partes.push(value);
+    }
+    return new Uint8Array(Buffer.concat(partes));
+  }
+  throw new ErrorWeb("Demasiadas redirecciones.");
+}
+
 async function leerLimitado(respuesta: Response): Promise<string> {
   const declarado = Number(respuesta.headers.get("content-length") ?? 0);
   if (declarado > LIMITES.bytesWeb) throw new ErrorWeb("La página supera el límite de 5 MB.");
