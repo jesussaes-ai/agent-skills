@@ -1,0 +1,8 @@
+# Nunca subir secretos ni cachés locales a Vercel
+.env*
+!.env.example
+worker-spark/
+.cache/
+.claude/
+test-results/
+playwright-report/
