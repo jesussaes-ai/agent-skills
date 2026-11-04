@@ -17,3 +17,6 @@ playwright-report/
 # Worker de la DGX Spark: secreto y caché de modelos
 worker-spark/.env
 worker-spark/cache/
+
+.env*
+!.env.example
