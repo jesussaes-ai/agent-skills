@@ -158,6 +158,7 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
 - Ayuda: secciones nuevas de la consulta; la de cábala deja de decir «pendiente».
 - **Correcciones del inspector (N1–N9):** el tema se recuerda al recargar (la CSP bloqueaba el script en línea); en el teléfono, mantener pulsado un botón solo lo explica y no lo acciona; la guía de botones muestra el nombre de cada botón; sin desborde en la línea del tiempo a 375 px; botones deshabilitados legibles en tema oscuro; mensajes de error del PDF en español; la portada solo nombra lo que incluye; el lugar detectado en la plática se busca solo.
 - **Seguridad (D7):** la IA de pago del asistente de ayuda solo se ofrece con sesión iniciada; sin sesión queda en modo demo.
+- **Publicada el 4 nov 2026** en circulo-nueve.vercel.app (Vercel, despliegue con la CLI; `.vercelignore` evita subir secretos). Comprobado en producción: `/api/version` da 0.2.0, la carta PDF responde 200 y el asistente sin sesión, 401. Actualizada en el S23, el S26 y la Tab S10; acceso directo con icono propio en la laptop jesus-sanchez.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
@@ -166,4 +167,4 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
 - Texto del aviso de privacidad (lo redacta la persona responsable en `/admin/ajustes`).
 - Interpretaciones redactadas con citas de la biblioteca (80/20) dentro de la carta: falta cargar los libros.
 - Guardar la consulta en un expediente; integrar en pantalla la astrología avanzada (tránsitos, sinastría, revolución solar).
-- Publicar la v0.2.0 e instalarla en todos los equipos.
+- Instalar la app en la laptop hpjsecasa (no hay acceso remoto): abrir circulo-nueve.vercel.app en Edge → ⋯ → Aplicaciones → Instalar este sitio como aplicación.
