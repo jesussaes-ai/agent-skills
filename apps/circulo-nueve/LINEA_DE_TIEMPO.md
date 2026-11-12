@@ -159,7 +159,7 @@ Registro cronológico de hitos y decisiones (hora UTC, más reciente al final). 
 - **Correcciones del inspector (N1–N9):** el tema se recuerda al recargar (la CSP bloqueaba el script en línea); en el teléfono, mantener pulsado un botón solo lo explica y no lo acciona; la guía de botones muestra el nombre de cada botón; sin desborde en la línea del tiempo a 375 px; botones deshabilitados legibles en tema oscuro; mensajes de error del PDF en español; la portada solo nombra lo que incluye; el lugar detectado en la plática se busca solo.
 - **Seguridad (D7):** la IA de pago del asistente de ayuda solo se ofrece con sesión iniciada; sin sesión queda en modo demo.
 - **Publicada el 4 nov 2026** en circulo-nueve.vercel.app (Vercel, despliegue con la CLI; `.vercelignore` evita subir secretos). Comprobado en producción: `/api/version` da 0.2.0, la carta PDF responde 200 y el asistente sin sesión, 401. Actualizada en el S23, el S26 y la Tab S10; acceso directo con icono propio en la laptop jesus-sanchez.
-- 10 nov 2026: acceso directo con icono propio también en la laptop hpjsecasa (HPJSETRABAJO), instalado por SSH; desde ella la app responde v0.2.0. Ya está en todos los equipos.
+- 10 nov 2026: acceso directo con icono propio también en la laptop hpjsetrabajo (antes «hpjsecasa» en Tailscale), instalado por SSH; desde ella la app responde v0.2.0. Ya está en todos los equipos.
 
 ## Pendiente
 - Repo propio `jesussaes-ai/circulo-nueve` (extraer con `git subtree split`).
